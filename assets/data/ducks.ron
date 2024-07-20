@@ -1,0 +1,16 @@
+(
+    items: [
+        (
+            name: "duck1",
+            position: (150.0, 250.0),
+            scale: (4.0, 4.0, 1.0),
+            sprite: Ducky,
+        ),
+        (
+            name: "duck2",
+            position: (250.0, 150.0),
+            scale: (2.0, 2.0, 1.0),
+            sprite: Ducky,
+        ),
+    ],
+)

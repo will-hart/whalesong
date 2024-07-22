@@ -16,13 +16,8 @@ pub(super) fn plugin(app: &mut App) {
     );
 
     // Apply movement based on controls.
-    app.register_type::<(Movement, WrapWithinWindow)>();
-    app.add_systems(
-        Update,
-        (apply_movement, wrap_within_window)
-            .chain()
-            .in_set(AppSet::Update),
-    );
+    app.register_type::<DespawnWhenOutOfWindow>();
+    app.add_systems(Update, (despawn_out_of_view).chain().in_set(AppSet::Update));
 }
 
 #[derive(Component, Reflect, Default)]
@@ -35,12 +30,6 @@ fn record_movement_controller(
 ) {
     // Collect directional input.
     let mut intent = Vec2::ZERO;
-    if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
-        intent.y += 1.0;
-    }
-    if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-        intent.y -= 1.0;
-    }
     if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
         intent.x -= 1.0;
     }
@@ -68,29 +57,24 @@ pub struct Movement {
     pub speed: f32,
 }
 
-fn apply_movement(
-    time: Res<Time>,
-    mut movement_query: Query<(&MovementController, &Movement, &mut Transform)>,
-) {
-    for (controller, movement, mut transform) in &mut movement_query {
-        let velocity = movement.speed * controller.0;
-        transform.translation += velocity.extend(0.0) * time.delta_seconds();
-    }
-}
-
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct WrapWithinWindow;
+pub struct DespawnWhenOutOfWindow;
 
-fn wrap_within_window(
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    mut wrap_query: Query<&mut Transform, With<WrapWithinWindow>>,
+fn despawn_out_of_view(
+    mut commands: Commands,
+    windows: Query<&Window, With<PrimaryWindow>>,
+    despawners: Query<(Entity, &Transform), With<DespawnWhenOutOfWindow>>,
 ) {
-    let size = window_query.single().size() + 256.0;
-    let half_size = size / 2.0;
-    for mut transform in &mut wrap_query {
-        let position = transform.translation.xy();
-        let wrapped = (position + half_size).rem_euclid(size) - half_size;
-        transform.translation = wrapped.extend(transform.translation.z);
+    let height = windows.single().height() + 100.0;
+    let half_height = height / 2.0;
+
+    for (entity, transform) in &despawners {
+        let position = transform.translation.y;
+
+        // only need to check one way here as these things are moving "up" the screen
+        if position > half_height {
+            commands.entity(entity).despawn();
+        }
     }
 }

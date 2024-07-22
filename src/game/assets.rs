@@ -18,7 +18,8 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect, Debug, Serialize, Deserialize)]
 pub enum ImageKey {
-    Ducky,
+    Creatures,
+    Features,
 }
 
 impl AssetKey for ImageKey {
@@ -28,15 +29,24 @@ impl AssetKey for ImageKey {
 impl FromWorld for HandleMap<ImageKey> {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
-        [(
-            ImageKey::Ducky,
-            asset_server.load_with_settings(
-                "images/ducky.png",
-                |settings: &mut ImageLoaderSettings| {
-                    settings.sampler = ImageSampler::nearest();
-                },
+        [
+            (
+                ImageKey::Creatures,
+                asset_server.load_with_settings(
+                    "images/creatures.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
             ),
-        )]
+            (
+                ImageKey::Features,
+                asset_server.load_with_settings(
+                    "images/features.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear();
+                    },
+                ),
+            ),
+        ]
         .into()
     }
 }
@@ -45,10 +55,6 @@ impl FromWorld for HandleMap<ImageKey> {
 pub enum SfxKey {
     ButtonHover,
     ButtonPress,
-    Step1,
-    Step2,
-    Step3,
-    Step4,
 }
 
 impl AssetKey for SfxKey {
@@ -67,10 +73,6 @@ impl FromWorld for HandleMap<SfxKey> {
                 SfxKey::ButtonPress,
                 asset_server.load("audio/sfx/button_press.ogg"),
             ),
-            (SfxKey::Step1, asset_server.load("audio/sfx/step1.ogg")),
-            (SfxKey::Step2, asset_server.load("audio/sfx/step2.ogg")),
-            (SfxKey::Step3, asset_server.load("audio/sfx/step3.ogg")),
-            (SfxKey::Step4, asset_server.load("audio/sfx/step4.ogg")),
         ]
         .into()
     }

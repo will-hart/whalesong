@@ -3,14 +3,10 @@
 use bevy::prelude::*;
 
 use super::Screen;
-use crate::{
-    game::{assets::SoundtrackKey, audio::soundtrack::PlaySoundtrack},
-    ui::prelude::*,
-};
+use crate::ui::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Credits), enter_credits);
-    app.add_systems(OnExit(Screen::Credits), exit_credits);
 
     app.add_systems(
         Update,
@@ -31,22 +27,13 @@ fn enter_credits(mut commands: Commands) {
         .insert(StateScoped(Screen::Credits))
         .with_children(|children| {
             children.header("Made by");
-            children.label("Alice - Foo");
-            children.label("Bob - Bar");
+            children.label("Will Hart");
 
             children.header("Assets");
             children.label("Bevy logo - All rights reserved by the Bevy Foundation. Permission granted for splash screen use when unmodified.");
-            children.label("Ducky sprite - CC0 by Caz Creates Games");
-            children.label("Music - CC BY 3.0 by Kevin MacLeod");
 
             children.button("Back").insert(CreditsAction::Back);
         });
-
-    commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Credits));
-}
-
-fn exit_credits(mut commands: Commands) {
-    commands.trigger(PlaySoundtrack::Disable);
 }
 
 fn handle_credits_action(

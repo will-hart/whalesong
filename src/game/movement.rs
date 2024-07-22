@@ -104,19 +104,12 @@ fn move_to_y_pos(
     for (entity, mover, mut transform) in &mut movers {
         let delta_y = mover.y - transform.translation.y;
         if delta_y.abs() < 0.5 {
-            info!("Finished moving");
             commands.entity(entity).remove::<MoveToY>();
             continue;
         }
 
         // we're moving down so "delta_y" should always be negative
         let movement = (-mover.speed * time.delta_seconds()).max(delta_y);
-
-        info!(
-            "{delta_y} / {movement} --> {} @ {}",
-            mover.y, transform.translation.y
-        );
-
         transform.translation.y += movement;
     }
 }

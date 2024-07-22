@@ -53,14 +53,25 @@
   - [ ] day/night
   - [ ] wind
   - [ ] rain
-  - [ ] storms
+  - [ ] storm
   - [ ] snow
 - [ ] stretch goals
   - [ ] periodically come up to breathe
   - [ ] add the easter egg
   - [ ] add more encounters
   - [ ] add more music
-
+  - [ ] use something like `bevy_tween` to add more "juice" to whale entry animation
+  - [ ] use something like `bevy_trickfilm` to make animations easier
+- [ ] bugs
+  - [ ] starting wave animations all start at the same frame so they're all in sync
+- [ ] jam admin
+  - [x] update `Cargo.toml`
+  - [x] fix CI yaml file
+  - [ ] set up itch page
+  - [ ] do a test release
+  - [ ] do a "Final final v1 latest" release before the jam ends
+  - [ ] deploy to itch
+  - [ ] test deployed version
 
 
 ## Template

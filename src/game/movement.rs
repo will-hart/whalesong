@@ -77,7 +77,10 @@ fn despawn_out_of_view(
     windows: Query<&Window, With<PrimaryWindow>>,
     despawners: Query<(Entity, &Transform), With<DespawnWhenOutOfWindow>>,
 ) {
-    let height = windows.single().height() + 100.0;
+    let height = match windows.get_single() {
+        Ok(w) => w.height() + 100.0,
+        Err(_) => return,
+    };
     let half_height = height / 2.0;
 
     for (entity, transform) in &despawners {

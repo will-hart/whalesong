@@ -33,15 +33,14 @@ fn spawn_player(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     windows: Query<&Window, With<PrimaryWindow>>,
 ) {
-    // A texture atlas is a way to split one image with a grid into multiple sprites.
-    // By attaching it to a [`SpriteBundle`] and providing an index, we can specify which section of the image we want to see.
-    // We will use this to animate our player character. You can learn more about texture atlases in this example:
-    // https://github.com/bevyengine/bevy/blob/latest/examples/2d/texture_atlas.rs
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    let height = windows.single().height();
+    let height = match windows.get_single() {
+        Ok(w) => w.height(),
+        Err(_) => return,
+    };
     let half_height = height / 2.0;
 
     commands
@@ -50,7 +49,7 @@ fn spawn_player(
             Player,
             SpriteBundle {
                 texture: image_handles[&ImageKey::Creatures].clone_weak(),
-                transform: Transform::from_xyz(0.0, half_height + 96., 0.),
+                transform: Transform::from_xyz(0.0, half_height + 64., 0.),
                 ..Default::default()
             },
             TextureAtlas {
@@ -61,7 +60,7 @@ fn spawn_player(
             Movement { speed: 420.0 },
             MoveToY {
                 y: half_height * 0.67,
-                speed: 150.,
+                speed: 75.,
             },
             player_animation,
             StateScoped(Screen::Playing),

@@ -39,7 +39,10 @@ pub(super) fn plugin(app: &mut App) {
 fn spawn_initial_waves(mut commands: Commands, windows: Query<&Window, With<PrimaryWindow>>) {
     let mut rng = rand::thread_rng();
 
-    let size = windows.single().size();
+    let size = match windows.get_single() {
+        Ok(w) => w.size(),
+        Err(_) => return,
+    };
     let x_range = (-size.x / 2.0 + 32.)..(size.x / 2.0 - 32.);
     let y_range = (-size.y / 2.0 + 32.)..(size.y / 2.0 - 32.);
 
@@ -64,7 +67,17 @@ fn spawn_random_waves(
     let mut rng = rand::thread_rng();
     *next_spawn = time.elapsed_seconds() + rng.gen_range(1.0..3.0);
 
-    let size = windows.single().size();
+    let size = match windows.get_single() {
+        Ok(w) => w.size(),
+        Err(_) => return,
+    };
+
+    if size.length_squared() < 1. {
+        // window is probably minimised? in a real game I guess we could cache the window size
+        // so there aren't huge gaps in waves, but whatever
+        return;
+    }
+
     let y = -(size.y / 2.) - 64.;
     let x = rng.gen_range((-size.x / 2.0 + 32.)..(size.x / 2.0 - 32.));
 

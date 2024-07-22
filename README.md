@@ -55,6 +55,9 @@
   - [ ] rain
   - [ ] storm
   - [ ] snow
+- [ ] polish
+  - [ ] restyle the menu
+  - [ ] update the credits
 - [ ] stretch goals
   - [ ] periodically come up to breathe
   - [ ] add the easter egg
@@ -64,6 +67,7 @@
   - [ ] use something like `bevy_trickfilm` to make animations easier
 - [ ] bugs
   - [ ] starting wave animations all start at the same frame so they're all in sync
+  - [x] crash in movement when window minimised or in the background due to `windows.single()`
 - [ ] jam admin
   - [x] update `Cargo.toml`
   - [x] fix CI yaml file

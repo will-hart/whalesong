@@ -172,12 +172,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.86"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3d1d046238990b9cf5bcde22a3fb3584ee5cf65fb2765f454ed428c7a0063da"
-
-[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -447,19 +441,6 @@ dependencies = [
  "serde",
  "thiserror",
  "wgpu-types",
-]
-
-[[package]]
-name = "bevy_common_assets"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f631ce2863f3b6f1af3fa24143363b9fbd21c44218caad495a17b83e6968256"
-dependencies = [
- "anyhow",
- "bevy",
- "ron",
- "serde",
- "thiserror",
 ]
 
 [[package]]
@@ -847,7 +828,6 @@ name = "bevy_quickstart"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "leafwing_manifest",
  "log",
  "rand",
  "ron",
@@ -2351,17 +2331,6 @@ name = "lazycell"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
-
-[[package]]
-name = "leafwing_manifest"
-version = "0.2.0"
-source = "git+https://github.com/will-hart/leafwing_manifest?branch=feature/support-other-loaders#c0f682e0c5b17d97ea1e1cd89e439ed5876fe265"
-dependencies = [
- "bevy",
- "bevy_common_assets",
- "serde",
- "thiserror",
-]
 
 [[package]]
 name = "lewton"

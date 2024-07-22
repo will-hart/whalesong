@@ -1,4 +1,3 @@
-mod data;
 #[cfg(feature = "dev")]
 mod dev_tools;
 mod game;
@@ -56,7 +55,6 @@ impl Plugin for AppPlugin {
 
         // Add other plugins.
         app.add_plugins((
-            data::plugin,
             state::example::plugin,
             game::plugin,
             screen::plugin,

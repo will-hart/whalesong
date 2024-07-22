@@ -1,7 +1,4 @@
-
-4D59B2
-
-# Bevy Quickstart Template
+# Whalesong
 
 This repo used a slightly modified version of the [bevy quickstart template](https://github.com/TheBevyFlock/bevy_quickstart/).
 

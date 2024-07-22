@@ -20,6 +20,7 @@ pub(super) fn plugin(app: &mut App) {
 pub enum ImageKey {
     Creatures,
     Features,
+    Icons,
 }
 
 impl AssetKey for ImageKey {
@@ -30,6 +31,13 @@ impl FromWorld for HandleMap<ImageKey> {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
         [
+            (
+                ImageKey::Icons,
+                asset_server.load_with_settings(
+                    "images/icons.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
             (
                 ImageKey::Creatures,
                 asset_server.load_with_settings(

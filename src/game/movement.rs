@@ -7,6 +7,8 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::AppSet;
 
+use super::spawn::player::PlayerHelp;
+
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
     app.register_type::<MovementController>();
@@ -17,7 +19,12 @@ pub(super) fn plugin(app: &mut App) {
 
     // Apply movement based on controls.
     app.register_type::<DespawnWhenOutOfWindow>();
-    app.add_systems(Update, (despawn_out_of_view).chain().in_set(AppSet::Update));
+    app.add_systems(
+        Update,
+        (despawn_out_of_view, move_to_y_pos)
+            .chain()
+            .in_set(AppSet::Update),
+    );
 }
 
 #[derive(Component, Reflect, Default)]
@@ -25,8 +32,10 @@ pub(super) fn plugin(app: &mut App) {
 pub struct MovementController(pub Vec2);
 
 fn record_movement_controller(
+    mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
     mut controller_query: Query<&mut MovementController>,
+    helpers: Query<Entity, With<PlayerHelp>>,
 ) {
     // Collect directional input.
     let mut intent = Vec2::ZERO;
@@ -37,9 +46,11 @@ fn record_movement_controller(
         intent.x += 1.0;
     }
 
-    // Normalize so that diagonal movement has the same speed as
-    // horizontal and vertical movement.
-    let intent = intent.normalize_or_zero();
+    if intent.x.abs() > 0.01 {
+        for entity in &helpers {
+            commands.entity(entity).despawn();
+        }
+    }
 
     // Apply movement intent to controllers.
     for mut controller in &mut controller_query {
@@ -76,5 +87,36 @@ fn despawn_out_of_view(
         if position > half_height {
             commands.entity(entity).despawn();
         }
+    }
+}
+
+#[derive(Component)]
+pub struct MoveToY {
+    pub y: f32,
+    pub speed: f32,
+}
+
+fn move_to_y_pos(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut movers: Query<(Entity, &MoveToY, &mut Transform)>,
+) {
+    for (entity, mover, mut transform) in &mut movers {
+        let delta_y = mover.y - transform.translation.y;
+        if delta_y.abs() < 0.5 {
+            info!("Finished moving");
+            commands.entity(entity).remove::<MoveToY>();
+            continue;
+        }
+
+        // we're moving down so "delta_y" should always be negative
+        let movement = (-mover.speed * time.delta_seconds()).max(delta_y);
+
+        info!(
+            "{delta_y} / {movement} --> {} @ {}",
+            mover.y, transform.translation.y
+        );
+
+        transform.translation.y += movement;
     }
 }

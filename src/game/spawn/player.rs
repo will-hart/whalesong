@@ -13,7 +13,7 @@ use crate::{
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_player);
-    app.register_type::<Player>();
+    app.register_type::<Whale>();
 }
 
 #[derive(Event, Debug)]
@@ -21,10 +21,10 @@ pub struct SpawnPlayer;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
-pub struct Player;
+pub struct Whale;
 
 #[derive(Component)]
-pub struct PlayerHelp;
+pub struct InputHelp;
 
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
@@ -46,7 +46,7 @@ fn spawn_player(
     commands
         .spawn((
             Name::new("Player"),
-            Player,
+            Whale,
             SpriteBundle {
                 texture: image_handles[&ImageKey::Creatures].clone_weak(),
                 transform: Transform::from_xyz(0.0, half_height + 64., 0.),
@@ -71,7 +71,7 @@ fn spawn_player(
 
             parent.spawn((
                 Name::new("PlayerHelp Left"),
-                PlayerHelp,
+                InputHelp,
                 SpriteBundle {
                     texture: image_handles[&ImageKey::Icons].clone_weak(),
                     transform: Transform::from_scale(Vec3::splat(0.5))
@@ -86,7 +86,7 @@ fn spawn_player(
             ));
             parent.spawn((
                 Name::new("PlayerHelp Right"),
-                PlayerHelp,
+                InputHelp,
                 SpriteBundle {
                     texture: image_handles[&ImageKey::Icons].clone_weak(),
                     transform: Transform::from_scale(Vec3::splat(0.5))

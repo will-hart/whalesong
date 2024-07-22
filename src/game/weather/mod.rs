@@ -9,7 +9,7 @@ use crate::screen::Screen;
 use super::{
     animation::PlayerAnimation,
     assets::{HandleMap, ImageKey},
-    movement::DespawnWhenOutOfWindow,
+    movement::{DespawnWhenOutOfWindow, MovementController},
 };
 
 #[derive(Event, Debug)]
@@ -31,7 +31,7 @@ pub(super) fn plugin(app: &mut App) {
         (day_night_cycle, spawn_random_waves).run_if(in_state(Screen::Playing)),
     );
 
-    app.add_systems(FixedUpdate, move_waves);
+    app.add_systems(FixedUpdate, move_waves.run_if(in_state(Screen::Playing)));
 
     app.observe(spawn_wave);
 }
@@ -85,12 +85,18 @@ fn spawn_random_waves(
 }
 
 fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
-    clear_colour.0 = Color::srgb(0.9, 0.99, 0.99);
+    clear_colour.0 = Color::srgb(0.97, 0.97, 0.85);
 }
 
-fn move_waves(mut waves: Query<&mut Transform, With<Wave>>) {
+fn move_waves(movements: Query<&MovementController>, mut waves: Query<&mut Transform, With<Wave>>) {
+    let movement = movements.single();
+
     for mut wave in waves.iter_mut() {
-        wave.translation += Vec3::new(0., WHALE_TRAVEL_SPEED, 0.);
+        wave.translation += Vec3::new(
+            -movement.0.x * WHALE_TRAVEL_SPEED * 1.5,
+            WHALE_TRAVEL_SPEED,
+            0.,
+        );
     }
 }
 

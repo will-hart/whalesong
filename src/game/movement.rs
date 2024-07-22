@@ -5,9 +5,9 @@
 
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::AppSet;
+use crate::{screen::Screen, AppSet};
 
-use super::spawn::player::PlayerHelp;
+use super::spawn::player::{InputHelp, Whale};
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -21,9 +21,14 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<DespawnWhenOutOfWindow>();
     app.add_systems(
         Update,
-        (despawn_out_of_view, move_to_y_pos)
+        (
+            despawn_out_of_view,
+            move_to_y_pos,
+            rotate_whale_to_face_movement,
+        )
             .chain()
-            .in_set(AppSet::Update),
+            .in_set(AppSet::Update)
+            .run_if(in_state(Screen::Playing)),
     );
 }
 
@@ -35,7 +40,7 @@ fn record_movement_controller(
     mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
     mut controller_query: Query<&mut MovementController>,
-    helpers: Query<Entity, With<PlayerHelp>>,
+    helpers: Query<Entity, With<InputHelp>>,
 ) {
     // Collect directional input.
     let mut intent = Vec2::ZERO;
@@ -114,5 +119,16 @@ fn move_to_y_pos(
         // we're moving down so "delta_y" should always be negative
         let movement = (-mover.speed * time.delta_seconds()).max(delta_y);
         transform.translation.y += movement;
+    }
+}
+
+fn rotate_whale_to_face_movement(
+    movements: Query<&MovementController>,
+    mut whales: Query<&mut Transform, With<Whale>>,
+) {
+    let movement = movements.single();
+
+    for mut whale in &mut whales {
+        whale.rotation = Quat::from_axis_angle(Vec3::new(0., 0., 1.), movement.0.x * 0.4);
     }
 }

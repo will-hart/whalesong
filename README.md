@@ -34,9 +34,9 @@
 - [x] periodically spawn other waves
 - [x] waves move
 - [x] background music
-- [ ] whale movement
-  - [ ] turn the whale when arrow keys are pressed
-  - [ ] move the waves and encounters diagonally when arrow keys pressed
+- [x] whale movement
+  - [x] turn the whale when arrow keys are pressed
+  - [x] move the waves diagonally when arrow keys pressed
 - [ ] add encounters
   - [ ] birds
     - [ ] bird graphics added to `creature.png`
@@ -60,6 +60,9 @@
   - [ ] update the credits
 - [ ] stretch goals
   - [ ] periodically come up to breathe
+  - [ ] store whale position in a resource
+  - [ ] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
+  - [ ] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
   - [ ] add the easter egg
   - [ ] add more encounters
   - [ ] add more music

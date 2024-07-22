@@ -92,11 +92,11 @@ impl FromWorld for HandleMap<SoundtrackKey> {
         [
             (
                 SoundtrackKey::Credits,
-                asset_server.load("audio/soundtracks/Monkeys Spinning Monkeys.ogg"),
+                asset_server.load("audio/soundtracks/calm_winds.ogg"),
             ),
             (
                 SoundtrackKey::Gameplay,
-                asset_server.load("audio/soundtracks/Fluffing A Duck.ogg"),
+                asset_server.load("audio/soundtracks/calm_winds.ogg"),
             ),
         ]
         .into()

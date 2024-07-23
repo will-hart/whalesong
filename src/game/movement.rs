@@ -77,22 +77,29 @@ pub struct Movement {
 #[reflect(Component)]
 pub struct DespawnWhenOutOfWindow;
 
+const WINDOW_BUFFER: f32 = 150.;
+
 fn despawn_out_of_view(
     mut commands: Commands,
     windows: Query<&Window, With<PrimaryWindow>>,
     despawners: Query<(Entity, &Transform), With<DespawnWhenOutOfWindow>>,
 ) {
-    let height = match windows.get_single() {
-        Ok(w) => w.height() + 100.0,
+    let size = match windows.get_single() {
+        Ok(w) => w.size(),
         Err(_) => return,
     };
-    let half_height = height / 2.0;
+
+    let half_size = size / 2.0;
 
     for (entity, transform) in &despawners {
-        let position = transform.translation.y;
+        let position = transform.translation;
 
-        // only need to check one way here as these things are moving "up" the screen
-        if position > half_height {
+        if position.x < -half_size.x - WINDOW_BUFFER
+            || position.x > half_size.x + WINDOW_BUFFER
+            || position.y < -half_size.y - WINDOW_BUFFER
+            || position.y > half_size.y + WINDOW_BUFFER
+        {
+            info!("Despawning {entity:?}");
             commands.entity(entity).despawn();
         }
     }

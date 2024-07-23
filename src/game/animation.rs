@@ -13,6 +13,7 @@ use crate::AppSet;
 
 /// The frame number where the whale starts to turn
 const TURNING_START_FRAME: usize = 0;
+const BIRD_START_FRAME: usize = 16;
 
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.
@@ -78,6 +79,7 @@ pub enum PlayerAnimationState {
     Swimming,
     Turning,
     Wave,
+    Bird,
 }
 
 impl PlayerAnimation {
@@ -115,6 +117,14 @@ impl PlayerAnimation {
         }
     }
 
+    pub fn bird() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+            frame: 0,
+            state: PlayerAnimationState::Bird,
+        }
+    }
+
     pub fn new() -> Self {
         Self::idling()
     }
@@ -130,6 +140,7 @@ impl PlayerAnimation {
                 PlayerAnimationState::Swimming => Self::IDLE_FRAMES,
                 PlayerAnimationState::Turning => Self::WALKING_FRAMES,
                 PlayerAnimationState::Wave => 9,
+                PlayerAnimationState::Bird => 8,
             };
     }
 
@@ -140,6 +151,7 @@ impl PlayerAnimation {
                 PlayerAnimationState::Swimming => *self = Self::idling(),
                 PlayerAnimationState::Turning => *self = Self::walking(),
                 PlayerAnimationState::Wave => *self = Self::wave(),
+                PlayerAnimationState::Bird => *self = Self::bird(),
             }
         }
     }
@@ -155,6 +167,7 @@ impl PlayerAnimation {
             PlayerAnimationState::Swimming => self.frame,
             PlayerAnimationState::Turning => TURNING_START_FRAME + self.frame,
             PlayerAnimationState::Wave => self.frame,
+            PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
         }
     }
 }

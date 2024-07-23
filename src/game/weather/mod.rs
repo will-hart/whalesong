@@ -10,7 +10,7 @@ use super::{
     animation::PlayerAnimation,
     assets::{HandleMap, ImageKey},
     movement::DespawnWhenOutOfWindow,
-    spawn::player::WhaleLocation,
+    spawn::WindowSize,
 };
 
 #[derive(Event, Debug)]
@@ -37,13 +37,10 @@ pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_wave);
 }
 
-fn spawn_initial_waves(mut commands: Commands, windows: Query<&Window, With<PrimaryWindow>>) {
+fn spawn_initial_waves(mut commands: Commands, win_size: Res<WindowSize>) {
     let mut rng = rand::thread_rng();
 
-    let size = match windows.get_single() {
-        Ok(w) => w.size(),
-        Err(_) => return,
-    };
+    let size = win_size.size();
     let x_range = (-size.x / 2.0 + 32.)..(size.x / 2.0 - 32.);
     let y_range = (-size.y / 2.0 + 32.)..(size.y / 2.0 - 32.);
 
@@ -58,8 +55,8 @@ fn spawn_initial_waves(mut commands: Commands, windows: Query<&Window, With<Prim
 fn spawn_random_waves(
     mut commands: Commands,
     time: Res<Time>,
+    win_size: Res<WindowSize>,
     mut next_spawn: Local<f32>,
-    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
     if *next_spawn > time.elapsed_seconds() {
         return;
@@ -68,10 +65,7 @@ fn spawn_random_waves(
     let mut rng = rand::thread_rng();
     *next_spawn = time.elapsed_seconds() + rng.gen_range(0.5..2.0);
 
-    let size = match windows.get_single() {
-        Ok(w) => w.size(),
-        Err(_) => return,
-    };
+    let size = win_size.size();
 
     if size.length_squared() < 1. {
         // window is probably minimised? in a real game I guess we could cache the window size

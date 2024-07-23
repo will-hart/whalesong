@@ -7,7 +7,11 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{screen::Screen, AppSet};
 
-use super::spawn::player::{InputHelp, Whale, WhaleLocation};
+use super::spawn::{
+    player::{InputHelp, Whale, WhaleLocation},
+    WindowSize,
+};
+
 
 /// how far the whale turns when pointing left or right (in radians)
 const WHALE_MOVEMENT_SCALE: f32 = 0.4;
@@ -81,15 +85,10 @@ const WINDOW_BUFFER: f32 = 150.;
 
 fn despawn_out_of_view(
     mut commands: Commands,
-    windows: Query<&Window, With<PrimaryWindow>>,
+    win_size: Res<WindowSize>,
     despawners: Query<(Entity, &Transform), With<DespawnWhenOutOfWindow>>,
 ) {
-    let size = match windows.get_single() {
-        Ok(w) => w.size(),
-        Err(_) => return,
-    };
-
-    let half_size = size / 2.0;
+    let half_size = win_size.half();
 
     for (entity, transform) in &despawners {
         let position = transform.translation;

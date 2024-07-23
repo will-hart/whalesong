@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 use bevy_tween::{
     combinator::{tween, AnimationBuilderExt},
     interpolate::translation,
@@ -18,6 +18,8 @@ use crate::{
     },
     screen::Screen,
 };
+
+use super::WindowSize;
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_creature);
@@ -47,9 +49,9 @@ pub struct Creature(pub CreatureType);
 fn spawn_creature(
     _trigger: Trigger<SpawnCreature>,
     mut commands: Commands,
+    win_size: Res<WindowSize>,
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 3, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
@@ -57,10 +59,7 @@ fn spawn_creature(
         CreatureType::Bird => PlayerAnimation::bird(),
     };
 
-    let size = match windows.get_single() {
-        Ok(w) => w.size(),
-        Err(_) => return,
-    };
+    let size = win_size.size();
 
     let (from_pos, to_pos) = get_creature_path(size, 64.);
 

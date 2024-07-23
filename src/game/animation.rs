@@ -13,7 +13,7 @@ use crate::AppSet;
 
 /// The frame number where the whale starts to turn
 const TURNING_START_FRAME: usize = 0;
-const BIRD_START_FRAME: usize = 16;
+const BIRD_START_FRAME: usize = 32;
 
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.

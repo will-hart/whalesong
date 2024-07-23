@@ -117,7 +117,7 @@ fn despawn_out_of_view(
             || position.y < -half_size.y - WINDOW_DESPAWN_BUFFER
             || position.y > half_size.y + WINDOW_DESPAWN_BUFFER
         {
-            info!("Despawning {entity:?}");
+            // info!("Despawning {entity:?}");
             commands.entity(entity).despawn();
         }
     }

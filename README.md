@@ -58,11 +58,13 @@
   - [ ] snow
 - [ ] polish
   - [x] restyle the menu
+  - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
+  - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
   - [ ] update the credits
+- [ ] code "quality"
+  - [x] store whale position in a resource
 - [ ] stretch goals
   - [ ] periodically come up to breathe
-  - [x] store whale position in a resource
-  - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
   - [ ] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
   - [ ] add the easter egg
   - [ ] add more encounters

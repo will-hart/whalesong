@@ -34,14 +34,19 @@ pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_wave);
 }
 
+fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
+    clear_colour.0 = NODE_BACKGROUND;
+}
+
 fn spawn_initial_waves(mut commands: Commands, win_size: Res<WindowSize>) {
     let mut rng = rand::thread_rng();
 
     let size = win_size.size();
-    let x_range = (-size.x / 2.0 + 32.)..(size.x / 2.0 - 32.);
+    let x_range =
+        (-size.x / 2.0 - 0.9 * WINDOW_DESPAWN_BUFFER)..(size.x / 2.0 + 0.9 * WINDOW_DESPAWN_BUFFER);
     let y_range = (-size.y / 2.0 + 32.)..(size.y / 2.0 - 32.);
 
-    for _ in 0..20 {
+    for _ in 0..30 {
         commands.trigger(SpawnWave {
             x: rng.gen_range(x_range.clone()),
             y: rng.gen_range(y_range.clone()),
@@ -63,16 +68,18 @@ fn spawn_random_waves(
     let mut rng = rand::thread_rng();
     *next_spawn = time.elapsed_seconds() + rng.gen_range(0.3..1.2);
 
-    let size = win_size.size();
+    let half_size = win_size.half();
 
-    if size.length_squared() < 1. {
+    if half_size.length_squared() < 1. {
         // window is probably minimised? in a real game I guess we could cache the window size
         // so there aren't huge gaps in waves, but whatever
         return;
     }
 
-    let y = -(size.y / 2.) - 64.;
-    let x = rng.gen_range((-size.x / 2.0 + 32.)..(size.x / 2.0 - 32.));
+    let y = -half_size.y - 64.;
+    let x = rng.gen_range(
+        -half_size.x - 0.5 * WINDOW_DESPAWN_BUFFER..half_size.x + 0.5 * WINDOW_DESPAWN_BUFFER,
+    );
 
     commands.trigger(SpawnWave {
         x,

@@ -66,7 +66,7 @@
   - [ ] add the easter egg
   - [ ] add more encounters
   - [ ] add more music
-  - [ ] use something like `bevy_tween` to add more "juice" to whale entry animation
+  - [x] use something like `bevy_tween` to add more "juice" to whale entry animation
   - [ ] use something like `bevy_trickfilm` to make animations easier
 - [ ] bugs
   - [ ] starting wave animations all start at the same frame so they're all in sync

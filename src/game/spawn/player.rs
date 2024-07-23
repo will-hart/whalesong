@@ -1,12 +1,20 @@
 //! Spawn the player.
 
+use std::time::Duration;
+
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_tween::{
+    combinator::{tween, AnimationBuilderExt},
+    interpolate::translation,
+    interpolation::EaseFunction,
+    tween::IntoTarget,
+};
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{MoveToY, Movement, MovementController},
+        movement::{Movement, MovementController},
     },
     screen::Screen,
 };
@@ -53,13 +61,16 @@ fn spawn_player(
     let half_height = height / 2.0;
     whale_pos.y = half_height * 0.5;
 
-    commands
+    let start_pos = Vec3::new(0.0, half_height + 64., 0.);
+    let target_pos = Vec3::new(0.0, whale_pos.y, 0.0);
+
+    let player_id = commands
         .spawn((
             Name::new("Player"),
             Whale,
             SpriteBundle {
                 texture: image_handles[&ImageKey::Creatures].clone_weak(),
-                transform: Transform::from_xyz(0.0, half_height + 64., 0.),
+                transform: Transform::from_translation(start_pos),
                 ..Default::default()
             },
             TextureAtlas {
@@ -68,10 +79,6 @@ fn spawn_player(
             },
             MovementController::default(),
             Movement { speed: 420.0 },
-            MoveToY {
-                y: whale_pos.y,
-                speed: 45.,
-            },
             player_animation,
             StateScoped(Screen::Playing),
         ))
@@ -109,5 +116,13 @@ fn spawn_player(
                 },
                 StateScoped(Screen::Playing),
             ));
-        });
+        })
+        .id();
+
+    let player = player_id.into_target();
+    commands.animation().insert(tween(
+        Duration::from_secs(8),
+        EaseFunction::ExponentialOut,
+        player.with(translation(start_pos, target_pos)),
+    ));
 }

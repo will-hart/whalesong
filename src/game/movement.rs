@@ -25,11 +25,7 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<DespawnWhenOutOfWindow>();
     app.add_systems(
         FixedUpdate,
-        (
-            despawn_out_of_view,
-            move_to_y_pos,
-            rotate_whale_to_face_movement,
-        )
+        (despawn_out_of_view, rotate_whale_to_face_movement)
             .chain()
             .in_set(AppSet::Update)
             .run_if(in_state(Screen::Playing)),
@@ -99,30 +95,6 @@ fn despawn_out_of_view(
         if position > half_height {
             commands.entity(entity).despawn();
         }
-    }
-}
-
-#[derive(Component)]
-pub struct MoveToY {
-    pub y: f32,
-    pub speed: f32,
-}
-
-fn move_to_y_pos(
-    mut commands: Commands,
-    time: Res<Time>,
-    mut movers: Query<(Entity, &MoveToY, &mut Transform)>,
-) {
-    for (entity, mover, mut transform) in &mut movers {
-        let delta_y = mover.y - transform.translation.y;
-        if delta_y.abs() < 0.5 {
-            commands.entity(entity).remove::<MoveToY>();
-            continue;
-        }
-
-        // we're moving down so "delta_y" should always be negative
-        let movement = (-mover.speed * time.delta_seconds()).max(delta_y);
-        transform.translation.y += movement;
     }
 }
 

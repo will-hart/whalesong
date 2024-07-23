@@ -14,6 +14,7 @@ log = { version = "0.4", features = [
 serde = { version = "1.0", features = ["derive"] }
 rand = "0.8"
 ron = "*"
+bevy_tween = "0.6.0"
 
 [features]
 default = [

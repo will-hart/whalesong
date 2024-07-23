@@ -60,8 +60,8 @@
   - [ ] update the credits
 - [ ] stretch goals
   - [ ] periodically come up to breathe
-  - [ ] store whale position in a resource
-  - [ ] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
+  - [x] store whale position in a resource
+  - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
   - [ ] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
   - [ ] add the easter egg
   - [ ] add more encounters

@@ -14,6 +14,7 @@ use crate::{
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_player);
     app.register_type::<Whale>();
+    app.init_resource::<WhaleLocation>();
 }
 
 #[derive(Event, Debug)]
@@ -23,12 +24,20 @@ pub struct SpawnPlayer;
 #[reflect(Component)]
 pub struct Whale;
 
+#[derive(Resource, Default)]
+pub struct WhaleLocation {
+    pub y: f32,
+    pub current_rotation: f32,
+    pub target_rotation: f32,
+}
+
 #[derive(Component)]
 pub struct InputHelp;
 
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
+    mut whale_pos: ResMut<WhaleLocation>,
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     windows: Query<&Window, With<PrimaryWindow>>,
@@ -42,6 +51,7 @@ fn spawn_player(
         Err(_) => return,
     };
     let half_height = height / 2.0;
+    whale_pos.y = half_height * 0.5;
 
     commands
         .spawn((
@@ -59,8 +69,8 @@ fn spawn_player(
             MovementController::default(),
             Movement { speed: 420.0 },
             MoveToY {
-                y: half_height * 0.67,
-                speed: 75.,
+                y: whale_pos.y,
+                speed: 45.,
             },
             player_animation,
             StateScoped(Screen::Playing),

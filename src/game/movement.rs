@@ -7,7 +7,11 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{screen::Screen, AppSet};
 
-use super::spawn::player::{InputHelp, Whale};
+use super::spawn::player::{InputHelp, Whale, WhaleLocation};
+
+/// how far the whale turns when pointing left or right (in radians)
+const WHALE_MOVEMENT_SCALE: f32 = 0.4;
+const WHALE_TURN_SPEED: f32 = 0.02;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -20,7 +24,7 @@ pub(super) fn plugin(app: &mut App) {
     // Apply movement based on controls.
     app.register_type::<DespawnWhenOutOfWindow>();
     app.add_systems(
-        Update,
+        FixedUpdate,
         (
             despawn_out_of_view,
             move_to_y_pos,
@@ -123,12 +127,18 @@ fn move_to_y_pos(
 }
 
 fn rotate_whale_to_face_movement(
+    mut whale_pos: ResMut<WhaleLocation>,
     movements: Query<&MovementController>,
     mut whales: Query<&mut Transform, With<Whale>>,
 ) {
     let movement = movements.single();
 
-    for mut whale in &mut whales {
-        whale.rotation = Quat::from_axis_angle(Vec3::new(0., 0., 1.), movement.0.x * 0.4);
-    }
+    whale_pos.target_rotation = movement.0.x * WHALE_MOVEMENT_SCALE;
+    whale_pos.current_rotation = whale_pos
+        .current_rotation
+        .lerp(whale_pos.target_rotation, WHALE_TURN_SPEED);
+
+    let mut whale = whales.single_mut();
+    whale.rotation = Quat::from_axis_angle(Vec3::new(0., 0., 1.), whale_pos.current_rotation * 1.3);
+    // 1.3 is a magic number so the whale points where its going
 }

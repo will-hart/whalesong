@@ -9,7 +9,8 @@ use crate::{screen::Screen, ui::palette::NODE_BACKGROUND};
 use super::{
     animation::PlayerAnimation,
     assets::{HandleMap, ImageKey},
-    movement::{DespawnWhenOutOfWindow, MovementController},
+    movement::DespawnWhenOutOfWindow,
+    spawn::player::WhaleLocation,
 };
 
 #[derive(Event, Debug)]
@@ -21,7 +22,7 @@ pub struct SpawnWave {
 #[derive(Component)]
 pub struct Wave;
 
-pub const WHALE_TRAVEL_SPEED: f32 = 0.3;
+pub const WHALE_TRAVEL_SPEED: f32 = 0.45; // magic number
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Playing), spawn_initial_waves);
@@ -88,15 +89,11 @@ fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
     clear_colour.0 = NODE_BACKGROUND;
 }
 
-fn move_waves(movements: Query<&MovementController>, mut waves: Query<&mut Transform, With<Wave>>) {
-    let movement = movements.single();
-
+fn move_waves(whale_pos: Res<WhaleLocation>, mut waves: Query<&mut Transform, With<Wave>>) {
     for mut wave in waves.iter_mut() {
-        wave.translation += Vec3::new(
-            -movement.0.x * WHALE_TRAVEL_SPEED * 1.5,
-            WHALE_TRAVEL_SPEED,
-            0.,
-        );
+        wave.translation += Vec3::new(-whale_pos.current_rotation * 4.3, 1.0, 0.)
+            .normalize_or_zero()
+            * WHALE_TRAVEL_SPEED;
     }
 }
 

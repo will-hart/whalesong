@@ -4,7 +4,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::Rng;
 
-use crate::screen::Screen;
+use crate::{screen::Screen, ui::palette::NODE_BACKGROUND};
 
 use super::{
     animation::PlayerAnimation,
@@ -85,7 +85,7 @@ fn spawn_random_waves(
 }
 
 fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
-    clear_colour.0 = Color::srgb(0.97, 0.97, 0.85);
+    clear_colour.0 = NODE_BACKGROUND;
 }
 
 fn move_waves(movements: Query<&MovementController>, mut waves: Query<&mut Transform, With<Wave>>) {

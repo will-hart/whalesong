@@ -2,12 +2,16 @@
 
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
+use crate::game::assets::ImageKey;
+
 use super::{interaction::InteractionPalette, palette::*};
 
 /// An extension trait for spawning UI widgets.
 pub trait Widgets {
     /// Spawn a simple button with text.
     fn button(&mut self, text: impl Into<String>) -> EntityCommands;
+    /// Spawn a simple button with text.
+    fn image_button(&mut self, image: impl Into<UiImage>) -> EntityCommands;
 
     /// Spawn a simple header label. Bigger than [`Widgets::label`].
     fn header(&mut self, text: impl Into<String>) -> EntityCommands;
@@ -48,6 +52,38 @@ impl<T: Spawn> Widgets for T {
                         ..default()
                     },
                 ),
+            ));
+        });
+        entity
+    }
+
+    fn image_button(&mut self, image: impl Into<UiImage>) -> EntityCommands {
+        let mut entity = self.spawn((
+            Name::new("ImageButton"),
+            ButtonBundle {
+                style: Style {
+                    width: Px(200.0),
+                    height: Px(65.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: BackgroundColor(NODE_BACKGROUND),
+                ..default()
+            },
+            InteractionPalette {
+                none: NODE_BACKGROUND,
+                hovered: BUTTON_HOVERED_BACKGROUND,
+                pressed: BUTTON_PRESSED_BACKGROUND,
+            },
+        ));
+        entity.with_children(|children| {
+            children.spawn((
+                Name::new("Button Text"),
+                ImageBundle {
+                    image: image.into(),
+                    ..default()
+                },
             ));
         });
         entity
@@ -133,7 +169,6 @@ impl Containers for Commands<'_, '_> {
                     align_items: AlignItems::Center,
                     flex_direction: FlexDirection::Column,
                     row_gap: Px(10.0),
-                    position_type: PositionType::Absolute,
                     ..default()
                 },
                 ..default()

@@ -21,6 +21,10 @@ pub enum ImageKey {
     Creatures,
     Features,
     Icons,
+    Logo,
+    PlayButton,
+    CreditsButton,
+    ExitButton,
 }
 
 impl AssetKey for ImageKey {
@@ -35,6 +39,34 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Icons,
                 asset_server.load_with_settings(
                     "images/icons.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::Logo,
+                asset_server
+                    .load_with_settings("images/logo.png", |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear()
+                    }),
+            ),
+            (
+                ImageKey::PlayButton,
+                asset_server.load_with_settings(
+                    "images/play_button.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::CreditsButton,
+                asset_server.load_with_settings(
+                    "images/credits_button.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::ExitButton,
+                asset_server.load_with_settings(
+                    "images/exit_button.png",
                     |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
                 ),
             ),

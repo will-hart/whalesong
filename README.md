@@ -56,7 +56,7 @@
   - [ ] storm
   - [ ] snow
 - [ ] polish
-  - [ ] restyle the menu
+  - [x] restyle the menu
   - [ ] update the credits
 - [ ] stretch goals
   - [ ] periodically come up to breathe

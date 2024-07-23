@@ -27,7 +27,7 @@ pub struct MoveTowardsLocation {
 
 /// Denotes an entity that moves as the whale moves, i.e. waves
 #[derive(Component)]
-pub struct MovesWithWhale;
+pub struct MoveWithWhale;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -152,7 +152,7 @@ fn move_towards_location(mut movers: Query<(&mut Transform, &MoveTowardsLocation
 /// When the whale is moving, updates any entity with [`MovesWithWhale`] component
 fn update_mover_target_based_on_whale_movement(
     whale_pos: Res<WhaleLocation>,
-    mut movers: Query<(&mut Transform, &mut MoveTowardsLocation), With<MovesWithWhale>>,
+    mut movers: Query<(&mut Transform, &mut MoveTowardsLocation), With<MoveWithWhale>>,
 ) {
     for (mut tx, mut mover) in &mut movers {
         let delta = Vec3::new(-whale_pos.current_rotation * 4.3, 0.0, 0.0) * WHALE_TRAVEL_SPEED;

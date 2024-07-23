@@ -1,20 +1,13 @@
 //! Spawn the player.
 
-use std::time::Duration;
-
 use bevy::prelude::*;
-use bevy_tween::{
-    combinator::{tween, AnimationBuilderExt},
-    interpolate::translation,
-    interpolation::EaseFunction,
-    tween::IntoTarget,
-};
 use rand::Rng;
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
+        movement::{MoveTowardsLocation, MoveWithWhale, WHALE_TRAVEL_SPEED},
     },
     screen::Screen,
 };
@@ -60,32 +53,27 @@ fn spawn_creature(
     };
 
     let size = win_size.size();
-
     let (from_pos, to_pos) = get_creature_path(size, 64.);
 
-    let creature_id = commands
-        .spawn((
-            Name::new("Bird"),
-            Creature(CreatureType::Bird),
-            SpriteBundle {
-                texture: image_handles[&ImageKey::Creatures].clone_weak(),
-                transform: Transform::from_translation(from_pos),
-                ..Default::default()
-            },
-            TextureAtlas {
-                layout: texture_atlas_layout.clone(),
-                index: player_animation.get_atlas_index(),
-            },
-            player_animation,
-            StateScoped(Screen::Playing),
-        ))
-        .id();
-
-    let creature = creature_id.into_target();
-    commands.animation().insert(tween(
-        Duration::from_secs(((from_pos - to_pos).length() / 50.) as u64),
-        EaseFunction::Linear,
-        creature.with(translation(from_pos, to_pos)),
+    commands.spawn((
+        Name::new("Bird"),
+        Creature(CreatureType::Bird),
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Creatures].clone_weak(),
+            transform: Transform::from_translation(from_pos),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation,
+        StateScoped(Screen::Playing),
+        MoveTowardsLocation {
+            speed: WHALE_TRAVEL_SPEED * 1.2,
+            target: to_pos,
+        },
+        MoveWithWhale,
     ));
 }
 

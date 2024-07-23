@@ -66,7 +66,7 @@ fn spawn_random_waves(
     }
 
     let mut rng = rand::thread_rng();
-    *next_spawn = time.elapsed_seconds() + rng.gen_range(1.0..3.0);
+    *next_spawn = time.elapsed_seconds() + rng.gen_range(0.5..2.0);
 
     let size = match windows.get_single() {
         Ok(w) => w.size(),

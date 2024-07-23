@@ -129,6 +129,11 @@ impl PlayerAnimation {
         Self::idling()
     }
 
+    pub fn set_frame(&mut self, frame: usize) {
+        // don't do wrapping here as that happens in `update_timer`, just assume we got it right
+        self.frame = frame;
+    }
+
     /// Update animation timers.
     pub fn update_timer(&mut self, delta: Duration) {
         self.timer.tick(delta);

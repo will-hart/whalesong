@@ -70,7 +70,7 @@
   - [x] use something like `bevy_tween` to add more "juice" to whale entry animation
   - [ ] use something like `bevy_trickfilm` to make animations easier
 - [ ] bugs
-  - [ ] starting wave animations all start at the same frame so they're all in sync
+  - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`
 - [ ] jam admin
   - [x] update `Cargo.toml`

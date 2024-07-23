@@ -9,7 +9,10 @@ use crate::{screen::Screen, ui::palette::NODE_BACKGROUND};
 use super::{
     animation::PlayerAnimation,
     assets::{HandleMap, ImageKey},
-    movement::{DespawnWhenOutOfWindow, MoveTowardsLocation, MovesWithWhale, WHALE_TRAVEL_SPEED},
+    movement::{
+        DespawnWhenOutOfWindow, MoveTowardsLocation, MoveWithWhale, WHALE_TRAVEL_SPEED,
+        WINDOW_DESPAWN_BUFFER,
+    },
     spawn::WindowSize,
 };
 
@@ -17,6 +20,7 @@ use super::{
 pub struct SpawnWave {
     x: f32,
     y: f32,
+    start_frame: usize,
 }
 
 pub(super) fn plugin(app: &mut App) {
@@ -41,6 +45,7 @@ fn spawn_initial_waves(mut commands: Commands, win_size: Res<WindowSize>) {
         commands.trigger(SpawnWave {
             x: rng.gen_range(x_range.clone()),
             y: rng.gen_range(y_range.clone()),
+            start_frame: rng.gen_range(1..8),
         });
     }
 }
@@ -56,7 +61,7 @@ fn spawn_random_waves(
     }
 
     let mut rng = rand::thread_rng();
-    *next_spawn = time.elapsed_seconds() + rng.gen_range(0.5..2.0);
+    *next_spawn = time.elapsed_seconds() + rng.gen_range(0.3..1.2);
 
     let size = win_size.size();
 
@@ -69,11 +74,11 @@ fn spawn_random_waves(
     let y = -(size.y / 2.) - 64.;
     let x = rng.gen_range((-size.x / 2.0 + 32.)..(size.x / 2.0 - 32.));
 
-    commands.trigger(SpawnWave { x, y });
-}
-
-fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
-    clear_colour.0 = NODE_BACKGROUND;
+    commands.trigger(SpawnWave {
+        x,
+        y,
+        start_frame: 1,
+    });
 }
 
 fn spawn_wave(
@@ -83,18 +88,19 @@ fn spawn_wave(
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
+    let event = trigger.event();
+
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 9, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = PlayerAnimation::wave();
-
-    let event = trigger.event();
+    let mut player_animation = PlayerAnimation::wave();
+    player_animation.set_frame(event.start_frame);
 
     commands.spawn((
         Name::new("Player"),
         SpriteBundle {
             texture: image_handles[&ImageKey::Features].clone_weak(),
             transform: Transform::from_xyz(event.x, event.y, 0.)
-                .with_scale(Vec3::splat(rand::thread_rng().gen_range(0.3..0.9))),
+                .with_scale(Vec3::splat(rand::thread_rng().gen_range(0.98..1.2))),
             ..Default::default()
         },
         TextureAtlas {
@@ -106,7 +112,7 @@ fn spawn_wave(
             speed: WHALE_TRAVEL_SPEED,
             target: Vec3::new(event.x, win_size.size().y, 0.0),
         },
-        MovesWithWhale,
+        MoveWithWhale,
         DespawnWhenOutOfWindow,
         StateScoped(Screen::Playing),
     ));

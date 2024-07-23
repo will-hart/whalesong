@@ -3,7 +3,7 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 
 use crate::{screen::Screen, AppSet};
 
@@ -12,10 +12,22 @@ use super::spawn::{
     WindowSize,
 };
 
+/// How fast the "whale travels", i.e. how fast to move things past the whale
+pub const WHALE_TRAVEL_SPEED: f32 = 0.45; // magic number
 
 /// how far the whale turns when pointing left or right (in radians)
 const WHALE_MOVEMENT_SCALE: f32 = 0.4;
 const WHALE_TURN_SPEED: f32 = 0.02;
+
+#[derive(Component)]
+pub struct MoveTowardsLocation {
+    pub target: Vec3,
+    pub speed: f32,
+}
+
+/// Denotes an entity that moves as the whale moves, i.e. waves
+#[derive(Component)]
+pub struct MovesWithWhale;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -29,8 +41,15 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<DespawnWhenOutOfWindow>();
     app.add_systems(
         FixedUpdate,
-        (despawn_out_of_view, rotate_whale_to_face_movement)
-            .chain()
+        (
+            despawn_out_of_view,
+            rotate_whale_to_face_movement,
+            (
+                update_mover_target_based_on_whale_movement,
+                move_towards_location,
+            )
+                .chain(),
+        )
             .in_set(AppSet::Update)
             .run_if(in_state(Screen::Playing)),
     );
@@ -81,7 +100,7 @@ pub struct Movement {
 #[reflect(Component)]
 pub struct DespawnWhenOutOfWindow;
 
-const WINDOW_BUFFER: f32 = 150.;
+pub const WINDOW_DESPAWN_BUFFER: f32 = 150.;
 
 fn despawn_out_of_view(
     mut commands: Commands,
@@ -93,10 +112,10 @@ fn despawn_out_of_view(
     for (entity, transform) in &despawners {
         let position = transform.translation;
 
-        if position.x < -half_size.x - WINDOW_BUFFER
-            || position.x > half_size.x + WINDOW_BUFFER
-            || position.y < -half_size.y - WINDOW_BUFFER
-            || position.y > half_size.y + WINDOW_BUFFER
+        if position.x < -half_size.x - WINDOW_DESPAWN_BUFFER
+            || position.x > half_size.x + WINDOW_DESPAWN_BUFFER
+            || position.y < -half_size.y - WINDOW_DESPAWN_BUFFER
+            || position.y > half_size.y + WINDOW_DESPAWN_BUFFER
         {
             info!("Despawning {entity:?}");
             commands.entity(entity).despawn();
@@ -118,5 +137,28 @@ fn rotate_whale_to_face_movement(
 
     let mut whale = whales.single_mut();
     whale.rotation = Quat::from_axis_angle(Vec3::new(0., 0., 1.), whale_pos.current_rotation * 1.3);
-    // 1.3 is a magic number so the whale points where its going
+    // 1.4 is a magic number so the whale points where its going
+}
+
+/// Moves entities that have the [`MoveTowardsLocation`] component towards their location
+fn move_towards_location(mut movers: Query<(&mut Transform, &MoveTowardsLocation)>) {
+    for (mut mover, details) in &mut movers {
+        mover.translation = mover
+            .translation
+            .move_towards(details.target, details.speed);
+    }
+}
+
+/// When the whale is moving, updates any entity with [`MovesWithWhale`] component
+fn update_mover_target_based_on_whale_movement(
+    whale_pos: Res<WhaleLocation>,
+    mut movers: Query<(&mut Transform, &mut MoveTowardsLocation), With<MovesWithWhale>>,
+) {
+    for (mut tx, mut mover) in &mut movers {
+        let delta = Vec3::new(-whale_pos.current_rotation * 4.3, 0.0, 0.0) * WHALE_TRAVEL_SPEED;
+
+        // we need to move both the current pos and the target pos so that we don't end up with weird angles
+        mover.target += delta;
+        tx.translation += delta;
+    }
 }

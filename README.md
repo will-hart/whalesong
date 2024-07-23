@@ -39,8 +39,9 @@
   - [x] move the waves diagonally when arrow keys pressed
 - [ ] add encounters
   - [ ] birds
-    - [ ] bird graphics added to `creature.png`
-    - [ ] birds randomly spawn
+    - [x] bird graphics added to `creature.png`
+    - [x] bird spawner
+    - [ ] birds randomly spawn every 10-15 seconds
     - [ ] if birds get close, they circle the whale
     - [ ] after a while, the birds leave
     - [ ] bird sound effects

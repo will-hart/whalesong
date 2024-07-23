@@ -1,7 +1,7 @@
 //! Adds weather effects to the game. Borrows some day night cycle stuff from here
 //! https://github.com/will-hart/bevy_jam_2/blob/main/src/game/day_night_cycle.rs
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 use rand::Rng;
 
 use crate::{screen::Screen, ui::palette::NODE_BACKGROUND};
@@ -9,7 +9,7 @@ use crate::{screen::Screen, ui::palette::NODE_BACKGROUND};
 use super::{
     animation::PlayerAnimation,
     assets::{HandleMap, ImageKey},
-    movement::DespawnWhenOutOfWindow,
+    movement::{DespawnWhenOutOfWindow, MoveTowardsLocation, MovesWithWhale, WHALE_TRAVEL_SPEED},
     spawn::WindowSize,
 };
 
@@ -19,11 +19,6 @@ pub struct SpawnWave {
     y: f32,
 }
 
-#[derive(Component)]
-pub struct Wave;
-
-pub const WHALE_TRAVEL_SPEED: f32 = 0.45; // magic number
-
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Playing), spawn_initial_waves);
 
@@ -31,8 +26,6 @@ pub(super) fn plugin(app: &mut App) {
         Update,
         (day_night_cycle, spawn_random_waves).run_if(in_state(Screen::Playing)),
     );
-
-    app.add_systems(FixedUpdate, move_waves.run_if(in_state(Screen::Playing)));
 
     app.observe(spawn_wave);
 }
@@ -83,17 +76,10 @@ fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
     clear_colour.0 = NODE_BACKGROUND;
 }
 
-fn move_waves(whale_pos: Res<WhaleLocation>, mut waves: Query<&mut Transform, With<Wave>>) {
-    for mut wave in waves.iter_mut() {
-        wave.translation += Vec3::new(-whale_pos.current_rotation * 4.3, 1.0, 0.)
-            .normalize_or_zero()
-            * WHALE_TRAVEL_SPEED;
-    }
-}
-
 fn spawn_wave(
     trigger: Trigger<SpawnWave>,
     mut commands: Commands,
+    win_size: Res<WindowSize>,
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
@@ -108,7 +94,7 @@ fn spawn_wave(
         SpriteBundle {
             texture: image_handles[&ImageKey::Features].clone_weak(),
             transform: Transform::from_xyz(event.x, event.y, 0.)
-                .with_scale(Vec3::splat(rand::thread_rng().gen_range(0.98..1.3))),
+                .with_scale(Vec3::splat(rand::thread_rng().gen_range(0.3..0.9))),
             ..Default::default()
         },
         TextureAtlas {
@@ -116,7 +102,11 @@ fn spawn_wave(
             index: player_animation.get_atlas_index(),
         },
         player_animation,
-        Wave,
+        MoveTowardsLocation {
+            speed: WHALE_TRAVEL_SPEED,
+            target: Vec3::new(event.x, win_size.size().y, 0.0),
+        },
+        MovesWithWhale,
         DespawnWhenOutOfWindow,
         StateScoped(Screen::Playing),
     ));

@@ -1,26 +1,21 @@
 //! Spawn the player.
 
-use std::time::Duration;
-
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_tween::{
-    combinator::{tween, AnimationBuilderExt},
-    interpolate::translation,
-    interpolation::EaseFunction,
-    tween::IntoTarget,
-};
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{Movement, MovementController},
+        movement::{Movement, MovementController, WHALE_TRAVEL_SPEED},
     },
     screen::Screen,
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.observe(spawn_player);
+    app.observe(spawn_player).add_systems(
+        FixedUpdate,
+        move_in_spawning_whale.run_if(in_state(Screen::Playing)),
+    );
     app.register_type::<Whale>();
     app.init_resource::<WhaleLocation>();
 }
@@ -42,6 +37,9 @@ pub struct WhaleLocation {
 #[derive(Component)]
 pub struct InputHelp;
 
+#[derive(Component)]
+pub struct WhaleArrivalMarker;
+
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
@@ -62,9 +60,8 @@ fn spawn_player(
     whale_pos.y = half_height * 0.5;
 
     let start_pos = Vec3::new(0.0, half_height + 64., 0.);
-    let target_pos = Vec3::new(0.0, whale_pos.y, 0.0);
 
-    let player_id = commands
+    commands
         .spawn((
             Name::new("Player"),
             Whale,
@@ -80,6 +77,7 @@ fn spawn_player(
             MovementController::default(),
             Movement { speed: 420.0 },
             player_animation,
+            WhaleArrivalMarker,
             StateScoped(Screen::Playing),
         ))
         .with_children(|parent| {
@@ -116,13 +114,22 @@ fn spawn_player(
                 },
                 StateScoped(Screen::Playing),
             ));
-        })
-        .id();
+        });
+}
 
-    let player = player_id.into_target();
-    commands.animation().insert(tween(
-        Duration::from_secs(8),
-        EaseFunction::ExponentialOut,
-        player.with(translation(start_pos, target_pos)),
-    ));
+fn move_in_spawning_whale(
+    mut commands: Commands,
+    whale_pos: Res<WhaleLocation>,
+    mut whales: Query<(Entity, &mut Transform), With<WhaleArrivalMarker>>,
+) {
+    for (entity, mut whale) in &mut whales {
+        info!("Moving whale from {}", whale.translation.y);
+        whale.translation.y -= WHALE_TRAVEL_SPEED;
+        info!(" --> Moved to {}", whale.translation.y);
+
+        if whale.translation.y < whale_pos.y {
+            info!("Whale has arrived");
+            commands.entity(entity).remove::<WhaleArrivalMarker>();
+        }
+    }
 }

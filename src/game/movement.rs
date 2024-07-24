@@ -150,10 +150,6 @@ fn move_towards_location(
         mover.translation = mover
             .translation
             .move_towards(details.target, details.speed);
-        info!(
-            "Moving {name:?} from {} to {}",
-            mover.translation, details.target
-        );
 
         if details.remove_on_arrival && (mover.translation - details.target).length_squared() < 1.0
         {

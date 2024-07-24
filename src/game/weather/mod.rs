@@ -103,7 +103,7 @@ fn spawn_wave(
     player_animation.set_frame(event.start_frame);
 
     commands.spawn((
-        Name::new("Player"),
+        Name::new("Wave"),
         SpriteBundle {
             texture: image_handles[&ImageKey::Features].clone_weak(),
             transform: Transform::from_xyz(event.x, event.y, 0.)

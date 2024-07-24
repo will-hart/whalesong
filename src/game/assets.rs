@@ -134,11 +134,11 @@ impl FromWorld for HandleMap<SoundtrackKey> {
         [
             (
                 SoundtrackKey::Menu,
-                asset_server.load("audio/soundtracks/menu_score.ogg"),
+                asset_server.load("audio/soundtracks/calm_winds.ogg"),
             ),
             (
                 SoundtrackKey::Gameplay,
-                asset_server.load("audio/soundtracks/calm_winds.ogg"),
+                asset_server.load("audio/soundtracks/menu_score.ogg"),
             ),
         ]
         .into()

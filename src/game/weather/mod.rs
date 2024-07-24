@@ -118,6 +118,7 @@ fn spawn_wave(
         MoveTowardsLocation {
             speed: WHALE_TRAVEL_SPEED,
             target: Vec3::new(event.x, win_size.size().y, 0.0),
+            remove_on_arrival: false,
         },
         MoveWithWhale,
         DespawnWhenOutOfWindow,

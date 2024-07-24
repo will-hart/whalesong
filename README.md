@@ -42,8 +42,9 @@
     - [x] bird graphics added to `creature.png`
     - [x] bird spawner
     - [ ] birds randomly spawn every 10-15 seconds
-    - [ ] if birds get close, they circle the whale
-    - [ ] after a while, the birds leave
+    - [x] if birds get close, they circle the whale
+    - [ ] circling behaviour actually makes sense
+    - [x] after a while, the birds leave
     - [ ] bird sound effects
   - [ ] ships
   - [ ] fish

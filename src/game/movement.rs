@@ -23,6 +23,7 @@ const WHALE_TURN_SPEED: f32 = 0.02;
 pub struct MoveTowardsLocation {
     pub target: Vec3,
     pub speed: f32,
+    pub remove_on_arrival: bool,
 }
 
 /// Denotes an entity that moves as the whale moves, i.e. waves
@@ -141,11 +142,24 @@ fn rotate_whale_to_face_movement(
 }
 
 /// Moves entities that have the [`MoveTowardsLocation`] component towards their location
-fn move_towards_location(mut movers: Query<(&mut Transform, &MoveTowardsLocation)>) {
-    for (mut mover, details) in &mut movers {
+fn move_towards_location(
+    mut commands: Commands,
+    mut movers: Query<(Entity, &Name, &mut Transform, &MoveTowardsLocation)>,
+) {
+    for (entity, name, mut mover, details) in &mut movers {
         mover.translation = mover
             .translation
             .move_towards(details.target, details.speed);
+        info!(
+            "Moving {name:?} from {} to {}",
+            mover.translation, details.target
+        );
+
+        if details.remove_on_arrival && (mover.translation - details.target).length_squared() < 1.0
+        {
+            info!("{name:?} {entity} has arrived, removing MoveOnTarget");
+            commands.entity(entity).remove::<MoveTowardsLocation>();
+        }
     }
 }
 

@@ -1,20 +1,25 @@
 //! Spawn the player.
 
 use bevy::prelude::*;
+use bird::{Bird, BIRD_SPEED};
 use rand::Rng;
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{MoveTowardsLocation, MoveWithWhale, WHALE_TRAVEL_SPEED},
+        movement::{MoveTowardsLocation, MoveWithWhale},
     },
     screen::Screen,
 };
 
 use super::WindowSize;
 
+mod bird;
+
 pub(super) fn plugin(app: &mut App) {
+    app.add_plugins(bird::plugin);
+
     app.observe(spawn_creature);
     app.add_systems(OnEnter(Screen::Playing), spawn_random_creatures);
 }
@@ -58,6 +63,7 @@ fn spawn_creature(
     commands.spawn((
         Name::new("Bird"),
         Creature(CreatureType::Bird),
+        Bird,
         SpriteBundle {
             texture: image_handles[&ImageKey::Creatures].clone_weak(),
             transform: Transform::from_translation(from_pos),
@@ -70,8 +76,9 @@ fn spawn_creature(
         player_animation,
         StateScoped(Screen::Playing),
         MoveTowardsLocation {
-            speed: WHALE_TRAVEL_SPEED * 1.2,
+            speed: BIRD_SPEED,
             target: to_pos,
+            remove_on_arrival: true,
         },
         MoveWithWhale,
     ));

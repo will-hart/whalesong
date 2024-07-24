@@ -123,9 +123,7 @@ fn move_in_spawning_whale(
     mut whales: Query<(Entity, &mut Transform), With<WhaleArrivalMarker>>,
 ) {
     for (entity, mut whale) in &mut whales {
-        info!("Moving whale from {}", whale.translation.y);
         whale.translation.y -= WHALE_TRAVEL_SPEED;
-        info!(" --> Moved to {}", whale.translation.y);
 
         if whale.translation.y < whale_pos.y {
             info!("Whale has arrived");

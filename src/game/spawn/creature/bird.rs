@@ -58,8 +58,8 @@ fn gain_curiosity(
 
     let mut rng = rand::thread_rng();
     let target = Vec3::new(
-        rng.gen_range(-40.0..40.0),
-        whale_pos.y + rng.gen_range(-40.0..40.0),
+        rng.gen_range(-20.0..20.0),
+        whale_pos.y + rng.gen_range(-20.0..20.0),
         0.,
     );
 
@@ -68,21 +68,18 @@ fn gain_curiosity(
             < BIRD_CURIOSITY_THRESHOLD * BIRD_CURIOSITY_THRESHOLD
         {
             info!("bird {bird:?} is curious");
-            commands
-                .entity(bird)
-                .insert((
-                    Curious {
-                        // marks them for the curiosity AI system
-                        until: time.elapsed_seconds() + rng.gen_range(10.0..25.0),
-                    },
-                    Incurious, // prevents the bird from becoming curious again
-                    MoveTowardsLocation {
-                        target,
-                        speed: BIRD_SPEED,
-                        remove_on_arrival: true,
-                    },
-                ))
-                .remove::<MoveTowardsLocation>(); // stops them from moving off the screen and instead circles them
+            commands.entity(bird).insert((
+                Curious {
+                    // marks them for the curiosity AI system
+                    until: time.elapsed_seconds() + rng.gen_range(10.0..25.0),
+                },
+                Incurious, // prevents the bird from becoming curious again
+                MoveTowardsLocation {
+                    target,
+                    speed: BIRD_SPEED,
+                    remove_on_arrival: true,
+                },
+            )); // stops them from moving off the screen and instead circles them
         }
     }
 }
@@ -124,11 +121,18 @@ fn lose_curiosity(
 
 fn return_to_flying_off(
     mut commands: Commands,
-    mut birds: Query<(Entity, &mut Transform), (With<Bird>, With<LosingCuriosity>)>,
+    mut birds: Query<
+        (Entity, &mut Transform, &mut MoveTowardsLocation),
+        (With<Bird>, With<LosingCuriosity>),
+    >,
 ) {
-    for (bird, mut tx) in &mut birds {
+    for (bird, mut tx, mut mover) in &mut birds {
+        // slowly scale the bird up
         let splat = tx.scale.x + 0.003; // not sure why 0.001 doesn't work here, very confusing
         tx.scale = Vec3::splat(splat);
+
+        // slowly speed up the bird
+        mover.speed = (mover.speed + 0.001).min(BIRD_SPEED);
 
         // check if the bird is ready to leave
         if tx.scale.x >= 1.0 {

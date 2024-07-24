@@ -32,11 +32,11 @@ impl<T: Spawn> Widgets for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(NODE_BACKGROUND),
+                background_color: BackgroundColor(TRANSPARENT),
                 ..default()
             },
             InteractionPalette {
-                none: NODE_BACKGROUND,
+                none: TRANSPARENT,
                 hovered: BUTTON_HOVERED_BACKGROUND,
                 pressed: BUTTON_PRESSED_BACKGROUND,
             },
@@ -68,11 +68,11 @@ impl<T: Spawn> Widgets for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(NODE_BACKGROUND),
+                background_color: BackgroundColor(TRANSPARENT),
                 ..default()
             },
             InteractionPalette {
-                none: NODE_BACKGROUND,
+                none: TRANSPARENT,
                 hovered: BUTTON_HOVERED_BACKGROUND,
                 pressed: BUTTON_PRESSED_BACKGROUND,
             },

@@ -8,3 +8,5 @@ pub const LABEL_TEXT: Color = Color::srgb(0.867, 0.827, 0.412);
 pub const HEADER_TEXT: Color = Color::srgb(0.867, 0.827, 0.412);
 
 pub const NODE_BACKGROUND: Color = Color::srgb(0.97, 0.97, 0.85);
+
+pub const TRANSPARENT: Color = Color::srgba(1.0, 1.0, 1.0, 0.0);

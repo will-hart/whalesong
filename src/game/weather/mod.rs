@@ -4,7 +4,7 @@
 use bevy::prelude::*;
 use rand::Rng;
 
-use crate::{screen::Screen, ui::palette::NODE_BACKGROUND};
+use crate::screen::Screen;
 
 use super::{
     animation::PlayerAnimation,
@@ -16,6 +16,8 @@ use super::{
     spawn::WindowSize,
 };
 
+mod day_night_cycle;
+
 #[derive(Event, Debug)]
 pub struct SpawnWave {
     x: f32,
@@ -26,16 +28,11 @@ pub struct SpawnWave {
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Playing), spawn_initial_waves);
 
-    app.add_systems(
-        Update,
-        (day_night_cycle, spawn_random_waves).run_if(in_state(Screen::Playing)),
-    );
+    app.add_systems(Update, spawn_random_waves.run_if(in_state(Screen::Playing)));
 
     app.observe(spawn_wave);
-}
 
-fn day_night_cycle(mut clear_colour: ResMut<ClearColor>) {
-    clear_colour.0 = NODE_BACKGROUND;
+    app.add_plugins(day_night_cycle::plugin);
 }
 
 fn spawn_initial_waves(mut commands: Commands, win_size: Res<WindowSize>) {

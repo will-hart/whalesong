@@ -1,5 +1,4 @@
-//! Adds weather effects to the game. Borrows some day night cycle stuff from here
-//! https://github.com/will-hart/bevy_jam_2/blob/main/src/game/day_night_cycle.rs
+//! Adds weather effects to the game.
 
 use bevy::prelude::*;
 use rand::Rng;

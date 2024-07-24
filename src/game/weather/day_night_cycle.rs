@@ -1,35 +1,46 @@
+//! The day / night cycle for the background colours. Borrows day night cycle stuff
+//! from my Bevy Jam 2 entry, here
+//! https://github.com/will-hart/bevy_jam_2/blob/main/src/game/day_night_cycle.rs
+
 use bevy::prelude::*;
 use rand::Rng;
 
 use crate::screen::Screen;
 
 // The amount of world time that elapses per game second
-const TIME_OF_DAY_HOURS_PER_GAME_SECONDS: f32 = 1.5;
+const TIME_OF_DAY_HOURS_PER_GAME_SECONDS: f32 = 0.4;
 const NUM_COLOURS: usize = 8;
 const HOURS_PER_COLOUR: f32 = 24.0 / (NUM_COLOURS as f32);
 const CHANCE_OF_SUN: f64 = 0.8;
 
+// just a helper to make it easier to transpose between affinity and bevy colours
+macro_rules! p {
+    ($val: expr) => {
+        $val as f32 / 255.
+    };
+}
+
 // Note for smooth lerping, these palettes should start and end on the same colour as each other
 const SUNNY_COLOR_CYCLE: [Vec3; NUM_COLOURS] = [
-    /*  0am */ Vec3::new(0.97, 0.97, 0.85),
-    /*  3am */ Vec3::new(0.97, 0.97, 0.85),
-    /*  6am */ Vec3::new(0.97, 0.97, 0.85),
-    /*  9am */ Vec3::new(0.97, 0.97, 0.85),
-    /* 12pm */ Vec3::new(0.97, 0.97, 0.85),
-    /*  3pm */ Vec3::new(0.97, 0.97, 0.85),
-    /*  6pm */ Vec3::new(0.97, 0.97, 0.85),
-    /*  9pm */ Vec3::new(0.97, 0.97, 0.85),
+    /*  0am */ Vec3::new(p!(205), p!(205), p!(210)),
+    /*  3am */ Vec3::new(p!(210), p!(210), p!(198)),
+    /*  6am */ Vec3::new(p!(230), p!(230), p!(210)),
+    /*  9am */ Vec3::new(p!(247), p!(247), p!(219)),
+    /*  9am */ Vec3::new(p!(249), p!(249), p!(216)),
+    /*  3pm */ Vec3::new(p!(247), p!(240), p!(234)),
+    /*  6pm */ Vec3::new(p!(219), p!(210), p!(215)),
+    /*  0am */ Vec3::new(p!(205), p!(205), p!(205)),
 ];
 
 const STORMY_COLOR_CYCLE: [Vec3; NUM_COLOURS] = [
-    /*  0am */ Vec3::new(0.97, 0.97, 0.85),
-    /*  3am */ Vec3::new(0.97, 0.97, 0.85),
-    /*  6am */ Vec3::new(0.97, 0.97, 0.85),
-    /*  9am */ Vec3::new(0.97, 0.97, 0.85),
-    /* 12pm */ Vec3::new(0.97, 0.97, 0.85),
-    /*  3pm */ Vec3::new(0.97, 0.97, 0.85),
-    /*  6pm */ Vec3::new(0.97, 0.97, 0.85),
-    /*  9pm */ Vec3::new(0.97, 0.97, 0.85),
+    /*  0am */ Vec3::new(p!(205), p!(205), p!(210)),
+    /*  3am */ Vec3::new(p!(210), p!(210), p!(198)),
+    /*  6am */ Vec3::new(p!(230), p!(230), p!(210)),
+    /*  9am */ Vec3::new(p!(247), p!(247), p!(219)),
+    /*  9am */ Vec3::new(p!(249), p!(249), p!(216)),
+    /*  3pm */ Vec3::new(p!(247), p!(240), p!(234)),
+    /*  6pm */ Vec3::new(p!(219), p!(210), p!(215)),
+    /*  0am */ Vec3::new(p!(205), p!(205), p!(205)),
 ];
 
 #[derive(Resource)]

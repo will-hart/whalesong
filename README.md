@@ -44,16 +44,16 @@
     - [x] bird spawner
     - [x] birds randomly spawn every X seconds
     - [x] if birds get close, they circle the whale
-    - [ ] circling behaviour actually makes sense
     - [x] after a while, the birds leave
+    - [ ] add a "wander in area" behaviour while following the whale
     - [ ] bird sound effects
   - [ ] ships
-  - [ ] fish
+  - [ ] schools of fish
   - [ ] other whales
     - [ ] whalesong
     - [ ] forming a pod
 - [ ] Weather cycles
-  - [ ] day/night
+  - [x] day/night
   - [ ] wind
   - [ ] rain
   - [ ] storm
@@ -84,7 +84,8 @@
   - [ ] do a "Final final v1 latest" release before the jam ends
   - [ ] deploy to itch
   - [ ] test deployed version
-
+  
+[https://www.youtube.com/shorts/QaFM5X7KZX4](https://www.youtube.com/shorts/QaFM5X7KZX4)
 
 ## Template
 

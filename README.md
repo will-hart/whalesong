@@ -34,6 +34,7 @@
 - [x] periodically spawn other waves
 - [x] waves move
 - [x] background music
+- [x] encounter spawning system
 - [x] whale movement
   - [x] turn the whale when arrow keys are pressed
   - [x] move the waves diagonally when arrow keys pressed
@@ -41,7 +42,7 @@
   - [ ] birds
     - [x] bird graphics added to `creature.png`
     - [x] bird spawner
-    - [ ] birds randomly spawn every 10-15 seconds
+    - [x] birds randomly spawn every X seconds
     - [x] if birds get close, they circle the whale
     - [ ] circling behaviour actually makes sense
     - [x] after a while, the birds leave

@@ -11,7 +11,7 @@ use crate::{
 
 use super::get_creature_path;
 
-pub const BIRD_SPEED: f32 = WHALE_TRAVEL_SPEED * 1.2;
+pub const BIRD_SPEED: f32 = WHALE_TRAVEL_SPEED * 0.9;
 
 /// Used to indicate a curious creature, such as a bird
 #[derive(Component)]
@@ -87,7 +87,7 @@ fn gain_curiosity(
 fn scale_curious_birds(mut birds: Query<&mut Transform, With<Curious>>) {
     for mut tx in &mut birds {
         // update the scale
-        let scale = (tx.scale.x - 0.001).clamp(0.45, 1.0);
+        let scale = (tx.scale.x - 0.001).clamp(0.65, 1.0);
         tx.scale = Vec3::splat(scale);
     }
 }
@@ -132,7 +132,7 @@ fn return_to_flying_off(
         tx.scale = Vec3::splat(splat);
 
         // slowly speed up the bird
-        mover.speed = (mover.speed + 0.001).min(BIRD_SPEED);
+        mover.speed = (mover.speed + 0.0001).min(BIRD_SPEED);
 
         // check if the bird is ready to leave
         if tx.scale.x >= 1.0 {

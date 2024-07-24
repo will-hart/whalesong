@@ -5,6 +5,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 pub mod creature;
+pub mod encounters;
 pub mod level;
 pub mod player;
 
@@ -28,7 +29,12 @@ impl WindowSize {
 }
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((level::plugin, player::plugin, creature::plugin));
+    app.add_plugins((
+        encounters::plugin,
+        level::plugin,
+        player::plugin,
+        creature::plugin,
+    ));
 
     app.insert_resource(WindowSize { size: Vec2::ONE })
         .add_systems(PreUpdate, update_window_size);

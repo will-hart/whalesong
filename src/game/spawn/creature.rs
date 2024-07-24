@@ -1,7 +1,7 @@
 //! Spawn the player.
 
 use bevy::prelude::*;
-use bird::{Bird, BIRD_SPEED};
+use bird::{Bird, Incurious, BIRD_SPEED};
 use rand::Rng;
 
 use crate::{
@@ -13,39 +13,23 @@ use crate::{
     screen::Screen,
 };
 
-use super::WindowSize;
+use super::{
+    encounters::{EncounterType, SpawnEncounter},
+    WindowSize,
+};
 
 mod bird;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(bird::plugin);
-
     app.observe(spawn_creature);
-    app.add_systems(OnEnter(Screen::Playing), spawn_random_creatures);
-}
-
-fn spawn_random_creatures(mut commands: Commands) {
-    commands.trigger(SpawnCreature {
-        creature_type: CreatureType::Bird,
-    });
-}
-
-#[derive(Event, Debug)]
-pub struct SpawnCreature {
-    pub creature_type: CreatureType,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum CreatureType {
-    #[default]
-    Bird,
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct Creature(pub CreatureType);
+pub struct Creature(pub EncounterType);
 
 fn spawn_creature(
-    _trigger: Trigger<SpawnCreature>,
+    _trigger: Trigger<SpawnEncounter>,
     mut commands: Commands,
     win_size: Res<WindowSize>,
     image_handles: Res<HandleMap<ImageKey>>,
@@ -53,16 +37,17 @@ fn spawn_creature(
 ) {
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 5, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = match _trigger.event().creature_type {
-        CreatureType::Bird => PlayerAnimation::bird(),
+    let player_animation = match _trigger.event().encounter_type {
+        EncounterType::Bird => PlayerAnimation::bird(),
     };
 
     let size = win_size.size();
     let (from_pos, to_pos) = get_creature_path(size, 64.);
+    let mut rng = rand::thread_rng();
 
-    commands.spawn((
+    let mut entity_cmds = commands.spawn((
         Name::new("Bird"),
-        Creature(CreatureType::Bird),
+        Creature(EncounterType::Bird),
         Bird,
         SpriteBundle {
             texture: image_handles[&ImageKey::Creatures].clone_weak(),
@@ -82,6 +67,11 @@ fn spawn_creature(
         },
         MoveWithWhale,
     ));
+
+    // some birds are just incurious
+    if rng.gen_bool(0.3) {
+        entity_cmds.insert(Incurious);
+    }
 }
 
 /// Returns the ends of a path for spawning a creature

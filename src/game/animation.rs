@@ -11,7 +11,7 @@ use bevy::prelude::*;
 use crate::AppSet;
 
 /// The frame number where the whale starts to turn
-const BIRD_START_FRAME: usize = 32;
+const BIRD_START_FRAME: usize = 48;
 
 pub const WHALE_BREATH_FRAME_RATE: u64 = 150;
 

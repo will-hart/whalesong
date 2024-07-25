@@ -52,7 +52,7 @@ pub(super) fn spawn_bird(
     image_handles: &HandleMap<ImageKey>,
     texture_atlas_layouts: &mut Assets<TextureAtlasLayout>,
 ) {
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 5, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     let player_animation = PlayerAnimation::bird();

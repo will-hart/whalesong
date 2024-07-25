@@ -26,6 +26,41 @@ impl WindowSize {
     pub fn half(&self) -> Vec2 {
         self.size / 2.0
     }
+
+    pub fn clamp_to_screen_with_buffer(&self, clampee: Vec3, buffer: Val) -> Vec3 {
+        let half = self.half();
+
+        if half.is_nan() {
+            warn!("Skipping clamp_to_screen as NaN screen size");
+            return clampee;
+        }
+
+        let y_bound = match buffer {
+            Val::Px(v) => half.y - v,
+            Val::Percent(p) => (1. - p / 100.) * half.y,
+            Val::Auto => half.y - 10.,
+            _ => {
+                warn!("Unsupported value type passed to clamp_to_screen_with_buffer, ignoring");
+                half.y
+            }
+        };
+
+        let x_bound = match buffer {
+            Val::Px(v) => half.x - v,
+            Val::Percent(p) => (1. - p / 100.) * half.x,
+            Val::Auto => half.x - 10.,
+            _ => {
+                warn!("Unsupported value type passed to clamp_to_screen_with_buffer, ignoring");
+                half.x
+            }
+        };
+
+        Vec3::new(
+            clampee.x.clamp(-x_bound, x_bound),
+            clampee.y.clamp(-y_bound, y_bound),
+            clampee.z,
+        )
+    }
 }
 
 pub(super) fn plugin(app: &mut App) {

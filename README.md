@@ -49,6 +49,11 @@
     - [ ] bird sound effects
   - [ ] ships
   - [ ] schools of fish
+    - [x] create fish sprite
+    - [x] spawn fish
+    - [x] fish boids
+    - [x] fish encounters
+    - [ ] fish avoid the whale
   - [ ] other whales
     - [ ] whalesong
     - [ ] forming a pod
@@ -62,6 +67,7 @@
   - [x] restyle the menu
   - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
+  - [x] move whale not things around the whale
   - [ ] update the credits
 - [ ] code "quality"
   - [x] store whale position in a resource

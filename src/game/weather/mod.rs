@@ -9,8 +9,7 @@ use super::{
     animation::PlayerAnimation,
     assets::{HandleMap, ImageKey},
     movement::{
-        DespawnWhenOutOfWindow, MoveTowardsLocation, MoveWithWhale, WHALE_TRAVEL_SPEED,
-        WINDOW_DESPAWN_BUFFER,
+        DespawnWhenOutOfWindow, MoveTowardsLocation, WHALE_TRAVEL_SPEED, WINDOW_DESPAWN_BUFFER,
     },
     spawn::WindowSize,
 };
@@ -116,7 +115,6 @@ fn spawn_wave(
             target: Vec3::new(event.x, win_size.size().y, 0.0),
             remove_on_arrival: false,
         },
-        MoveWithWhale,
         DespawnWhenOutOfWindow,
         StateScoped(Screen::Playing),
     ));

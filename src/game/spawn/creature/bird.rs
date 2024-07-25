@@ -5,7 +5,7 @@ use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{MoveTowardsLocation, MoveWithWhale, WHALE_TRAVEL_SPEED},
+        movement::{MoveTowardsLocation, WHALE_TRAVEL_SPEED},
         spawn::{encounters::EncounterType, player::WhaleLocation, WindowSize},
     },
     screen::Screen,
@@ -80,7 +80,6 @@ pub(super) fn spawn_bird(
             target: to_pos,
             remove_on_arrival: true,
         },
-        MoveWithWhale,
     ));
 
     // some birds are just incurious

@@ -1,5 +1,6 @@
 //! Spawn the player.
 
+use bevoids::boids::BoidRepulsor;
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
@@ -65,6 +66,10 @@ fn spawn_player(
         .spawn((
             Name::new("Player"),
             Whale,
+            BoidRepulsor {
+                strength: 10.,
+                range: 80.,
+            },
             SpriteBundle {
                 texture: image_handles[&ImageKey::Creatures].clone_weak(),
                 transform: Transform::from_translation(start_pos),

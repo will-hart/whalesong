@@ -106,11 +106,12 @@ impl BoidSpeed {
 pub struct BoidJitter(pub f32);
 
 /// Used to generate a strong (temporary) repulsive force for boid navigation.
-/// Add it to any entity.
+/// Add it to any entity with a transform to act as a repulsor. The repulsor
+/// cannot also have a Boid component
 #[derive(Component)]
 pub struct BoidRepulsor {
-    pub point: Vec3,
     pub strength: f32,
+    pub range: f32,
 }
 
 /// The actual boid component. Attach this to any entity that should act like a boid.
@@ -366,7 +367,7 @@ impl BoidBorder {
 
 mod systems {
     use bevy::{
-        prelude::{Color, Entity, Gizmos, Query, Res, Transform, Vec2},
+        prelude::{Color, Entity, Gizmos, Query, Res, Transform, Vec2, Without},
         time::Time,
     };
     use rand::Rng;
@@ -375,7 +376,7 @@ mod systems {
 
     pub(super) fn handle_boid_movement(
         time: Res<Time>,
-        repulsors: Query<&BoidRepulsor>,
+        repulsors: Query<(&Transform, &BoidRepulsor), Without<Boid>>,
         mut boid_query: Query<(
             &mut Transform,
             &mut Boid,
@@ -463,9 +464,13 @@ mod systems {
             }
 
             // apply repulsors
-            for repulsor in &repulsors {
-                movement_vector += (repulsor.point - transform.translation).normalize_or_zero()
-                    * repulsor.strength;
+            for (repulsor_tx, repulsor) in &repulsors {
+                let delta_pos = transform.translation - repulsor_tx.translation;
+                if delta_pos.length_squared() > repulsor.range * repulsor.range {
+                    continue;
+                }
+
+                movement_vector += delta_pos.normalize_or_zero() * repulsor.strength;
             }
 
             let new_velocity = boid.velocity + movement_vector;

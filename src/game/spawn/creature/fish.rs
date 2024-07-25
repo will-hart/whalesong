@@ -1,12 +1,12 @@
-use bevoids::boids::BoidJitter;
+use bevoids::boids::{BoidCollisionGroup, BoidJitter};
 use bevy::prelude::*;
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        spawn::encounters::{EncounterType, SpawnEncounter},
+        spawn::encounters::EncounterType,
     },
     screen::Screen,
 };
@@ -21,14 +21,8 @@ pub struct Fish;
 #[derive(Component)]
 pub struct LeadFish;
 
-pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Screen::Playing), spawn_test_fish);
-}
-
-fn spawn_test_fish(mut commands: Commands) {
-    commands.trigger(SpawnEncounter {
-        encounter_type: EncounterType::Fish,
-    })
+pub(super) fn plugin(_app: &mut App) {
+    // nothing for now, as fish have their AI covered by Boids
 }
 
 /// Spawns a fish when `SpawnEncounter(Fish)` is triggered. Called by the parent creature plugin
@@ -47,6 +41,18 @@ pub(super) fn spawn_fish(
     player_animation.set_frame(rng.gen_range(0..8));
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
+
+    let collision = [
+        BoidCollisionGroup::GROUP_1,
+        BoidCollisionGroup::GROUP_2,
+        BoidCollisionGroup::GROUP_3,
+        BoidCollisionGroup::GROUP_4,
+        BoidCollisionGroup::GROUP_5,
+        BoidCollisionGroup::GROUP_6,
+        BoidCollisionGroup::GROUP_7,
+    ]
+    .choose(&mut rng)
+    .unwrap_or(&BoidCollisionGroup::GROUP_18);
 
     for fish in 0..20 {
         let mut boid = get_default_boid();
@@ -72,6 +78,7 @@ pub(super) fn spawn_fish(
             StateScoped(Screen::Playing),
             boid,
             BoidJitter(1.3),
+            collision.clone(),
         ));
 
         if fish == 0 {

@@ -53,7 +53,7 @@
     - [x] spawn fish
     - [x] fish boids
     - [x] fish encounters
-    - [ ] fish avoid the whale
+    - [x] fish avoid the whale
   - [ ] other whales
     - [ ] whalesong
     - [ ] forming a pod
@@ -92,6 +92,14 @@
   - [ ] test deployed version
   
 [https://www.youtube.com/shorts/QaFM5X7KZX4](https://www.youtube.com/shorts/QaFM5X7KZX4)
+
+## Credits
+
+- I've included https://github.com/DanielDK05/bevoids/ in this repo with the following changes:
+  - update for bevy 0.14.0
+  - allow setting velocity directly
+  - add a `BoidJitter` component which adds a bit of random jitter to the movement
+  - add a `BoidRepulsor` component which isn't a boid but pushes boids away
 
 ## Template
 

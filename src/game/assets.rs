@@ -19,6 +19,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect, Debug, Serialize, Deserialize)]
 pub enum ImageKey {
     Creatures,
+    Fish,
     Features,
     Icons,
     Logo,
@@ -41,6 +42,13 @@ impl FromWorld for HandleMap<ImageKey> {
                     "images/icons.png",
                     |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
                 ),
+            ),
+            (
+                ImageKey::Fish,
+                asset_server
+                    .load_with_settings("images/fish.png", |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear()
+                    }),
             ),
             (
                 ImageKey::Logo,

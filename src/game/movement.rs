@@ -30,6 +30,11 @@ pub struct MoveTowardsLocation {
 #[derive(Component)]
 pub struct MoveWithWhale;
 
+/// Denotes a component that rotates to face the direction of travel
+/// This is done in the [`move_towards_location`] system.
+#[derive(Component)]
+pub struct RotateToFaceMovement;
+
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
     app.register_type::<MovementController>();
@@ -144,12 +149,24 @@ fn rotate_whale_to_face_movement(
 /// Moves entities that have the [`MoveTowardsLocation`] component towards their location
 fn move_towards_location(
     mut commands: Commands,
-    mut movers: Query<(Entity, &Name, &mut Transform, &MoveTowardsLocation)>,
+    mut movers: Query<(
+        Entity,
+        &Name,
+        &mut Transform,
+        &MoveTowardsLocation,
+        Option<&RotateToFaceMovement>,
+    )>,
 ) {
-    for (entity, name, mut mover, details) in &mut movers {
+    for (entity, name, mut mover, details, rotate_to_face) in &mut movers {
+        let prev = mover.translation;
         mover.translation = mover
             .translation
             .move_towards(details.target, details.speed);
+
+        if rotate_to_face.is_some() {
+            let direction = (prev - mover.translation).xy().normalize();
+            mover.rotation = Quat::from_rotation_arc(Vec3::Y, direction.extend(0.));
+        }
 
         if details.remove_on_arrival && (mover.translation - details.target).length_squared() < 1.0
         {

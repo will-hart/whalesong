@@ -3,13 +3,15 @@ use rand::Rng;
 
 use crate::{
     game::{
-        movement::{MoveTowardsLocation, WHALE_TRAVEL_SPEED},
-        spawn::{player::WhaleLocation, WindowSize},
+        animation::PlayerAnimation,
+        assets::{HandleMap, ImageKey},
+        movement::{MoveTowardsLocation, MoveWithWhale, WHALE_TRAVEL_SPEED},
+        spawn::{encounters::EncounterType, player::WhaleLocation, WindowSize},
     },
     screen::Screen,
 };
 
-use super::get_creature_path;
+use super::{get_creature_path, Creature};
 
 pub const BIRD_SPEED: f32 = WHALE_TRAVEL_SPEED * 0.9;
 
@@ -41,6 +43,50 @@ pub(super) fn plugin(app: &mut App) {
         FixedUpdate,
         (scale_curious_birds, return_to_flying_off).run_if(in_state(Screen::Playing)),
     );
+}
+
+/// Spawns a bird when `SpawnEncounter(Bird)` is triggered. Called by the parent creature plugin
+pub(super) fn spawn_bird(
+    commands: &mut Commands,
+    win_size: Vec2,
+    image_handles: &HandleMap<ImageKey>,
+    texture_atlas_layouts: &mut Assets<TextureAtlasLayout>,
+) {
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 5, None, None);
+    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+
+    let player_animation = PlayerAnimation::bird();
+
+    let (from_pos, to_pos) = get_creature_path(win_size, 64.);
+    let mut rng = rand::thread_rng();
+
+    let mut entity_cmds = commands.spawn((
+        Name::new("Bird"),
+        Creature(EncounterType::Bird),
+        Bird,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Creatures].clone_weak(),
+            transform: Transform::from_translation(from_pos),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation,
+        StateScoped(Screen::Playing),
+        MoveTowardsLocation {
+            speed: BIRD_SPEED,
+            target: to_pos,
+            remove_on_arrival: true,
+        },
+        MoveWithWhale,
+    ));
+
+    // some birds are just incurious
+    if rng.gen_bool(0.3) {
+        entity_cmds.insert(Incurious);
+    }
 }
 
 pub const BIRD_CURIOSITY_THRESHOLD: f32 = 120.;

@@ -8,11 +8,9 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use super::movement::MovementController;
 use crate::AppSet;
 
 /// The frame number where the whale starts to turn
-const TURNING_START_FRAME: usize = 0;
 const BIRD_START_FRAME: usize = 32;
 
 pub(super) fn plugin(app: &mut App) {
@@ -22,30 +20,9 @@ pub(super) fn plugin(app: &mut App) {
         Update,
         (
             update_animation_timer.in_set(AppSet::TickTimers),
-            (update_animation_movement, update_animation_atlas)
-                .chain()
-                .in_set(AppSet::Update),
+            update_animation_atlas.in_set(AppSet::Update),
         ),
     );
-}
-
-/// Update the sprite direction and animation state (idling/walking).
-fn update_animation_movement(
-    mut player_query: Query<(&MovementController, &mut Sprite, &mut PlayerAnimation)>,
-) {
-    for (controller, mut sprite, mut animation) in &mut player_query {
-        let dx = controller.0.x;
-        if dx != 0.0 {
-            sprite.flip_x = dx < 0.0;
-        }
-
-        let animation_state = if controller.0 == Vec2::ZERO {
-            PlayerAnimationState::Swimming
-        } else {
-            PlayerAnimationState::Turning
-        };
-        animation.update_state(animation_state);
-    }
 }
 
 /// Update the animation timer.
@@ -76,36 +53,21 @@ pub struct PlayerAnimation {
 
 #[derive(Reflect, PartialEq)]
 pub enum PlayerAnimationState {
-    Swimming,
-    Turning,
+    WhaleSwimming,
     Wave,
     Bird,
+    Fish,
 }
 
 impl PlayerAnimation {
-    /// The number of idle frames.
-    const IDLE_FRAMES: usize = 8;
     /// The duration of each idle frame.
     const IDLE_INTERVAL: Duration = Duration::from_millis(250);
 
-    fn idling() -> Self {
+    fn swimming() -> Self {
         Self {
             timer: Timer::new(Self::IDLE_INTERVAL, TimerMode::Repeating),
             frame: 0,
-            state: PlayerAnimationState::Swimming,
-        }
-    }
-
-    /// The number of walking frames.
-    const WALKING_FRAMES: usize = 6;
-    /// The duration of each walking frame.
-    const WALKING_INTERVAL: Duration = Duration::from_millis(250);
-
-    fn walking() -> Self {
-        Self {
-            timer: Timer::new(Self::WALKING_INTERVAL, TimerMode::Repeating),
-            frame: 0,
-            state: PlayerAnimationState::Turning,
+            state: PlayerAnimationState::WhaleSwimming,
         }
     }
 
@@ -125,8 +87,16 @@ impl PlayerAnimation {
         }
     }
 
+    pub fn fish() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(200), TimerMode::Repeating),
+            frame: 0,
+            state: PlayerAnimationState::Fish,
+        }
+    }
+
     pub fn new() -> Self {
-        Self::idling()
+        Self::swimming()
     }
 
     pub fn set_frame(&mut self, frame: usize) {
@@ -142,24 +112,25 @@ impl PlayerAnimation {
         }
         self.frame = (self.frame + 1)
             % match self.state {
-                PlayerAnimationState::Swimming => Self::IDLE_FRAMES,
-                PlayerAnimationState::Turning => Self::WALKING_FRAMES,
                 PlayerAnimationState::Wave => 9,
-                PlayerAnimationState::Bird => 8,
+                PlayerAnimationState::WhaleSwimming
+                | PlayerAnimationState::Bird
+                | PlayerAnimationState::Fish => 8,
             };
     }
 
-    /// Update animation state if it changes.
-    pub fn update_state(&mut self, state: PlayerAnimationState) {
-        if self.state != state {
-            match state {
-                PlayerAnimationState::Swimming => *self = Self::idling(),
-                PlayerAnimationState::Turning => *self = Self::walking(),
-                PlayerAnimationState::Wave => *self = Self::wave(),
-                PlayerAnimationState::Bird => *self = Self::bird(),
-            }
-        }
-    }
+    // Leaving here in case I have time to add different animations
+    // /// Update animation state if it changes.
+    // pub fn update_state(&mut self, state: PlayerAnimationState) {
+    //     if self.state != state {
+    //         match state {
+    //             PlayerAnimationState::WhaleSwimming => *self = Self::swimming(),
+    //             PlayerAnimationState::Wave => *self = Self::wave(),
+    //             PlayerAnimationState::Bird => *self = Self::bird(),
+    //             PlayerAnimationState::Fish => *self = Self::fish(),
+    //         }
+    //     }
+    // }
 
     /// Whether animation changed this tick.
     pub fn changed(&self) -> bool {
@@ -169,10 +140,10 @@ impl PlayerAnimation {
     /// Return sprite index in the atlas.
     pub fn get_atlas_index(&self) -> usize {
         match self.state {
-            PlayerAnimationState::Swimming => self.frame,
-            PlayerAnimationState::Turning => TURNING_START_FRAME + self.frame,
+            PlayerAnimationState::WhaleSwimming => self.frame,
             PlayerAnimationState::Wave => self.frame,
             PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
+            PlayerAnimationState::Fish => self.frame,
         }
     }
 }

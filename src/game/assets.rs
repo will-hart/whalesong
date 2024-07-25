@@ -103,6 +103,8 @@ impl FromWorld for HandleMap<ImageKey> {
 pub enum SfxKey {
     ButtonHover,
     ButtonPress,
+    WhaleBreath,
+    OceanAmbient,
 }
 
 impl AssetKey for SfxKey {
@@ -114,8 +116,16 @@ impl FromWorld for HandleMap<SfxKey> {
         let asset_server = world.resource::<AssetServer>();
         [
             (
+                SfxKey::WhaleBreath,
+                asset_server.load("audio/sfx/whale_breath.ogg"),
+            ),
+            (
                 SfxKey::ButtonHover,
                 asset_server.load("audio/sfx/button_hover.ogg"),
+            ),
+            (
+                SfxKey::OceanAmbient,
+                asset_server.load("audio/sfx/ocean_ambient.ogg"),
             ),
             (
                 SfxKey::ButtonPress,

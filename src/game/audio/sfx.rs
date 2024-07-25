@@ -13,11 +13,16 @@ fn play_sfx(
 ) {
     let sfx_key = match trigger.event() {
         PlaySfx::Key(key) => *key,
+        PlaySfx::Loop(key) => *key,
     };
     commands.spawn(AudioSourceBundle {
         source: sfx_handles[&sfx_key].clone_weak(),
         settings: PlaybackSettings {
-            mode: PlaybackMode::Despawn,
+            mode: if matches!(trigger.event(), PlaySfx::Loop(_)) {
+                PlaybackMode::Loop
+            } else {
+                PlaybackMode::Despawn
+            },
             ..default()
         },
     });
@@ -27,4 +32,5 @@ fn play_sfx(
 #[derive(Event)]
 pub enum PlaySfx {
     Key(SfxKey),
+    Loop(SfxKey),
 }

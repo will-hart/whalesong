@@ -13,6 +13,11 @@ use crate::AppSet;
 /// The frame number where the whale starts to turn
 const BIRD_START_FRAME: usize = 32;
 
+pub const WHALE_BREATH_FRAME_RATE: u64 = 150;
+
+#[derive(Event)]
+pub struct AnimationComplete;
+
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.
     app.register_type::<PlayerAnimation>();
@@ -26,9 +31,15 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 /// Update the animation timer.
-fn update_animation_timer(time: Res<Time>, mut query: Query<&mut PlayerAnimation>) {
-    for mut animation in &mut query {
-        animation.update_timer(time.delta());
+fn update_animation_timer(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut PlayerAnimation)>,
+) {
+    for (entity, mut animation) in &mut query {
+        if animation.update_timer(time.delta()) {
+            commands.trigger_targets(AnimationComplete, entity)
+        }
     }
 }
 
@@ -49,6 +60,7 @@ pub struct PlayerAnimation {
     timer: Timer,
     frame: usize,
     state: PlayerAnimationState,
+    oneshot: bool,
 }
 
 #[derive(Reflect, PartialEq, Clone)]
@@ -57,6 +69,7 @@ pub enum PlayerAnimationState {
     Wave,
     Bird,
     Fish,
+    WhaleBreath,
 }
 
 impl PlayerAnimation {
@@ -68,6 +81,7 @@ impl PlayerAnimation {
             timer: Timer::new(Self::IDLE_INTERVAL, TimerMode::Repeating),
             frame: 0,
             state: PlayerAnimationState::WhaleSwimming,
+            oneshot: false,
         }
     }
 
@@ -76,6 +90,7 @@ impl PlayerAnimation {
             timer: Timer::new(Duration::from_millis(450), TimerMode::Repeating),
             frame: 0,
             state: PlayerAnimationState::Wave,
+            oneshot: false,
         }
     }
 
@@ -84,6 +99,7 @@ impl PlayerAnimation {
             timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
             frame: 0,
             state: PlayerAnimationState::Bird,
+            oneshot: false,
         }
     }
 
@@ -92,6 +108,19 @@ impl PlayerAnimation {
             timer: Timer::new(Duration::from_millis(200), TimerMode::Repeating),
             frame: 0,
             state: PlayerAnimationState::Fish,
+            oneshot: false,
+        }
+    }
+
+    pub fn breath() -> Self {
+        Self {
+            timer: Timer::new(
+                Duration::from_millis(WHALE_BREATH_FRAME_RATE),
+                TimerMode::Repeating,
+            ),
+            frame: 0,
+            state: PlayerAnimationState::WhaleBreath,
+            oneshot: true,
         }
     }
 
@@ -104,19 +133,28 @@ impl PlayerAnimation {
         self.frame = frame;
     }
 
-    /// Update animation timers.
-    pub fn update_timer(&mut self, delta: Duration) {
+    /// Update animation timers. Returns true if
+    /// - the animation ticked,
+    /// - this is a oneshot animation, and
+    /// - the animation index has wrapped back to the start.
+    /// For now ignore that some animations don't start at the lowest index frame.
+    pub fn update_timer(&mut self, delta: Duration) -> bool {
         self.timer.tick(delta);
         if !self.timer.finished() {
-            return;
+            return false;
         }
+
+        let prev = self.frame;
         self.frame = (self.frame + 1)
             % match self.state {
                 PlayerAnimationState::Wave => 9,
                 PlayerAnimationState::WhaleSwimming
                 | PlayerAnimationState::Bird
                 | PlayerAnimationState::Fish => 8,
+                PlayerAnimationState::WhaleBreath => 16,
             };
+
+        self.oneshot && self.frame < prev
     }
 
     // Leaving here in case I have time to add different animations
@@ -140,10 +178,11 @@ impl PlayerAnimation {
     /// Return sprite index in the atlas.
     pub fn get_atlas_index(&self) -> usize {
         match self.state {
-            PlayerAnimationState::WhaleSwimming => self.frame,
-            PlayerAnimationState::Wave => self.frame,
             PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
-            PlayerAnimationState::Fish => self.frame,
+            PlayerAnimationState::WhaleSwimming
+            | PlayerAnimationState::Wave
+            | PlayerAnimationState::Fish => self.frame,
+            PlayerAnimationState::WhaleBreath => 8 + self.frame,
         }
     }
 }

@@ -72,7 +72,7 @@
 - [ ] code "quality"
   - [x] store whale position in a resource
 - [ ] stretch goals
-  - [ ] periodically come up to breathe
+  - [x] periodically come up to breathe
   - [ ] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
     - [ ] Display player help icons after movement complete.
   - [ ] add the easter egg
@@ -85,10 +85,11 @@
 - [ ] jam admin
   - [x] update `Cargo.toml`
   - [x] fix CI yaml file
-  - [ ] set up itch page
-  - [ ] do a test release
+  - [x] set up itch page
+  - [x] do a test release
   - [ ] do a "Final final v1 latest" release before the jam ends
   - [ ] deploy to itch
+  - [ ] add screenshots and details to the jam page
   - [ ] test deployed version
   
 [https://www.youtube.com/shorts/QaFM5X7KZX4](https://www.youtube.com/shorts/QaFM5X7KZX4)

@@ -4,15 +4,15 @@ use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{MoveTowardsLocation, MoveWithWhale, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
         spawn::encounters::{EncounterType, SpawnEncounter},
     },
     screen::Screen,
 };
 
-use super::{get_creature_path, Creature};
-
-pub const FISH_SPEED: f32 = WHALE_TRAVEL_SPEED * 1.1;
+use super::{
+    boid::{Boid, BoidGravity},
+    get_creature_path, Creature,
+};
 
 /// Marker component for fish
 #[derive(Component)]
@@ -48,7 +48,7 @@ pub(super) fn spawn_fish(
         Fish,
         SpriteBundle {
             texture: image_handles[&ImageKey::Fish].clone_weak(),
-            transform: Transform::from_translation(from_pos),
+            // transform: Transform::from_translation(from_pos),
             ..Default::default()
         },
         TextureAtlas {
@@ -57,12 +57,7 @@ pub(super) fn spawn_fish(
         },
         player_animation,
         StateScoped(Screen::Playing),
-        MoveTowardsLocation {
-            speed: FISH_SPEED,
-            target: to_pos,
-            remove_on_arrival: true,
-        },
-        RotateToFaceMovement,
-        MoveWithWhale,
+        Boid,
+        BoidGravity((-from_pos).normalize()),
     ));
 }

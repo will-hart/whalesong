@@ -11,10 +11,11 @@ use super::{
 };
 
 mod bird;
+pub mod boid;
 mod fish;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((bird::plugin, fish::plugin));
+    app.add_plugins((bird::plugin, fish::plugin, boid::plugin));
     app.observe(spawn_creature);
 }
 

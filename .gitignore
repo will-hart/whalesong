@@ -5,5 +5,5 @@
 
 # This file contains environment-specific configuration like linker settings
 .cargo/config.toml
-assets/audio/.mscbackup/
 */**.afdesign~lock~
+assets/audio/soundtracks/.mscbackup/

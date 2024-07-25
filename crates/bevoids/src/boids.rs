@@ -100,6 +100,19 @@ impl BoidSpeed {
     }
 }
 
+/// A component to randomly jitter movement to make it a little more natural
+/// Optionally add to a boid entity to apply jitter to movement.
+#[derive(Component)]
+pub struct BoidJitter(pub f32);
+
+/// Used to generate a strong (temporary) repulsive force for boid navigation.
+/// Add it to any entity.
+#[derive(Component)]
+pub struct BoidRepulsor {
+    pub point: Vec3,
+    pub strength: f32,
+}
+
 /// The actual boid component. Attach this to any entity that should act like a boid.
 ///
 /// **NOTE**: This will take control of the entity's [Transform](bevy::prelude::Transform)
@@ -160,6 +173,10 @@ impl Boid {
 
     pub fn velocity(&self) -> Vec3 {
         self.velocity
+    }
+
+    pub fn set_velocity(&mut self, velocity: Vec3) {
+        self.velocity = velocity;
     }
 }
 
@@ -352,27 +369,32 @@ mod systems {
         prelude::{Color, Entity, Gizmos, Query, Res, Transform, Vec2},
         time::Time,
     };
+    use rand::Rng;
 
     use super::*;
 
     pub(super) fn handle_boid_movement(
         time: Res<Time>,
+        repulsors: Query<&BoidRepulsor>,
         mut boid_query: Query<(
             &mut Transform,
             &mut Boid,
             Option<&BoidBorder>,
             Option<&BoidCollisionGroup>,
+            Option<&BoidJitter>,
             Entity,
         )>,
     ) {
         let boids = boid_query
             .iter()
-            .map(|(transform, boid, _, collision_group, entity)| {
+            .map(|(transform, boid, _, collision_group, _, entity)| {
                 (*transform, *boid, collision_group.copied(), entity)
             })
             .collect::<Vec<_>>();
 
-        for (mut transform, mut boid, border, collision_group, entity) in boid_query.iter_mut() {
+        for (mut transform, mut boid, border, collision_group, jitter, entity) in
+            boid_query.iter_mut()
+        {
             let mut movement_vector = Vec3::ZERO;
 
             let mut separation_vector = Vec3::ZERO;
@@ -434,12 +456,24 @@ mod systems {
                 movement_vector += border.calc_avoidance(transform.translation, &boid);
             }
 
+            // apply jitter
+            if let Some(jitter) = jitter {
+                movement_vector +=
+                    (rand::thread_rng().gen_range(-jitter.0..jitter.0) * Vec2::ONE).extend(0.);
+            }
+
+            // apply repulsors
+            for repulsor in &repulsors {
+                movement_vector += (repulsor.point - transform.translation).normalize_or_zero()
+                    * repulsor.strength;
+            }
+
             let new_velocity = boid.velocity + movement_vector;
 
             boid.velocity = if new_velocity.length_squared() > 0.0 {
                 new_velocity.clamp_length(boid.speed.min, boid.speed.max)
             } else {
-                Vec3::X * boid.speed.min
+                Vec3::X
             };
 
             transform.translation += boid.velocity * time.delta_seconds();

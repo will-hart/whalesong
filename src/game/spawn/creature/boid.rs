@@ -12,21 +12,17 @@ use bevoids::boids::{
 };
 use bevy::prelude::*;
 
-const BOID_MIN_SPEED: f32 = 50.0;
-const BOID_MAX_SPEED: f32 = 100.0;
+const BOID_MIN_SPEED: f32 = 20.0;
+const BOID_MAX_SPEED: f32 = 30.0;
 
-const BOID_COHESION: f32 = 0.3;
-const BOID_SEPARATION: f32 = 0.03;
-const BOID_ALIGNMENT: f32 = 0.09;
+const BOID_COHESION: f32 = 0.25;
+const BOID_SEPARATION: f32 = 0.5;
+const BOID_ALIGNMENT: f32 = 0.08;
 const BOID_BORDER_TURN_STRENGTH: f32 = 200.0;
 
 const BOID_FOV: u32 = 240;
 const BOID_VIEW_RANGE: f32 = 120.0;
-const BOID_PROTECTED_RANGE: f32 = 12.0;
-
-const BORDER_WIDTH: f32 = 2400.0;
-const BORDER_HEIGHT: f32 = 1300.0;
-const BORDER_MARGIN: f32 = 400.0;
+const BOID_PROTECTED_RANGE: f32 = 15.0;
 
 pub fn get_default_boid() -> Boid {
     Boid::new(

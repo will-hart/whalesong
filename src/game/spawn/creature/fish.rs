@@ -42,19 +42,19 @@ pub(super) fn spawn_fish(
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
 
+    // avoid some collisions between schools, but occasionally let them interact
     let collision = [
         BoidCollisionGroup::GROUP_1,
         BoidCollisionGroup::GROUP_2,
         BoidCollisionGroup::GROUP_3,
         BoidCollisionGroup::GROUP_4,
-        BoidCollisionGroup::GROUP_5,
-        BoidCollisionGroup::GROUP_6,
-        BoidCollisionGroup::GROUP_7,
     ]
     .choose(&mut rng)
     .unwrap_or(&BoidCollisionGroup::GROUP_18);
 
-    for fish in 0..20 {
+    let school_size = rng.gen_range(5..35);
+
+    for fish in 0..school_size {
         let mut boid = get_default_boid();
         boid.set_velocity((to_pos - from_pos).normalize() * 100.);
 

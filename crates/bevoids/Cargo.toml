@@ -1,0 +1,13 @@
+[package]
+name = "bevoids"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "A bevy plugin that aims to make boids easy to add to your game, without comprimising in control"
+repository = "https://github.com/DanielDK05/bevoids"
+readme = "README.md"
+authors = ["Daniel Kalstad"]
+
+[dependencies]
+bevy = "0.14.0"
+bitflags = "2.4.2"

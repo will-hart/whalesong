@@ -9,10 +9,7 @@ use crate::{
     screen::Screen,
 };
 
-use super::{
-    boid::{Boid, BoidGravity},
-    get_creature_path, Creature,
-};
+use super::{boid::get_default_boid, get_creature_path, Creature};
 
 /// Marker component for fish
 #[derive(Component)]
@@ -43,7 +40,79 @@ pub(super) fn spawn_fish(
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
 
     commands.spawn((
-        Name::new("Bird"),
+        Name::new("Fish 0"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            transform: Transform::from_translation(Vec3::new(-4., -4., 0.)),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 1"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            transform: Transform::from_translation(Vec3::new(4., -4., 0.)),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 2"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            transform: Transform::from_translation(Vec3::new(4., 4., 0.)),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 3"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            transform: Transform::from_translation(Vec3::new(-4., 4., 0.)),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 4"),
         Creature(EncounterType::Bird),
         Fish,
         SpriteBundle {
@@ -55,9 +124,59 @@ pub(super) fn spawn_fish(
             layout: texture_atlas_layout.clone(),
             index: player_animation.get_atlas_index(),
         },
-        player_animation,
+        player_animation.clone(),
         StateScoped(Screen::Playing),
-        Boid,
-        BoidGravity((-from_pos).normalize()),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 4"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 4"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
+    ));
+    commands.spawn((
+        Name::new("Fish 4"),
+        Creature(EncounterType::Bird),
+        Fish,
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Fish].clone_weak(),
+            // transform: Transform::from_translation(from_pos),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        player_animation.clone(),
+        StateScoped(Screen::Playing),
+        get_default_boid(),
     ));
 }

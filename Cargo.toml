@@ -15,6 +15,9 @@ serde = { version = "1.0", features = ["derive"] }
 rand = "0.8"
 ron = "*"
 
+# just vendor this in  rather than using the external repo
+bevoids = { path = "./crates/bevoids" }
+
 [features]
 default = [
     # Default to a native dev build.
@@ -52,10 +55,6 @@ opt-level = 1
 # Enable a large amount of optimization in the dev profile for dependencies.
 [profile.dev.package."*"]
 opt-level = 3
-
-# Remove expensive debug assertions due to <https://github.com/bevyengine/bevy/issues/14291>
-[profile.dev.package.wgpu-types]
-debug-assertions = false
 
 # The default profile is optimized for Wasm builds because
 # that's what [Trunk reads](https://github.com/trunk-rs/trunk/issues/605).

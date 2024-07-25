@@ -157,78 +157,84 @@ fn spawn_player(
         phase: BreathingPhase::Underwater,
     };
 
-    commands
-        .spawn((
-            Name::new("Player"),
-            Whale,
-            BoidRepulsor {
-                strength: 10.,
-                range: 80.,
-            },
-            SpriteBundle {
-                texture: image_handles[&ImageKey::Creatures].clone_weak(),
-                transform: Transform::from_translation(start_pos),
-                ..Default::default()
-            },
-            TextureAtlas {
-                layout: texture_atlas_layout.clone(),
-                index: player_animation.get_atlas_index(),
-            },
-            MovementController::default(),
-            Movement { speed: 420.0 },
-            player_animation,
-            WhaleArrivalMarker,
-            StateScoped(Screen::Playing),
-            breath_timer,
-        ))
-        .with_children(|parent| {
-            let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 1, None, None);
-            let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
-            parent.spawn((
-                Name::new("PlayerHelp Left"),
-                InputHelp,
-                SpriteBundle {
-                    texture: image_handles[&ImageKey::Icons].clone_weak(),
-                    transform: Transform::from_scale(Vec3::splat(0.5))
-                        .with_translation(Vec3::new(-45., -30., 0.0)),
-                    ..Default::default()
-                },
-                TextureAtlas {
-                    layout: texture_atlas_layout.clone(),
-                    index: 0,
-                },
-                StateScoped(Screen::Playing),
-            ));
-            parent.spawn((
-                Name::new("PlayerHelp Right"),
-                InputHelp,
-                SpriteBundle {
-                    texture: image_handles[&ImageKey::Icons].clone_weak(),
-                    transform: Transform::from_scale(Vec3::splat(0.5))
-                        .with_translation(Vec3::new(45., -30., 0.0)),
-                    ..Default::default()
-                },
-                TextureAtlas {
-                    layout: texture_atlas_layout.clone(),
-                    index: 1,
-                },
-                StateScoped(Screen::Playing),
-            ));
-        });
+    commands.spawn((
+        Name::new("Player"),
+        Whale,
+        BoidRepulsor {
+            strength: 10.,
+            range: 80.,
+        },
+        SpriteBundle {
+            texture: image_handles[&ImageKey::Creatures].clone_weak(),
+            transform: Transform::from_translation(start_pos),
+            ..Default::default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout.clone(),
+            index: player_animation.get_atlas_index(),
+        },
+        MovementController::default(),
+        Movement { speed: 420.0 },
+        player_animation,
+        WhaleArrivalMarker,
+        StateScoped(Screen::Playing),
+        breath_timer,
+    ));
 }
 
 fn move_in_spawning_whale(
     mut commands: Commands,
     whale_pos: Res<WhaleLocation>,
+    image_handles: Res<HandleMap<ImageKey>>,
     mut whales: Query<(Entity, &mut Transform), With<WhaleArrivalMarker>>,
 ) {
     for (entity, mut whale) in &mut whales {
         whale.translation.y -= WHALE_TRAVEL_SPEED;
 
         if whale.translation.y < whale_pos.y {
-            info!("Whale has arrived");
-            commands.entity(entity).remove::<WhaleArrivalMarker>();
+            info!("Whale has arrived, spawning helpers");
+            commands
+                .entity(entity)
+                .remove::<WhaleArrivalMarker>()
+                .with_children(|parent| {
+                    parent.spawn((
+                        Name::new("PlayerHelp Left"),
+                        InputHelp,
+                        SpriteBundle {
+                            texture: image_handles[&ImageKey::Icons].clone_weak(),
+                            transform: Transform::from_scale(Vec3::splat(0.5))
+                                .with_translation(Vec3::new(-45., -30., 0.0)),
+                            ..Default::default()
+                        },
+                        StateScoped(Screen::Playing),
+                    ));
+
+                    parent.spawn((
+                        Name::new("PlayerHelp Right"),
+                        InputHelp,
+                        SpriteBundle {
+                            texture: image_handles[&ImageKey::Icons].clone_weak(),
+                            transform: Transform::from_scale(Vec3::splat(0.5))
+                                .with_translation(Vec3::new(45., -30., 0.0))
+                                .with_rotation(Quat::from_rotation_z(std::f32::consts::PI)),
+                            ..Default::default()
+                        },
+                        StateScoped(Screen::Playing),
+                    ));
+
+                    parent.spawn((
+                        Name::new("PlayerHelp Down"),
+                        InputHelp,
+                        SpriteBundle {
+                            texture: image_handles[&ImageKey::Icons].clone_weak(),
+                            transform: Transform::from_scale(Vec3::splat(0.5))
+                                .with_translation(Vec3::new(0., -50., 0.0))
+                                .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
+                            ..Default::default()
+                        },
+                        StateScoped(Screen::Playing),
+                    ));
+                });
         }
     }
 }

@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use crate::{screen::Screen, AppSet};
 
 use super::spawn::{
-    player::{InputHelp, Whale, WhaleLocation},
+    player::{InputHelp, Whale, WhaleArrivalMarker, WhaleLocation},
     WindowSize,
 };
 
@@ -126,7 +126,15 @@ fn move_whale(
     mut whale_pos: ResMut<WhaleLocation>,
     win_size: Res<WindowSize>,
     movements: Query<&MovementController>,
-    mut whales: Query<&mut Transform, (With<Whale>, Without<MoveTowardsLocation>)>, // don't move whales that are being "moved to location"
+    // don't move whales that are being "moved to location" or are arriving
+    mut whales: Query<
+        &mut Transform,
+        (
+            With<Whale>,
+            Without<WhaleArrivalMarker>,
+            Without<MoveTowardsLocation>,
+        ),
+    >,
 ) {
     let movement = movements.single();
     let delta_move = movement.intent.normalize_or_zero() * WHALE_MOVEMENT_SCALE;
@@ -134,7 +142,7 @@ fn move_whale(
     if let Ok(mut whale) = whales.get_single_mut() {
         whale.translation = win_size.clamp_to_screen_with_buffer(
             whale.translation + delta_move.extend(0.),
-            Val::Percent(20.),
+            Val::Percent(30.),
         );
 
         whale_pos.target_rotation = movement.intent.x * WHALE_MOVEMENT_SCALE;

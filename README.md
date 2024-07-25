@@ -73,8 +73,8 @@
   - [x] store whale position in a resource
 - [ ] stretch goals
   - [x] periodically come up to breathe
-  - [ ] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
-    - [ ] Display player help icons after movement complete.
+  - [x] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
+  - [x] Display player help icons after movement complete.
   - [ ] add the easter egg
   - [ ] add more encounters
   - [ ] add more music

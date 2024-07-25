@@ -24,7 +24,7 @@ pub(super) fn plugin(app: &mut App) {
     );
     app.add_systems(Update, spawn_breaths.run_if(in_state(Screen::Playing)));
     app.register_type::<Whale>();
-    app.init_resource::<WhaleLocation>();
+    app.init_resource::<WhaleRotation>();
 }
 
 #[derive(Event, Debug)]
@@ -35,8 +35,7 @@ pub struct SpawnPlayer;
 pub struct Whale;
 
 #[derive(Resource, Default)]
-pub struct WhaleLocation {
-    pub y: f32,
+pub struct WhaleRotation {
     pub current_rotation: f32,
     pub target_rotation: f32,
 }
@@ -45,7 +44,9 @@ pub struct WhaleLocation {
 pub struct InputHelp;
 
 #[derive(Component)]
-pub struct WhaleArrivalMarker;
+pub struct WhaleArrivalMarker {
+    target_y: f32,
+}
 
 #[derive(Copy, Clone)]
 enum BreathingPhase {
@@ -115,7 +116,7 @@ fn spawn_breaths(
 
             // now update the timer and restart
             let next_duration = match &breath.phase {
-                BreathingPhase::Underwater => rng.gen_range(5.0..12.0),
+                BreathingPhase::Underwater => rng.gen_range(12.0..17.0),
                 BreathingPhase::AboveWater => (5 * WHALE_BREATH_FRAME_RATE) as f32 / 1000.,
             };
             breath
@@ -134,7 +135,6 @@ fn despawn_breaths(trigger: Trigger<AnimationComplete>, mut commands: Commands) 
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
-    mut whale_pos: ResMut<WhaleLocation>,
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     windows: Query<&Window, With<PrimaryWindow>>,
@@ -148,7 +148,6 @@ fn spawn_player(
         Err(_) => return,
     };
     let half_height = height / 2.0;
-    whale_pos.y = half_height * 0.5;
 
     let start_pos = Vec3::new(0.0, half_height + 64., 0.);
 
@@ -176,7 +175,9 @@ fn spawn_player(
         MovementController::default(),
         Movement { speed: 420.0 },
         player_animation,
-        WhaleArrivalMarker,
+        WhaleArrivalMarker {
+            target_y: half_height * 0.5,
+        },
         StateScoped(Screen::Playing),
         breath_timer,
     ));
@@ -184,14 +185,13 @@ fn spawn_player(
 
 fn move_in_spawning_whale(
     mut commands: Commands,
-    whale_pos: Res<WhaleLocation>,
     image_handles: Res<HandleMap<ImageKey>>,
-    mut whales: Query<(Entity, &mut Transform), With<WhaleArrivalMarker>>,
+    mut whales: Query<(Entity, &mut Transform, &WhaleArrivalMarker)>,
 ) {
-    for (entity, mut whale) in &mut whales {
+    for (entity, mut whale, arrival_marker) in &mut whales {
         whale.translation.y -= WHALE_TRAVEL_SPEED;
 
-        if whale.translation.y < whale_pos.y {
+        if whale.translation.y < arrival_marker.target_y {
             info!("Whale has arrived, spawning helpers");
             commands
                 .entity(entity)

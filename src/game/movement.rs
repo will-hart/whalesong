@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use crate::{screen::Screen, AppSet};
 
 use super::spawn::{
-    player::{InputHelp, Whale, WhaleArrivalMarker, WhaleLocation},
+    player::{InputHelp, Whale, WhaleArrivalMarker, WhaleRotation},
     WindowSize,
 };
 
@@ -16,7 +16,7 @@ use super::spawn::{
 pub const WHALE_TRAVEL_SPEED: f32 = 0.45; // magic number
 
 /// how far the whale turns when pointing left or right (in radians)
-const WHALE_MOVEMENT_SCALE: f32 = 0.4;
+const WHALE_MOVEMENT_SCALE: f32 = 0.6;
 const WHALE_TURN_SPEED: f32 = 0.02;
 
 #[derive(Component)]
@@ -123,7 +123,7 @@ fn despawn_out_of_view(
 }
 
 fn move_whale(
-    mut whale_pos: ResMut<WhaleLocation>,
+    mut whale_pos: ResMut<WhaleRotation>,
     win_size: Res<WindowSize>,
     movements: Query<&MovementController>,
     // don't move whales that are being "moved to location" or are arriving
@@ -145,7 +145,11 @@ fn move_whale(
             Val::Percent(30.),
         );
 
-        whale_pos.target_rotation = movement.intent.x * WHALE_MOVEMENT_SCALE;
+        whale_pos.target_rotation = if movement.intent.y < 0. {
+            movement.intent.x * 0.5 * WHALE_MOVEMENT_SCALE
+        } else {
+            movement.intent.x * WHALE_MOVEMENT_SCALE
+        };
         whale_pos.current_rotation = whale_pos
             .current_rotation
             .lerp(whale_pos.target_rotation, WHALE_TURN_SPEED);

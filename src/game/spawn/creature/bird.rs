@@ -6,7 +6,7 @@ use crate::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
         movement::{MoveTowardsLocation, WHALE_TRAVEL_SPEED},
-        spawn::{encounters::EncounterType, player::WhaleLocation, WindowSize},
+        spawn::{encounters::EncounterType, player::Whale, WindowSize},
     },
     screen::Screen,
 };
@@ -41,7 +41,12 @@ pub(super) fn plugin(app: &mut App) {
     );
     app.add_systems(
         FixedUpdate,
-        (scale_curious_birds, return_to_flying_off).run_if(in_state(Screen::Playing)),
+        (
+            scale_curious_birds,
+            curious_birds_follow_whale,
+            return_to_flying_off,
+        )
+            .run_if(in_state(Screen::Playing)),
     );
 }
 
@@ -90,21 +95,22 @@ pub(super) fn spawn_bird(
 
 pub const BIRD_CURIOSITY_THRESHOLD: f32 = 120.;
 
-/// Looks at birds
+/// Looks at birds and works out if they're close enough to a whale to get curious about it
 fn gain_curiosity(
     mut commands: Commands,
     time: Res<Time>,
-    whale_pos: Res<WhaleLocation>,
+    whales: Query<&Transform, With<Whale>>,
     birds: Query<(Entity, &Transform), (With<Bird>, Without<Curious>, Without<Incurious>)>,
 ) {
-    if birds.is_empty() {
+    if birds.is_empty() || whales.is_empty() {
         return;
     }
 
+    let whale = whales.single();
     let mut rng = rand::thread_rng();
     let target = Vec3::new(
-        rng.gen_range(-20.0..20.0),
-        whale_pos.y + rng.gen_range(-20.0..20.0),
+        whale.translation.x + rng.gen_range(-20.0..20.0),
+        whale.translation.y + rng.gen_range(-20.0..20.0),
         0.,
     );
 
@@ -126,6 +132,29 @@ fn gain_curiosity(
                 },
             )); // stops them from moving off the screen and instead circles them
         }
+    }
+}
+
+fn curious_birds_follow_whale(
+    whales: Query<&Transform, With<Whale>>,
+    mut birds: Query<
+        &mut MoveTowardsLocation,
+        (With<Bird>, With<Curious>, Without<LosingCuriosity>),
+    >,
+) {
+    if birds.is_empty() || whales.is_empty() {
+        return;
+    }
+
+    let whale = whales.single();
+    let mut rng = rand::thread_rng();
+
+    for mut bird in &mut birds {
+        bird.target = Vec3::new(
+            whale.translation.x + rng.gen_range(-20.0..20.0),
+            whale.translation.y + rng.gen_range(-20.0..20.0),
+            0.,
+        );
     }
 }
 

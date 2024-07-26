@@ -68,6 +68,9 @@ pub struct MovementController {
     pub action: bool,
 }
 
+#[derive(Event)]
+pub struct PlayerActionRequested;
+
 fn update_movement_intent(
     mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
@@ -96,7 +99,9 @@ fn update_movement_intent(
     // Apply movement intent to controllers.
     for mut controller in &mut controller_query {
         controller.intent = intent;
-        controller.action = input.just_pressed(KeyCode::Space);
+        if input.just_pressed(KeyCode::Space) {
+            commands.trigger(PlayerActionRequested);
+        }
     }
 }
 

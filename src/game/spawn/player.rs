@@ -8,12 +8,15 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::{despawn_when_animation_complete, PlayerAnimation, WHALE_BREATH_FRAME_RATE},
+        animation::{
+            despawn_when_animation_complete, AnimationComplete, PlayerAnimation,
+            PlayerAnimationState, WHALE_BREATH_FRAME_RATE,
+        },
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         movement::{
-            MoveWithVelocity, Movement, MovementController, WHALE_SCREEN_BUFFER_FRACTION,
-            WHALE_TRAVEL_SPEED,
+            MoveWithVelocity, Movement, MovementController, PlayerActionRequested,
+            WHALE_SCREEN_BUFFER_FRACTION, WHALE_TRAVEL_SPEED,
         },
         weather::Wave,
     },
@@ -21,7 +24,7 @@ use crate::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.observe(spawn_player);
+    app.observe(spawn_player).observe(handle_player_action);
     app.add_systems(
         FixedUpdate,
         move_in_spawning_whale.run_if(in_state(Screen::Playing)),
@@ -139,7 +142,7 @@ fn spawn_player(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     windows: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 1, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 5, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
@@ -156,31 +159,33 @@ fn spawn_player(
         phase: BreathingPhase::Underwater,
     };
 
-    commands.spawn((
-        Name::new("Player"),
-        Whale,
-        BoidRepulsor {
-            strength: 0.65,
-            range: 80.,
-        },
-        SpriteBundle {
-            texture: image_handles[&ImageKey::Creatures].clone_weak(),
-            transform: Transform::from_translation(start_pos),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
-            index: player_animation.get_atlas_index(),
-        },
-        MovementController::default(),
-        Movement { speed: 420.0 },
-        player_animation,
-        WhaleArrivalMarker {
-            target_y: half_height * (1. - WHALE_SCREEN_BUFFER_FRACTION),
-        },
-        StateScoped(Screen::Playing),
-        breath_timer,
-    ));
+    commands
+        .spawn((
+            Name::new("Player"),
+            Whale,
+            BoidRepulsor {
+                strength: 0.65,
+                range: 80.,
+            },
+            SpriteBundle {
+                texture: image_handles[&ImageKey::Creatures].clone_weak(),
+                transform: Transform::from_translation(start_pos),
+                ..Default::default()
+            },
+            TextureAtlas {
+                layout: texture_atlas_layout.clone(),
+                index: player_animation.get_atlas_index(),
+            },
+            MovementController::default(),
+            Movement { speed: 420.0 },
+            player_animation,
+            WhaleArrivalMarker {
+                target_y: half_height * (1. - WHALE_SCREEN_BUFFER_FRACTION),
+            },
+            StateScoped(Screen::Playing),
+            breath_timer,
+        ))
+        .observe(animation_completed);
 }
 
 fn move_in_spawning_whale(
@@ -244,5 +249,28 @@ fn move_in_spawning_whale(
                     ));
                 });
         }
+    }
+}
+
+fn animation_completed(
+    trigger: Trigger<AnimationComplete>,
+    mut whales: Query<&mut PlayerAnimation, With<Whale>>,
+) {
+    if matches!(trigger.event().0, PlayerAnimationState::WhaleBreaching) {
+        for mut whale in &mut whales {
+            whale.update_state(PlayerAnimationState::WhaleSwimming);
+        }
+    }
+}
+
+fn handle_player_action(
+    _trigger: Trigger<PlayerActionRequested>,
+    mut commands: Commands,
+    mut whales: Query<&mut PlayerAnimation, With<Whale>>,
+) {
+    for mut whale in &mut whales {
+        info!("Triggered whale breach");
+        commands.trigger(PlaySfx::once(SfxKey::WhaleBreach));
+        whale.update_state(PlayerAnimationState::WhaleBreaching);
     }
 }

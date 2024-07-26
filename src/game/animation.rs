@@ -16,7 +16,7 @@ const BIRD_START_FRAME: usize = 48;
 pub const WHALE_BREATH_FRAME_RATE: u64 = 150;
 
 #[derive(Event)]
-pub struct AnimationComplete;
+pub struct AnimationComplete(pub PlayerAnimationState);
 
 /// A shared observer that can be added to despawn the element when the animation is complete
 pub fn despawn_when_animation_complete(
@@ -46,7 +46,7 @@ fn update_animation_timer(
 ) {
     for (entity, mut animation) in &mut query {
         if animation.update_timer(time.delta()) {
-            commands.trigger_targets(AnimationComplete, entity)
+            commands.trigger_targets(AnimationComplete(animation.state.clone()), entity)
         }
     }
 }
@@ -71,9 +71,10 @@ pub struct PlayerAnimation {
     oneshot: bool,
 }
 
-#[derive(Reflect, PartialEq, Clone)]
+#[derive(Reflect, PartialEq, Clone, Copy, Debug)]
 pub enum PlayerAnimationState {
     WhaleSwimming,
+    WhaleBreaching,
     Wave,
     Bird,
     Ship,
@@ -85,6 +86,7 @@ pub enum PlayerAnimationState {
 impl PlayerAnimation {
     /// The duration of each idle frame.
     const IDLE_INTERVAL: Duration = Duration::from_millis(250);
+    const BREACH_INTERVAL: Duration = Duration::from_millis(120);
 
     fn swimming() -> Self {
         Self {
@@ -92,6 +94,15 @@ impl PlayerAnimation {
             frame: 0,
             state: PlayerAnimationState::WhaleSwimming,
             oneshot: false,
+        }
+    }
+
+    fn breaching() -> Self {
+        Self {
+            timer: Timer::new(Self::BREACH_INTERVAL, TimerMode::Repeating),
+            frame: 0,
+            state: PlayerAnimationState::WhaleBreaching,
+            oneshot: true,
         }
     }
 
@@ -181,24 +192,24 @@ impl PlayerAnimation {
                 | PlayerAnimationState::Fish
                 | PlayerAnimationState::RainDrop => 8,
                 PlayerAnimationState::Wave => 9,
-                PlayerAnimationState::WhaleBreath => 16,
+                PlayerAnimationState::WhaleBreath | PlayerAnimationState::WhaleBreaching => 16,
             };
 
         self.oneshot && self.frame < prev
     }
 
-    // Leaving here in case I have time to add different animations
-    // /// Update animation state if it changes.
-    // pub fn update_state(&mut self, state: PlayerAnimationState) {
-    //     if self.state != state {
-    //         match state {
-    //             PlayerAnimationState::WhaleSwimming => *self = Self::swimming(),
-    //             PlayerAnimationState::Wave => *self = Self::wave(),
-    //             PlayerAnimationState::Bird => *self = Self::bird(),
-    //             PlayerAnimationState::Fish => *self = Self::fish(),
-    //         }
-    //     }
-    // }
+    /// Update animation state if it changes.
+    pub fn update_state(&mut self, state: PlayerAnimationState) {
+        if self.state != state {
+            match state {
+                PlayerAnimationState::WhaleSwimming => *self = Self::swimming(),
+                PlayerAnimationState::WhaleBreaching => *self = Self::breaching(),
+                d => {
+                    warn!("Attempted to change to invalid state: {d:?}. This has no effect");
+                }
+            }
+        }
+    }
 
     /// Whether animation changed this tick.
     pub fn changed(&self) -> bool {
@@ -214,6 +225,7 @@ impl PlayerAnimation {
             | PlayerAnimationState::Fish
             | PlayerAnimationState::RainDrop => self.frame,
             PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
+            PlayerAnimationState::WhaleBreaching => 24 + self.frame,
             PlayerAnimationState::WhaleBreath => 8 + self.frame,
         }
     }

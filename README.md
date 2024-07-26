@@ -81,7 +81,7 @@
   - [x] periodically come up to breathe
   - [x] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
   - [x] Display player help icons after movement complete.
-  - [ ] add the movement easter egg (its a secret)
+  - [x] add the movement easter egg (its a secret)
   - [ ] add the cycles easter egg (its also a secret)
   - [ ] add more encounters
   - [ ] add islands

@@ -1,6 +1,6 @@
 [package]
 name = "whalesong"
-version = "0.1.0"
+version = "0.0.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
@@ -13,7 +13,7 @@ log = { version = "0.4", features = [
 ] }
 serde = { version = "1.0", features = ["derive"] }
 rand = "0.8"
-ron = "*"
+ron = "0.8.1"
 
 # just vendor this in  rather than using the external repo
 bevoids = { path = "./crates/bevoids" }

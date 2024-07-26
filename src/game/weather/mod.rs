@@ -8,6 +8,7 @@ use rand::Rng;
 use crate::screen::Screen;
 
 mod day_night_cycle;
+mod rain;
 mod waves;
 
 pub use day_night_cycle::TintWithDayNightCycle;
@@ -39,7 +40,7 @@ pub(super) fn plugin(app: &mut App) {
         (update_travel_distance).run_if(in_state(Screen::Playing)),
     );
 
-    app.add_plugins((day_night_cycle::plugin, waves::plugin));
+    app.add_plugins((day_night_cycle::plugin, rain::plugin, waves::plugin));
 }
 
 fn reset_travel_distance(mut distance: ResMut<TravelDistance>) {

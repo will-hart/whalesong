@@ -1,3 +1,4 @@
+use bevoids::boids::BoidRepulsor;
 use bevy::prelude::*;
 
 use crate::{
@@ -54,6 +55,10 @@ pub(super) fn spawn_ship(
                 index: player_animation.get_atlas_index(),
             },
             player_animation,
+            BoidRepulsor {
+                strength: 0.5,
+                range: 45.,
+            },
             StateScoped(Screen::Playing),
             RotateToFaceMovement,
             MoveWithVelocity((to_pos - from_pos).normalize_or_zero() * SHIP_SPEED),

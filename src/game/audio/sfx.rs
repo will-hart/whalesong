@@ -1,4 +1,7 @@
-use bevy::{audio::PlaybackMode, prelude::*};
+use bevy::{
+    audio::{PlaybackMode, Volume},
+    prelude::*,
+};
 
 use crate::game::assets::{HandleMap, SfxKey};
 
@@ -22,6 +25,7 @@ fn play_sfx(
             } else {
                 PlaybackMode::Despawn
             },
+            volume: Volume::new(request.volume),
             ..default()
         },
     };
@@ -41,6 +45,7 @@ pub struct PlaySfx {
     pub key: SfxKey,
     pub looped: bool,
     pub parent_entity: Option<Entity>,
+    pub volume: f32,
 }
 
 impl PlaySfx {
@@ -49,6 +54,7 @@ impl PlaySfx {
             key,
             looped: false,
             parent_entity: None,
+            volume: 1.0,
         }
     }
 
@@ -57,11 +63,17 @@ impl PlaySfx {
             key,
             looped: true,
             parent_entity: None,
+            volume: 1.0,
         }
     }
 
     pub fn with_parent(mut self, entity: Entity) -> Self {
         self.parent_entity = Some(entity);
+        self
+    }
+
+    pub fn with_volume(mut self, volume: f32) -> Self {
+        self.volume = volume;
         self
     }
 }

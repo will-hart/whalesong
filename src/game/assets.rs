@@ -116,6 +116,7 @@ pub enum SfxKey {
     ShipAmbient,
     ShipHorn,
     OceanAmbient,
+    RainAmbient,
 }
 
 impl AssetKey for SfxKey {
@@ -153,6 +154,10 @@ impl FromWorld for HandleMap<SfxKey> {
             (
                 SfxKey::ShipHorn,
                 asset_server.load("audio/sfx/ship_horn.ogg"),
+            ),
+            (
+                SfxKey::RainAmbient,
+                asset_server.load("audio/sfx/501242__shelbyshark__lightrainthunder.ogg"),
             ),
         ]
         .into()

@@ -175,6 +175,7 @@ fn move_towards_location(
         mover.translation = mover
             .translation
             .move_towards(details.target, details.speed);
+        mover.translation.z = prev.z; // keep z-height
 
         if rotate_to_face.is_some() {
             let direction = (prev - mover.translation).xy().normalize();

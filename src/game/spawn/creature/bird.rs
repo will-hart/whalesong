@@ -72,7 +72,7 @@ pub(super) fn spawn_bird(
         Bird,
         SpriteBundle {
             texture: image_handles[&ImageKey::Creatures].clone_weak(),
-            transform: Transform::from_translation(from_pos),
+            transform: Transform::from_translation(from_pos + Vec3::Z * 1.5), // spawn above ships
             ..Default::default()
         },
         TextureAtlas {

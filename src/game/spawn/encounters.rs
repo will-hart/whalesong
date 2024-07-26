@@ -14,8 +14,8 @@ pub struct SpawnEncounter {
 pub enum EncounterType {
     #[default]
     Bird,
-
     Fish,
+    Ship,
 }
 
 pub(super) fn plugin(app: &mut App) {

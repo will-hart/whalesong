@@ -13,9 +13,10 @@ use super::{
 mod bird;
 pub mod boid;
 mod fish;
+mod ship;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((bird::plugin, fish::plugin, boid::plugin));
+    app.add_plugins((bird::plugin, fish::plugin, ship::plugin, boid::plugin));
     app.observe(spawn_creature);
 }
 
@@ -42,6 +43,14 @@ fn spawn_creature(
         }
         EncounterType::Fish => {
             fish::spawn_fish(
+                &mut commands,
+                size,
+                &image_handles,
+                &mut texture_atlas_layouts,
+            );
+        }
+        EncounterType::Ship => {
+            ship::spawn_ship(
                 &mut commands,
                 size,
                 &image_handles,

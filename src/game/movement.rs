@@ -59,9 +59,8 @@ fn update_movement_intent(
     mut controller_query: Query<&mut MovementController>,
     helpers: Query<Entity, With<InputHelp>>,
 ) {
-    // Collect directional input. `y` is -1, because if we aren't pressing anything the whale
-    // should drift back to the top of the screen slowly
-    let mut intent = Vec2::new(0., 0.25);
+    let mut intent = Vec2::ZERO;
+
     if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
         intent.x -= 1.0;
     }
@@ -69,7 +68,8 @@ fn update_movement_intent(
         intent.x += 1.0;
     }
     if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-        intent.y = -1.0;
+        intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
+                         // when no keys are pressed in the "move whale" system below
     }
 
     if intent.x.abs() > 0.01 {
@@ -137,7 +137,12 @@ fn move_whale(
     >,
 ) {
     let movement = movements.single();
-    let delta_move = movement.intent.normalize_or_zero() * WHALE_MOVEMENT_SCALE;
+    let delta_move = if movement.intent.length_squared() < 0.1 {
+        // no input, drift the whale back up the screen slowly
+        Vec2::new(0., 0.35)
+    } else {
+        movement.intent.normalize_or_zero()
+    } * WHALE_MOVEMENT_SCALE;
 
     if let Ok(mut whale) = whales.get_single_mut() {
         whale.translation = win_size.clamp_to_screen_with_buffer(

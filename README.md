@@ -53,7 +53,11 @@
     - [x] fish boids
     - [x] fish encounters
     - [x] fish avoid the whale
-  - [ ] ships
+  - [x] ships
+    - [x] ship sprites
+    - [x] ship wake
+    - [x] engine noise
+    - [x] ship occludes waves, fish, whale but not birds
   - [ ] other whales
     - [ ] whalesong
     - [ ] forming a pod
@@ -63,7 +67,7 @@
   - [ ] rain
   - [ ] storm
   - [ ] snow
-- [ ] polish
+- [x] polish
   - [x] restyle the menu
   - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
@@ -77,9 +81,9 @@
   - [x] Display player help icons after movement complete.
   - [ ] add the easter egg
   - [ ] add more encounters
-  - [ ] add more music
-  - [ ] use something like `bevy_trickfilm` to make animations easier
-- [ ] bugs
+  - [ ] add islands
+  - [ ] add more music variety
+- [x] bugs
   - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`
 - [ ] jam admin
@@ -87,6 +91,7 @@
   - [x] fix CI yaml file
   - [x] set up itch page
   - [x] do a test release
+  - [ ] work out why the itch build isn't working
   - [ ] do a "Final final v1 latest" release before the jam ends
   - [ ] deploy to itch
   - [ ] add screenshots and details to the jam page

@@ -19,12 +19,22 @@ pub const WHALE_TRAVEL_SPEED: f32 = 0.4; // magic number
 const WHALE_MOVEMENT_SCALE: f32 = 0.6;
 const WHALE_TURN_SPEED: f32 = 0.02;
 
+pub const WHALE_SCREEN_BUFFER_FRACTION: f32 = 0.3;
+
+/// Moves towards the given location and triggers an "ArrivedAtLocation"
+/// event on the entity when it arrives, removing this component
 #[derive(Component)]
 pub struct MoveTowardsLocation {
     pub target: Vec3,
     pub speed: f32,
-    pub remove_on_arrival: bool,
 }
+
+#[derive(Event)]
+pub struct ArrivedAtLocation;
+
+/// Moves the entity with the given velocity. Useful for things like waves
+#[derive(Component)]
+pub struct MoveWithVelocity(pub Vec3);
 
 /// Denotes a component that rotates to face the direction of travel
 /// This is done in the [`move_towards_location`] system.
@@ -40,7 +50,12 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<DespawnWhenOutOfWindow>();
     app.add_systems(
         FixedUpdate,
-        (despawn_out_of_view, move_whale, move_towards_location)
+        (
+            despawn_out_of_view,
+            move_whale,
+            move_towards_location,
+            move_with_velocity,
+        )
             .in_set(AppSet::Update)
             .run_if(in_state(Screen::Playing)),
     );
@@ -147,7 +162,7 @@ fn move_whale(
     if let Ok(mut whale) = whales.get_single_mut() {
         whale.translation = win_size.clamp_to_screen_with_buffer(
             whale.translation + delta_move.extend(0.),
-            Val::Percent(30.),
+            Val::Percent(WHALE_SCREEN_BUFFER_FRACTION * 100.),
         );
 
         whale_pos.target_rotation = if movement.intent.y < 0. {
@@ -187,10 +202,30 @@ fn move_towards_location(
             mover.rotation = Quat::from_rotation_arc(Vec3::Y, direction.extend(0.));
         }
 
-        if details.remove_on_arrival && (mover.translation - details.target).length_squared() < 1.0
-        {
-            info!("{name:?} {entity} has arrived, removing MoveOnTarget");
+        if (mover.translation - details.target).length_squared() < 1.0 {
+            info!("{name:?} {entity} has arrived, removing MoveOnTarget and triggering event");
             commands.entity(entity).remove::<MoveTowardsLocation>();
+            commands.trigger_targets(ArrivedAtLocation, entity);
+        }
+    }
+}
+
+/// Moves entities that have the [`MoveWithVelocity`] component in their direction of travel
+fn move_with_velocity(
+    mut movers: Query<(
+        &mut Transform,
+        &MoveWithVelocity,
+        Option<&RotateToFaceMovement>,
+    )>,
+) {
+    for (mut mover, details, rotate_to_face) in &mut movers {
+        let prev = mover.translation;
+        mover.translation += details.0;
+        mover.translation.z = prev.z; // keep z-height
+
+        if rotate_to_face.is_some() {
+            let direction = (prev - mover.translation).xy().normalize();
+            mover.rotation = Quat::from_rotation_arc(Vec3::Y, direction.extend(0.));
         }
     }
 }

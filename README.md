@@ -88,6 +88,7 @@
 - [x] bugs
   - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`
+  - [x] move targets aren't updated on screen resize, meaning that things just pile up on the screen edges
 - [ ] jam admin
   - [x] update `Cargo.toml`
   - [x] fix CI yaml file

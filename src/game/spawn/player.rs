@@ -11,7 +11,11 @@ use crate::{
         animation::{AnimationComplete, PlayerAnimation, WHALE_BREATH_FRAME_RATE},
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
-        movement::{Movement, MovementController, WHALE_TRAVEL_SPEED},
+        movement::{
+            MoveWithVelocity, Movement, MovementController, WHALE_SCREEN_BUFFER_FRACTION,
+            WHALE_TRAVEL_SPEED,
+        },
+        weather::Wave,
     },
     screen::Screen,
 };
@@ -176,7 +180,7 @@ fn spawn_player(
         Movement { speed: 420.0 },
         player_animation,
         WhaleArrivalMarker {
-            target_y: half_height * 0.5,
+            target_y: half_height * (1. - WHALE_SCREEN_BUFFER_FRACTION),
         },
         StateScoped(Screen::Playing),
         breath_timer,
@@ -186,13 +190,21 @@ fn spawn_player(
 fn move_in_spawning_whale(
     mut commands: Commands,
     image_handles: Res<HandleMap<ImageKey>>,
+    waves: Query<Entity, (With<Wave>, Without<MoveWithVelocity>)>,
     mut whales: Query<(Entity, &mut Transform, &WhaleArrivalMarker)>,
 ) {
     for (entity, mut whale, arrival_marker) in &mut whales {
         whale.translation.y -= WHALE_TRAVEL_SPEED;
 
         if whale.translation.y < arrival_marker.target_y {
-            info!("Whale has arrived, spawning helpers");
+            info!("Whale has arrived, spawning helpers + starting wave movement");
+
+            for entity in &waves {
+                commands
+                    .entity(entity)
+                    .insert(MoveWithVelocity(Vec3::Y * WHALE_TRAVEL_SPEED));
+            }
+
             commands
                 .entity(entity)
                 .remove::<WhaleArrivalMarker>()

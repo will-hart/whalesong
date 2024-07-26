@@ -5,7 +5,7 @@ use crate::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
-        movement::{MoveTowardsLocation, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
+        movement::{MoveWithVelocity, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
         spawn::encounters::{EncounterType, SpawnEncounter},
         weather::TintWithDayNightCycle,
     },
@@ -62,11 +62,7 @@ pub(super) fn spawn_ship(
             player_animation,
             StateScoped(Screen::Playing),
             RotateToFaceMovement,
-            MoveTowardsLocation {
-                speed: SHIP_SPEED,
-                target: to_pos,
-                remove_on_arrival: true,
-            },
+            MoveWithVelocity((to_pos - from_pos).normalize_or_zero() * SHIP_SPEED),
         ))
         .with_children(|parent_ship| {
             // spawn the ship outline underneath, marking it for tinting with day-night cycle

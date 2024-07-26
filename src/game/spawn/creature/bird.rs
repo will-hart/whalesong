@@ -6,7 +6,7 @@ use crate::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
-        movement::{MoveTowardsLocation, WHALE_TRAVEL_SPEED},
+        movement::{MoveTowardsLocation, MoveWithVelocity, WHALE_TRAVEL_SPEED},
         spawn::{encounters::EncounterType, player::Whale, WindowSize},
     },
     screen::Screen,
@@ -81,11 +81,7 @@ pub(super) fn spawn_bird(
         },
         player_animation,
         StateScoped(Screen::Playing),
-        MoveTowardsLocation {
-            speed: BIRD_SPEED,
-            target: to_pos,
-            remove_on_arrival: true,
-        },
+        MoveWithVelocity((to_pos - from_pos).normalize() * BIRD_SPEED),
     ));
 
     // some birds are just incurious
@@ -116,9 +112,8 @@ fn gain_curiosity(
     );
 
     for (bird, tx) in &birds {
-        if (tx.translation - target).length_squared()
-            < BIRD_CURIOSITY_THRESHOLD * BIRD_CURIOSITY_THRESHOLD
-        {
+        let delta_pos = target - tx.translation;
+        if delta_pos.length_squared() < BIRD_CURIOSITY_THRESHOLD * BIRD_CURIOSITY_THRESHOLD {
             info!("bird {bird:?} is curious");
             commands.trigger(PlaySfx::once(SfxKey::Gull));
 
@@ -128,22 +123,15 @@ fn gain_curiosity(
                     until: time.elapsed_seconds() + rng.gen_range(10.0..25.0),
                 },
                 Incurious, // prevents the bird from becoming curious again
-                MoveTowardsLocation {
-                    target,
-                    speed: BIRD_SPEED,
-                    remove_on_arrival: true,
-                },
-            )); // stops them from moving off the screen and instead circles them
+                MoveWithVelocity(delta_pos.normalize_or_zero() * BIRD_SPEED),
+            ));
         }
     }
 }
 
 fn curious_birds_follow_whale(
     whales: Query<&Transform, With<Whale>>,
-    mut birds: Query<
-        &mut MoveTowardsLocation,
-        (With<Bird>, With<Curious>, Without<LosingCuriosity>),
-    >,
+    mut birds: Query<&mut MoveWithVelocity, (With<Bird>, With<Curious>, Without<LosingCuriosity>)>,
 ) {
     if birds.is_empty() || whales.is_empty() {
         return;
@@ -153,11 +141,13 @@ fn curious_birds_follow_whale(
     let mut rng = rand::thread_rng();
 
     for mut bird in &mut birds {
-        bird.target = Vec3::new(
+        bird.0 = Vec3::new(
             whale.translation.x + rng.gen_range(-20.0..20.0),
             whale.translation.y + rng.gen_range(-20.0..20.0),
             0.,
-        );
+        )
+        .normalize_or_zero()
+            * BIRD_SPEED;
     }
 }
 
@@ -190,7 +180,6 @@ fn lose_curiosity(
                 .insert(MoveTowardsLocation {
                     target,
                     speed: BIRD_SPEED,
-                    remove_on_arrival: true,
                 });
         }
     }

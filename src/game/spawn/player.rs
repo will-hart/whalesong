@@ -8,7 +8,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::{AnimationComplete, PlayerAnimation, WHALE_BREATH_FRAME_RATE},
+        animation::{despawn_when_animation_complete, PlayerAnimation, WHALE_BREATH_FRAME_RATE},
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         movement::{
@@ -106,7 +106,7 @@ fn spawn_breaths(
                     commands.entity(whale_entity).with_children(|whale| {
                         whale
                             .spawn(breath_bundle(&image_handles, &mut texture_atlas_layouts))
-                            .observe(despawn_breaths);
+                            .observe(despawn_when_animation_complete);
                     });
 
                     breath.phase = BreathingPhase::AboveWater;
@@ -130,10 +130,6 @@ fn spawn_breaths(
             breath.timer.unpause();
         }
     }
-}
-
-fn despawn_breaths(trigger: Trigger<AnimationComplete>, mut commands: Commands) {
-    commands.entity(trigger.entity()).despawn();
 }
 
 fn spawn_player(

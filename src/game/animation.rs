@@ -18,6 +18,14 @@ pub const WHALE_BREATH_FRAME_RATE: u64 = 150;
 #[derive(Event)]
 pub struct AnimationComplete;
 
+/// A shared observer that can be added to despawn the element when the animation is complete
+pub fn despawn_when_animation_complete(
+    trigger: Trigger<AnimationComplete>,
+    mut commands: Commands,
+) {
+    commands.entity(trigger.entity()).despawn();
+}
+
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.
     app.register_type::<PlayerAnimation>();
@@ -71,6 +79,7 @@ pub enum PlayerAnimationState {
     Ship,
     Fish,
     WhaleBreath,
+    RainDrop,
 }
 
 impl PlayerAnimation {
@@ -110,6 +119,15 @@ impl PlayerAnimation {
             frame: 0,
             state: PlayerAnimationState::Ship,
             oneshot: false,
+        }
+    }
+
+    pub fn raindrop() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(100), TimerMode::Repeating),
+            frame: 0,
+            state: PlayerAnimationState::RainDrop,
+            oneshot: true,
         }
     }
 
@@ -160,7 +178,8 @@ impl PlayerAnimation {
                 PlayerAnimationState::Ship => 4,
                 PlayerAnimationState::WhaleSwimming
                 | PlayerAnimationState::Bird
-                | PlayerAnimationState::Fish => 8,
+                | PlayerAnimationState::Fish
+                | PlayerAnimationState::RainDrop => 8,
                 PlayerAnimationState::Wave => 9,
                 PlayerAnimationState::WhaleBreath => 16,
             };
@@ -192,7 +211,8 @@ impl PlayerAnimation {
             PlayerAnimationState::Ship
             | PlayerAnimationState::WhaleSwimming
             | PlayerAnimationState::Wave
-            | PlayerAnimationState::Fish => self.frame,
+            | PlayerAnimationState::Fish
+            | PlayerAnimationState::RainDrop => self.frame,
             PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
             PlayerAnimationState::WhaleBreath => 8 + self.frame,
         }

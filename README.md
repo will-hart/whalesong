@@ -64,7 +64,7 @@
 - [ ] Weather cycles
   - [x] day/night
   - [ ] wind
-  - [ ] rain
+  - [x] rain
   - [ ] storm
   - [ ] snow
 - [] polish

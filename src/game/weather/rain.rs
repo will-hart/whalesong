@@ -5,8 +5,10 @@ use rand::Rng;
 
 use crate::{
     game::{
-        assets::SfxKey,
+        animation::{despawn_when_animation_complete, PlayerAnimation},
+        assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::{FadeIn, FadeOut, PlaySfx},
+        spawn::WindowSize,
     },
     screen::Screen,
 };
@@ -35,7 +37,7 @@ impl Raininess {
 
         if self.factor > RAIN_THRESHOLD && self.time_rain_ends < 0.01 {
             // start raining
-            self.time_rain_ends = distance.future_range(12.0..18.0); // rain for this many seconds
+            self.time_rain_ends = distance.future_range(16.0..25.0); // rain for this many seconds
         } else if self.time_rain_ends > 0. && self.time_rain_ends < distance.get() {
             // stop raining
             self.reset();
@@ -64,7 +66,10 @@ pub(super) fn plugin(app: &mut App) {
         time_rain_ends: 0.,
     });
     app.add_systems(OnEnter(Screen::Playing), reset_raininess);
-    app.add_systems(Update, update_raininess.run_if(in_state(Screen::Playing)));
+    app.add_systems(
+        Update,
+        (update_raininess, spawn_rain_drops).run_if(in_state(Screen::Playing)),
+    );
     app.observe(handle_rain_changed);
 }
 
@@ -90,19 +95,27 @@ pub fn update_raininess(
 }
 
 #[derive(Component)]
-pub struct Rain;
+pub struct Rain {
+    rain_spawn_period: f32,
+    next_spawn: f32,
+}
 
 fn handle_rain_changed(
     trigger: Trigger<RainChanged>,
     mut commands: Commands,
-    rains: Query<&Children, With<Rain>>,
+    rains: Query<(Entity, &Children), With<Rain>>,
     audio_children: Query<Entity, With<Handle<AudioSource>>>,
 ) {
     let evt = trigger.event();
 
     if evt.is_raining {
         info!("Spawning rain");
-        let entity = commands.spawn(Rain).id();
+        let entity = commands
+            .spawn(Rain {
+                rain_spawn_period: 0.1,
+                next_spawn: 0.,
+            })
+            .id();
         commands.trigger(
             PlaySfx::once(SfxKey::RainAmbient)
                 .with_parent(entity)
@@ -114,15 +127,54 @@ fn handle_rain_changed(
         );
     } else {
         info!("Despawning rain");
-        for children in &rains {
+        for (rain_entity, children) in &rains {
             for child in children {
                 if let Ok(audio) = audio_children.get(*child) {
                     info!("--> adding FadeOut component");
+                    commands.entity(rain_entity).clear_children().despawn();
                     commands.entity(audio).insert(FadeOut {
                         rate_per_second: 1.,
                     });
                 }
             }
         }
+    }
+}
+
+fn spawn_rain_drops(
+    mut commands: Commands,
+    distance: Res<TravelDistance>,
+    image_handles: Res<HandleMap<ImageKey>>,
+    win_size: Res<WindowSize>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut rains: Query<&mut Rain>,
+) {
+    for mut rain in &mut rains {
+        if rain.next_spawn > distance.get() {
+            continue;
+        }
+        let layout = TextureAtlasLayout::from_grid(UVec2::splat(16), 8, 1, None, None);
+        let texture_atlas_layout = texture_atlas_layouts.add(layout);
+        let player_animation = PlayerAnimation::raindrop();
+
+        let pos = win_size.get_random_position();
+
+        commands
+            .spawn((
+                SpriteBundle {
+                    texture: image_handles[&ImageKey::RainDrop].clone_weak(),
+                    transform: Transform::from_translation(pos.extend(0.0)),
+                    ..Default::default()
+                },
+                TextureAtlas {
+                    layout: texture_atlas_layout.clone(),
+                    index: player_animation.get_atlas_index(),
+                },
+                player_animation,
+                StateScoped(Screen::Playing),
+            ))
+            .observe(despawn_when_animation_complete);
+
+        rain.next_spawn = rain.next_spawn + rain.rain_spawn_period;
     }
 }

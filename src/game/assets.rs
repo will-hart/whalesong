@@ -21,6 +21,7 @@ pub enum ImageKey {
     Creatures,
     Fish,
     Features,
+    RainDrop,
     Icons,
     Logo,
     PlayButton,
@@ -43,6 +44,13 @@ impl FromWorld for HandleMap<ImageKey> {
                     "images/icons.png",
                     |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
                 ),
+            ),
+            (
+                ImageKey::RainDrop,
+                asset_server
+                    .load_with_settings("images/rain.png", |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear()
+                    }),
             ),
             (
                 ImageKey::Fish,

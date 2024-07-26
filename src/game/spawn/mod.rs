@@ -3,6 +3,7 @@
 //! for this, but you could also use `Events<E>` or `Commands`.
 
 use bevy::{prelude::*, window::PrimaryWindow};
+use rand::Rng;
 
 pub mod creature;
 pub mod encounters;
@@ -59,6 +60,15 @@ impl WindowSize {
             clampee.x.clamp(-x_bound, x_bound),
             clampee.y.clamp(-y_bound, y_bound),
             clampee.z,
+        )
+    }
+
+    pub fn get_random_position(&self) -> Vec2 {
+        let mut rng = rand::thread_rng();
+        let half = self.half();
+        Vec2::new(
+            rng.gen_range(-half.x..half.x),
+            rng.gen_range(-half.y..half.y),
         )
     }
 }

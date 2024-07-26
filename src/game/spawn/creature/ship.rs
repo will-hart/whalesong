@@ -6,7 +6,7 @@ use crate::{
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         movement::{MoveWithVelocity, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
-        spawn::encounters::{EncounterType, SpawnEncounter},
+        spawn::encounters::EncounterType,
         weather::TintWithDayNightCycle,
     },
     screen::Screen,
@@ -20,14 +20,8 @@ pub const SHIP_SPEED: f32 = WHALE_TRAVEL_SPEED * 0.8;
 #[derive(Component)]
 pub struct Ship;
 
-pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Screen::Playing), spawn_test_ship);
-}
-
-fn spawn_test_ship(mut commands: Commands) {
-    commands.trigger(SpawnEncounter {
-        encounter_type: EncounterType::Ship,
-    });
+pub(super) fn plugin(_app: &mut App) {
+    // actually nothing :shrug:
 }
 
 /// Spawns a ship when `SpawnEncounter(Ship)` is triggered. Called by the parent creature plugin

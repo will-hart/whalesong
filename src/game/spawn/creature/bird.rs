@@ -131,7 +131,10 @@ fn gain_curiosity(
 
 fn curious_birds_follow_whale(
     whales: Query<&Transform, With<Whale>>,
-    mut birds: Query<&mut MoveWithVelocity, (With<Bird>, With<Curious>, Without<LosingCuriosity>)>,
+    mut birds: Query<
+        (&Transform, &mut MoveWithVelocity),
+        (With<Bird>, With<Curious>, Without<LosingCuriosity>),
+    >,
 ) {
     if birds.is_empty() || whales.is_empty() {
         return;
@@ -140,13 +143,13 @@ fn curious_birds_follow_whale(
     let whale = whales.single();
     let mut rng = rand::thread_rng();
 
-    for mut bird in &mut birds {
-        bird.0 = Vec3::new(
+    for (bird_tx, mut bird) in &mut birds {
+        bird.0 = (Vec3::new(
             whale.translation.x + rng.gen_range(-20.0..20.0),
             whale.translation.y + rng.gen_range(-20.0..20.0),
             0.,
-        )
-        .normalize_or_zero()
+        ) - bird_tx.translation)
+            .normalize_or_zero()
             * BIRD_SPEED;
     }
 }

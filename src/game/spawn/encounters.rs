@@ -1,9 +1,8 @@
 //! an encounter system
 
 use bevy::prelude::*;
-use rand::Rng;
 
-use crate::screen::Screen;
+use crate::{game::weather::TravelDistance, screen::Screen};
 
 #[derive(Event, Debug)]
 pub struct SpawnEncounter {
@@ -19,41 +18,56 @@ pub enum EncounterType {
 }
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(
-        Update,
-        (spawn_random_birds, spawn_random_fish).run_if(in_state(Screen::Playing)),
-    );
+    app.add_systems(Update, spawn_encounters.run_if(in_state(Screen::Playing)));
+
+    app.init_resource::<EncounterTimers>();
 }
 
-fn spawn_random_birds(mut commands: Commands, time: Res<Time>, mut next_spawn: Local<f32>) {
-    if *next_spawn > time.elapsed_seconds() {
-        return;
-    }
-
-    info!("Bird spawn triggered");
-    commands.trigger(SpawnEncounter {
-        encounter_type: EncounterType::Bird,
-    });
-
-    let mut rng = rand::thread_rng();
-    *next_spawn = time.elapsed_seconds() + rng.gen_range(15.0..35.0);
+#[derive(Resource)]
+pub struct EncounterTimers {
+    bird: f32,
+    fish: f32,
+    ship: f32,
 }
 
-fn spawn_random_fish(mut commands: Commands, time: Res<Time>, mut next_spawn: Local<f32>) {
-    if *next_spawn < 0.1 {
-        *next_spawn = 2.0;
-        return;
+impl Default for EncounterTimers {
+    fn default() -> Self {
+        Self {
+            bird: 12.,
+            fish: 17.,
+            ship: 30.,
+        }
+    }
+}
+
+fn spawn_encounters(
+    mut commands: Commands,
+    distance: Res<TravelDistance>,
+    mut encounters: ResMut<EncounterTimers>,
+) {
+    let now = distance.get();
+
+    if encounters.bird < now {
+        info!("Bird spawn triggered");
+        commands.trigger(SpawnEncounter {
+            encounter_type: EncounterType::Bird,
+        });
+        encounters.bird = distance.future_range(15.0..35.0);
     }
 
-    if *next_spawn > time.elapsed_seconds() {
-        return;
+    if encounters.fish < now {
+        info!("Fish school spawning");
+        commands.trigger(SpawnEncounter {
+            encounter_type: EncounterType::Fish,
+        });
+        encounters.fish = distance.future_range(5.0..15.0);
     }
 
-    info!("Fish school spawning");
-    commands.trigger(SpawnEncounter {
-        encounter_type: EncounterType::Fish,
-    });
-
-    let mut rng = rand::thread_rng();
-    *next_spawn = time.elapsed_seconds() + rng.gen_range(5.0..15.0);
+    if encounters.ship < now {
+        info!("Ship spawning");
+        commands.trigger(SpawnEncounter {
+            encounter_type: EncounterType::Ship,
+        });
+        encounters.ship = distance.future_range(25.0..55.0);
+    }
 }

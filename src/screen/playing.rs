@@ -23,7 +23,7 @@ pub(super) fn plugin(app: &mut App) {
 fn enter_playing(mut commands: Commands) {
     commands.trigger(SpawnLevel);
     commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Gameplay));
-    commands.trigger(PlaySfx::Loop(SfxKey::OceanAmbient));
+    commands.trigger(PlaySfx::looped(SfxKey::OceanAmbient));
 }
 
 fn exit_playing(mut commands: Commands) {

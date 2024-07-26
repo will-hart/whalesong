@@ -109,7 +109,7 @@ fn spawn_breaths(
                 }
                 BreathingPhase::AboveWater => {
                     // play the SFX
-                    commands.trigger(PlaySfx::Key(SfxKey::WhaleBreath));
+                    commands.trigger(PlaySfx::once(SfxKey::WhaleBreath));
                     breath.phase = BreathingPhase::Underwater;
                 }
             }

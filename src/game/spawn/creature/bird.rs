@@ -120,7 +120,7 @@ fn gain_curiosity(
             < BIRD_CURIOSITY_THRESHOLD * BIRD_CURIOSITY_THRESHOLD
         {
             info!("bird {bird:?} is curious");
-            commands.trigger(PlaySfx::Key(SfxKey::Gull));
+            commands.trigger(PlaySfx::once(SfxKey::Gull));
 
             commands.entity(bird).insert((
                 Curious {

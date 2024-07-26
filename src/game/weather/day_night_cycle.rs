@@ -64,11 +64,25 @@ impl Default for WeatherState {
 
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<WeatherState>()
-        .add_systems(Update, day_night_cycle.run_if(in_state(Screen::Playing)));
+        .insert_resource(DayNightColour(Color::srgb(
+            SUNNY_COLOR_CYCLE[3].x,
+            SUNNY_COLOR_CYCLE[3].y,
+            SUNNY_COLOR_CYCLE[3].z,
+        )))
+        .add_systems(
+            Update,
+            (day_night_cycle, tint_with_day_night_cycle)
+                .chain()
+                .run_if(in_state(Screen::Playing)),
+        );
 }
+
+#[derive(Resource)]
+pub struct DayNightColour(Color);
 
 fn day_night_cycle(
     time: Res<Time>,
+    mut dnc: ResMut<DayNightColour>,
     mut weather: ResMut<WeatherState>,
     mut clear_colour: ResMut<ClearColor>,
 ) {
@@ -98,5 +112,20 @@ fn day_night_cycle(
         cycle_data[to_idx],
         (weather.time_of_day % HOURS_PER_COLOUR) / HOURS_PER_COLOUR,
     );
-    clear_colour.0 = Color::srgb(colour.x, colour.y, colour.z);
+    dnc.0 = Color::srgb(colour.x, colour.y, colour.z);
+    clear_colour.0 = dnc.0;
+}
+
+/// A marker component which notes that the marked sprite should be tinted with the day / night cycle.
+/// used for e.g. ship background
+#[derive(Component)]
+pub struct TintWithDayNightCycle;
+
+pub fn tint_with_day_night_cycle(
+    dnc: Res<DayNightColour>,
+    mut tinters: Query<&mut Sprite, With<TintWithDayNightCycle>>,
+) {
+    for mut tint in &mut tinters {
+        tint.color = dnc.0;
+    }
 }

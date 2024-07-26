@@ -15,6 +15,7 @@ use super::{
 };
 
 mod day_night_cycle;
+pub use day_night_cycle::TintWithDayNightCycle;
 
 #[derive(Event, Debug)]
 pub struct SpawnWave {

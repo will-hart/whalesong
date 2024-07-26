@@ -65,7 +65,7 @@
   - [x] day/night
   - [x] rain
   - [x] snow
-  - [ ] wind
+  - [x] icebergs
   - [ ] storm
 - [] polish
   - [x] restyle the menu
@@ -74,6 +74,7 @@
   - [x] move whale not things around the whale
   - [ ] update the credits
   - [ ] ship volume depends on proximity to whale
+  - [ ] icebergs have different sizes without blurring
 - [ ] code "quality"
   - [x] store whale position in a resource
 - [ ] stretch goals
@@ -85,6 +86,7 @@
   - [ ] add more encounters
   - [ ] add islands
   - [ ] add more music variety
+  - [ ] ships avoid icebergs
 - [x] bugs
   - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`
@@ -99,6 +101,8 @@
   - [ ] deploy to itch
   - [ ] add screenshots and details to the jam page
   - [ ] test deployed version
+- abandoned 
+  - wind
   
 [https://www.youtube.com/shorts/QaFM5X7KZX4](https://www.youtube.com/shorts/QaFM5X7KZX4)
 

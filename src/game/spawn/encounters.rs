@@ -15,6 +15,7 @@ pub enum EncounterType {
     Bird,
     Fish,
     Ship,
+    Iceberg,
 }
 
 pub(super) fn plugin(app: &mut App) {
@@ -28,6 +29,7 @@ pub struct EncounterTimers {
     bird: f32,
     fish: f32,
     ship: f32,
+    iceberg: f32,
 }
 
 impl Default for EncounterTimers {
@@ -36,6 +38,7 @@ impl Default for EncounterTimers {
             bird: 12.,
             fish: 17.,
             ship: 30.,
+            iceberg: 95.,
         }
     }
 }
@@ -69,5 +72,13 @@ fn spawn_encounters(
             encounter_type: EncounterType::Ship,
         });
         encounters.ship = distance.future_range(25.0..55.0);
+    }
+
+    if encounters.iceberg < now {
+        info!("Iceberg spawning");
+        commands.trigger(SpawnEncounter {
+            encounter_type: EncounterType::Iceberg,
+        });
+        encounters.iceberg = distance.future_range(10.0..15.0);
     }
 }

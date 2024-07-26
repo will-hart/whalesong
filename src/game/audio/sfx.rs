@@ -5,8 +5,20 @@ use bevy::{
 
 use crate::game::assets::{HandleMap, SfxKey};
 
+#[derive(Component, Copy, Clone)]
+pub struct FadeIn {
+    pub final_volume: f32,
+    pub rate_per_second: f32,
+}
+
+#[derive(Component)]
+pub struct FadeOut {
+    pub rate_per_second: f32,
+}
+
 pub(super) fn plugin(app: &mut App) {
-    app.observe(play_sfx);
+    app.observe(play_sfx)
+        .add_systems(Update, (fade_in, fade_out));
 }
 
 fn play_sfx(
@@ -32,10 +44,44 @@ fn play_sfx(
 
     if let Some(parent) = request.parent_entity {
         commands.entity(parent).with_children(|child| {
-            child.spawn(bundle);
+            let mut child_cmds = child.spawn(bundle);
+            if let Some(fade_in) = request.fade_in {
+                child_cmds.insert(fade_in);
+            }
         });
     } else {
-        commands.spawn(bundle);
+        let mut cmds = commands.spawn(bundle);
+        if let Some(fade_in) = request.fade_in {
+            cmds.insert(fade_in);
+        }
+    }
+}
+
+fn fade_out(
+    mut commands: Commands,
+    time: Res<Time>,
+    faders: Query<(Entity, &AudioSink, &FadeOut)>,
+) {
+    for (entity, fader, details) in &faders {
+        let next_volume = fader.volume() - details.rate_per_second * time.delta_seconds();
+        if next_volume <= 0.0 {
+            commands.entity(entity).despawn();
+            continue;
+        }
+
+        fader.set_volume(next_volume);
+    }
+}
+
+fn fade_in(mut commands: Commands, time: Res<Time>, faders: Query<(Entity, &AudioSink, &FadeIn)>) {
+    for (entity, fader, details) in &faders {
+        let mut next_volume = fader.volume() + details.rate_per_second * time.delta_seconds();
+        if next_volume >= details.final_volume {
+            next_volume = details.final_volume;
+            commands.entity(entity).remove::<FadeIn>();
+        }
+
+        fader.set_volume(next_volume);
     }
 }
 
@@ -45,6 +91,7 @@ pub struct PlaySfx {
     pub key: SfxKey,
     pub looped: bool,
     pub parent_entity: Option<Entity>,
+    fade_in: Option<FadeIn>,
     pub volume: f32,
 }
 
@@ -54,6 +101,7 @@ impl PlaySfx {
             key,
             looped: false,
             parent_entity: None,
+            fade_in: None,
             volume: 1.0,
         }
     }
@@ -63,6 +111,7 @@ impl PlaySfx {
             key,
             looped: true,
             parent_entity: None,
+            fade_in: None,
             volume: 1.0,
         }
     }
@@ -74,6 +123,11 @@ impl PlaySfx {
 
     pub fn with_volume(mut self, volume: f32) -> Self {
         self.volume = volume;
+        self
+    }
+
+    pub fn with_fade_in(mut self, fade: FadeIn) -> Self {
+        self.fade_in = Some(fade);
         self
     }
 }

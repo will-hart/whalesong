@@ -4,7 +4,10 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use crate::{
-    game::{assets::SfxKey, audio::sfx::PlaySfx},
+    game::{
+        assets::SfxKey,
+        audio::sfx::{FadeIn, FadeOut, PlaySfx},
+    },
     screen::Screen,
 };
 
@@ -32,7 +35,7 @@ impl Raininess {
 
         if self.factor > RAIN_THRESHOLD && self.time_rain_ends < 0.01 {
             // start raining
-            self.time_rain_ends = distance.future_range(12.0..15.0); // rain for this many seconds
+            self.time_rain_ends = distance.future_range(12.0..18.0); // rain for this many seconds
         } else if self.time_rain_ends > 0. && self.time_rain_ends < distance.get() {
             // stop raining
             self.reset();
@@ -92,7 +95,8 @@ pub struct Rain;
 fn handle_rain_changed(
     trigger: Trigger<RainChanged>,
     mut commands: Commands,
-    rains: Query<Entity, With<Rain>>,
+    rains: Query<&Children, With<Rain>>,
+    audio_children: Query<Entity, With<Handle<AudioSource>>>,
 ) {
     let evt = trigger.event();
 
@@ -102,12 +106,23 @@ fn handle_rain_changed(
         commands.trigger(
             PlaySfx::once(SfxKey::RainAmbient)
                 .with_parent(entity)
-                .with_volume(2.5),
+                .with_volume(0.1)
+                .with_fade_in(FadeIn {
+                    final_volume: 2.5,
+                    rate_per_second: 1.0,
+                }),
         );
     } else {
         info!("Despawning rain");
-        for rain in &rains {
-            commands.entity(rain).despawn();
+        for children in &rains {
+            for child in children {
+                if let Ok(audio) = audio_children.get(*child) {
+                    info!("--> adding FadeOut component");
+                    commands.entity(audio).insert(FadeOut {
+                        rate_per_second: 1.,
+                    });
+                }
+            }
         }
     }
 }

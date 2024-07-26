@@ -160,7 +160,7 @@ fn spawn_player(
         Name::new("Player"),
         Whale,
         BoidRepulsor {
-            strength: 10.,
+            strength: 0.65,
             range: 80.,
         },
         SpriteBundle {

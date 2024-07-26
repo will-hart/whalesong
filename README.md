@@ -67,19 +67,21 @@
   - [ ] rain
   - [ ] storm
   - [ ] snow
-- [x] polish
+- [] polish
   - [x] restyle the menu
   - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
   - [x] move whale not things around the whale
   - [ ] update the credits
+  - [ ] ship volume depends on proximity to whale
 - [ ] code "quality"
   - [x] store whale position in a resource
 - [ ] stretch goals
   - [x] periodically come up to breathe
   - [x] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
   - [x] Display player help icons after movement complete.
-  - [ ] add the easter egg
+  - [ ] add the movement easter egg (its a secret)
+  - [ ] add the cycles easter egg (its also a secret)
   - [ ] add more encounters
   - [ ] add islands
   - [ ] add more music variety

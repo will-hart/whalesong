@@ -93,7 +93,7 @@
   - [x] fix CI yaml file
   - [x] set up itch page
   - [x] do a test release
-  - [ ] work out why the itch build isn't working
+  - [x] work out why the itch build isn't working
   - [ ] do a "Final final v1 latest" release before the jam ends
   - [ ] deploy to itch
   - [ ] add screenshots and details to the jam page

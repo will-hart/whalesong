@@ -22,25 +22,25 @@ macro_rules! p {
 
 // Note for smooth lerping, these palettes should start and end on the same colour as each other
 const SUNNY_COLOR_CYCLE: [Vec3; NUM_COLOURS] = [
-    /*  0am */ Vec3::new(p!(205), p!(205), p!(210)),
-    /*  3am */ Vec3::new(p!(210), p!(210), p!(198)),
+    /*  0am */ Vec3::new(p!(189), p!(189), p!(199)),
+    /*  3am */ Vec3::new(p!(206), p!(205), p!(196)),
     /*  6am */ Vec3::new(p!(230), p!(230), p!(210)),
     /*  9am */ Vec3::new(p!(247), p!(247), p!(219)),
     /*  9am */ Vec3::new(p!(249), p!(249), p!(216)),
     /*  3pm */ Vec3::new(p!(247), p!(240), p!(234)),
     /*  6pm */ Vec3::new(p!(219), p!(210), p!(215)),
-    /*  0am */ Vec3::new(p!(205), p!(205), p!(205)),
+    /*  9pm */ Vec3::new(p!(189), p!(189), p!(208)),
 ];
 
 const STORMY_COLOR_CYCLE: [Vec3; NUM_COLOURS] = [
-    /*  0am */ Vec3::new(p!(205), p!(205), p!(210)),
-    /*  3am */ Vec3::new(p!(210), p!(210), p!(198)),
+    /*  0am */ Vec3::new(p!(189), p!(189), p!(199)),
+    /*  3am */ Vec3::new(p!(206), p!(205), p!(196)),
     /*  6am */ Vec3::new(p!(230), p!(230), p!(210)),
     /*  9am */ Vec3::new(p!(247), p!(247), p!(219)),
     /*  9am */ Vec3::new(p!(249), p!(249), p!(216)),
     /*  3pm */ Vec3::new(p!(247), p!(240), p!(234)),
     /*  6pm */ Vec3::new(p!(219), p!(210), p!(215)),
-    /*  0am */ Vec3::new(p!(205), p!(205), p!(205)),
+    /*  9pm */ Vec3::new(p!(189), p!(189), p!(208)),
 ];
 
 #[derive(Resource)]

@@ -4,7 +4,8 @@ use rand::Rng;
 use crate::{
     game::{
         animation::PlayerAnimation,
-        assets::{HandleMap, ImageKey},
+        assets::{HandleMap, ImageKey, SfxKey},
+        audio::sfx::PlaySfx,
         movement::{MoveTowardsLocation, WHALE_TRAVEL_SPEED},
         spawn::{encounters::EncounterType, player::Whale, WindowSize},
     },
@@ -13,7 +14,7 @@ use crate::{
 
 use super::{get_creature_path, Creature};
 
-pub const BIRD_SPEED: f32 = WHALE_TRAVEL_SPEED * 0.9;
+pub const BIRD_SPEED: f32 = WHALE_TRAVEL_SPEED * 1.2;
 
 /// Used to indicate a curious creature, such as a bird
 #[derive(Component)]
@@ -119,6 +120,8 @@ fn gain_curiosity(
             < BIRD_CURIOSITY_THRESHOLD * BIRD_CURIOSITY_THRESHOLD
         {
             info!("bird {bird:?} is curious");
+            commands.trigger(PlaySfx::Key(SfxKey::Gull));
+
             commands.entity(bird).insert((
                 Curious {
                     // marks them for the curiosity AI system

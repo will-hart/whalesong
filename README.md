@@ -39,21 +39,21 @@
   - [x] turn the whale when arrow keys are pressed
   - [x] move the waves diagonally when arrow keys pressed
 - [ ] add encounters
-  - [ ] birds
+  - [x] birds
     - [x] bird graphics added to `creature.png`
     - [x] bird spawner
     - [x] birds randomly spawn every X seconds
     - [x] if birds get close, they circle the whale
     - [x] after a while, the birds leave
-    - [ ] add a "wander in area" behaviour while following the whale
-    - [ ] bird sound effects
-  - [ ] ships
-  - [ ] schools of fish
+    - [x] add a "wander in area" behaviour while following the whale
+    - [x] bird sound effects
+  - [x] schools of fish
     - [x] create fish sprite
     - [x] spawn fish
     - [x] fish boids
     - [x] fish encounters
     - [x] fish avoid the whale
+  - [ ] ships
   - [ ] other whales
     - [ ] whalesong
     - [ ] forming a pod
@@ -101,6 +101,7 @@
   - allow setting velocity directly
   - add a `BoidJitter` component which adds a bit of random jitter to the movement
   - add a `BoidRepulsor` component which isn't a boid but pushes boids away
+- Sounds with "complex" names were taken from freesounds.org, and were all CC0 licensed.
 
 ## Template
 

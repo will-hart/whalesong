@@ -12,8 +12,8 @@ use super::spawn::{
     WindowSize,
 };
 
-/// How fast the "whale travels", i.e. how fast to move things past the whale
-pub const WHALE_TRAVEL_SPEED: f32 = 0.45; // magic number
+/// How fast the whale travels around the screen
+pub const WHALE_TRAVEL_SPEED: f32 = 0.4; // magic number
 
 /// how far the whale turns when pointing left or right (in radians)
 const WHALE_MOVEMENT_SCALE: f32 = 0.6;

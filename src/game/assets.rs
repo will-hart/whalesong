@@ -104,6 +104,7 @@ pub enum SfxKey {
     ButtonHover,
     ButtonPress,
     WhaleBreath,
+    Gull,
     OceanAmbient,
 }
 
@@ -118,6 +119,10 @@ impl FromWorld for HandleMap<SfxKey> {
             (
                 SfxKey::WhaleBreath,
                 asset_server.load("audio/sfx/whale_breath.ogg"),
+            ),
+            (
+                SfxKey::Gull,
+                asset_server.load("audio/sfx/166707__snapper4298__seagull-2.ogg"),
             ),
             (
                 SfxKey::ButtonHover,

@@ -63,10 +63,10 @@
     - [ ] forming a pod
 - [ ] Weather cycles
   - [x] day/night
-  - [ ] wind
   - [x] rain
+  - [x] snow
+  - [ ] wind
   - [ ] storm
-  - [ ] snow
 - [] polish
   - [x] restyle the menu
   - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately

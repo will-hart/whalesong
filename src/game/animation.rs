@@ -68,6 +68,7 @@ pub enum PlayerAnimationState {
     WhaleSwimming,
     Wave,
     Bird,
+    Ship,
     Fish,
     WhaleBreath,
 }
@@ -99,6 +100,15 @@ impl PlayerAnimation {
             timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
             frame: 0,
             state: PlayerAnimationState::Bird,
+            oneshot: false,
+        }
+    }
+
+    pub fn ship() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+            frame: 0,
+            state: PlayerAnimationState::Ship,
             oneshot: false,
         }
     }
@@ -147,10 +157,11 @@ impl PlayerAnimation {
         let prev = self.frame;
         self.frame = (self.frame + 1)
             % match self.state {
-                PlayerAnimationState::Wave => 9,
+                PlayerAnimationState::Ship => 4,
                 PlayerAnimationState::WhaleSwimming
                 | PlayerAnimationState::Bird
                 | PlayerAnimationState::Fish => 8,
+                PlayerAnimationState::Wave => 9,
                 PlayerAnimationState::WhaleBreath => 16,
             };
 
@@ -178,10 +189,11 @@ impl PlayerAnimation {
     /// Return sprite index in the atlas.
     pub fn get_atlas_index(&self) -> usize {
         match self.state {
-            PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
-            PlayerAnimationState::WhaleSwimming
+            PlayerAnimationState::Ship
+            | PlayerAnimationState::WhaleSwimming
             | PlayerAnimationState::Wave
             | PlayerAnimationState::Fish => self.frame,
+            PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
             PlayerAnimationState::WhaleBreath => 8 + self.frame,
         }
     }

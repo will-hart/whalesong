@@ -26,6 +26,7 @@ pub enum ImageKey {
     PlayButton,
     CreditsButton,
     ExitButton,
+    Ships,
 }
 
 impl AssetKey for ImageKey {
@@ -94,6 +95,13 @@ impl FromWorld for HandleMap<ImageKey> {
                     },
                 ),
             ),
+            (
+                ImageKey::Ships,
+                asset_server.load_with_settings(
+                    "images/ships.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
         ]
         .into()
     }
@@ -105,6 +113,8 @@ pub enum SfxKey {
     ButtonPress,
     WhaleBreath,
     Gull,
+    ShipAmbient,
+    ShipHorn,
     OceanAmbient,
 }
 
@@ -135,6 +145,14 @@ impl FromWorld for HandleMap<SfxKey> {
             (
                 SfxKey::ButtonPress,
                 asset_server.load("audio/sfx/button_press.ogg"),
+            ),
+            (
+                SfxKey::ShipAmbient,
+                asset_server.load("audio/sfx/ship_noise.ogg"),
+            ),
+            (
+                SfxKey::ShipHorn,
+                asset_server.load("audio/sfx/ship_horn.ogg"),
             ),
         ]
         .into()

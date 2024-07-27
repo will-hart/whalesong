@@ -84,8 +84,9 @@ pub enum AnimationPlayerState {
     RainDrop,
 }
 
-pub const WHALE_FRAME_MILLIS: u64 = 250;
-pub const FAST_WHALE_FRAME_MILLIS: u64 = 200;
+pub const WHALE_FRAME_MILLIS: u64 = 230;
+pub const FAST_WHALE_FRAME_MILLIS: u64 = 180;
+pub const SLOW_WHALE_FRAME_MILLIS: u64 = 290;
 
 impl SpriteAnimationPlayer {
     /// The duration of each idle frame.

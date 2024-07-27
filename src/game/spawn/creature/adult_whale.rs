@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::{SpriteAnimationPlayer, FAST_WHALE_FRAME_MILLIS},
+        animation::{SpriteAnimationPlayer, SLOW_WHALE_FRAME_MILLIS},
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
@@ -134,7 +134,7 @@ pub(super) fn spawn(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     let mut player_animation = SpriteAnimationPlayer::new();
-    player_animation.set_frame_interval(FAST_WHALE_FRAME_MILLIS);
+    player_animation.set_frame_interval(SLOW_WHALE_FRAME_MILLIS);
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
 

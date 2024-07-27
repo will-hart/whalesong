@@ -13,7 +13,7 @@ mod waves;
 
 pub use day_night_cycle::TintWithDayNightCycle;
 pub use day_night_cycle::{WeatherState, INITIAL_TIME_OF_DAY};
-pub use rain::Raininess;
+pub use rain::{Precipitation, Raininess};
 pub use waves::Wave;
 
 /// The distance at which flipping occurs

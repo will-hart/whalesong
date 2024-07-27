@@ -8,8 +8,13 @@ use crate::{
 };
 
 use super::{
-    spawn::{creature::Creature, encounters::EncounterTimers},
-    weather::{Raininess, TravelDistance, WeatherState, INITIAL_TIME_OF_DAY},
+    spawn::{
+        creature::Creature,
+        encounters::EncounterTimers,
+        player::{Whale, WhaleRotation},
+        WindowSize,
+    },
+    weather::{Precipitation, Raininess, TravelDistance, WeatherState, INITIAL_TIME_OF_DAY},
 };
 
 #[derive(Resource)]
@@ -143,18 +148,22 @@ fn despawn_when_flip_complete(
 }
 
 /// performs the actual flip. This usually happens half way through the fade out / fade in
-/// of the UI black screen
+/// of the UI black screen. Probably should break all this arguments up lol
 fn update_flip_timer(
     mut commands: Commands,
     time: Res<Time>,
+    win_size: Res<WindowSize>,
     mut is_flipped: ResMut<IsFlipped>,
     mut distance: ResMut<TravelDistance>,
     mut encounters: ResMut<EncounterTimers>,
     mut raininess: ResMut<Raininess>,
     mut weather: ResMut<WeatherState>,
+    mut whale_rot: ResMut<WhaleRotation>,
     creatures: Query<Entity, With<Creature>>,
+    rain: Query<Entity, With<Precipitation>>,
+    mut whales: Query<&mut Transform, With<Whale>>,
     mut timers: Query<(Entity, &mut FlipTimer)>,
-    mut cameras: Query<&mut Transform, With<IsDefaultUiCamera>>,
+    mut cameras: Query<&mut Transform, (With<IsDefaultUiCamera>, Without<Whale>)>,
 ) {
     for (entity, mut timer) in &mut timers {
         timer.0.tick(time.delta());
@@ -169,9 +178,23 @@ fn update_flip_timer(
             raininess.reset();
             weather.time_of_day = INITIAL_TIME_OF_DAY;
 
+            // update whale position
+            whale_rot.current_rotation = 0.;
+            whale_rot.target_rotation = 0.;
+
+            let half = win_size.half();
+            for mut whale in &mut whales {
+                whale.translation = Vec3::new(0., 0.8 * half.y, 0.0);
+                whale.rotation = Quat::IDENTITY;
+            }
+
             // despawn all creatures
             for creature in &creatures {
                 commands.entity(creature).despawn_recursive();
+            }
+
+            for rain in &rain {
+                commands.entity(rain).despawn();
             }
 
             // rotate the camera

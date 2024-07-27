@@ -3,7 +3,10 @@ use bevy::{
     prelude::*,
 };
 
-use crate::game::assets::{HandleMap, SfxKey};
+use crate::{
+    game::assets::{HandleMap, SfxKey},
+    screen::Screen,
+};
 
 #[derive(Component, Copy, Clone)]
 pub struct FadeIn {
@@ -24,23 +27,27 @@ pub(super) fn plugin(app: &mut App) {
 fn play_sfx(
     trigger: Trigger<PlaySfx>,
     mut commands: Commands,
+    current_scene: Res<State<Screen>>,
     sfx_handles: Res<HandleMap<SfxKey>>,
 ) {
     let request = trigger.event();
     let sfx_key = request.key;
 
-    let bundle = AudioSourceBundle {
-        source: sfx_handles[&sfx_key].clone_weak(),
-        settings: PlaybackSettings {
-            mode: if request.looped {
-                PlaybackMode::Loop
-            } else {
-                PlaybackMode::Despawn
+    let bundle = (
+        AudioSourceBundle {
+            source: sfx_handles[&sfx_key].clone_weak(),
+            settings: PlaybackSettings {
+                mode: if request.looped {
+                    PlaybackMode::Loop
+                } else {
+                    PlaybackMode::Despawn
+                },
+                volume: Volume::new(request.volume),
+                ..default()
             },
-            volume: Volume::new(request.volume),
-            ..default()
         },
-    };
+        StateScoped(current_scene.get().clone()),
+    );
 
     if let Some(parent) = request.parent_entity {
         commands.entity(parent).with_children(|child| {

@@ -247,6 +247,18 @@ fn move_in_spawning_whale(
                         },
                         StateScoped(Screen::Playing),
                     ));
+
+                    parent.spawn((
+                        Name::new("PlayerHelp SpaceBar"),
+                        InputHelp,
+                        SpriteBundle {
+                            texture: image_handles[&ImageKey::SpaceBar].clone_weak(),
+                            transform: Transform::from_scale(Vec3::splat(0.5))
+                                .with_translation(Vec3::new(0., -80., 0.0)),
+                            ..Default::default()
+                        },
+                        StateScoped(Screen::Playing),
+                    ));
                 });
         }
     }

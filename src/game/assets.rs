@@ -23,6 +23,7 @@ pub enum ImageKey {
     Features,
     RainDrop,
     Icons,
+    SpaceBar,
     Logo,
     PlayButton,
     CreditsButton,
@@ -51,6 +52,13 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Icons,
                 asset_server.load_with_settings(
                     "images/icons.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::SpaceBar,
+                asset_server.load_with_settings(
+                    "images/space_bar.png",
                     |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
                 ),
             ),

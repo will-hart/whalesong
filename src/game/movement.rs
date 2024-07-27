@@ -20,7 +20,6 @@ pub const WHALE_TRAVEL_SPEED: f32 = 0.4; // magic number
 
 /// how far the whale turns when pointing left or right (in radians)
 const WHALE_TURN_SPEED: f32 = 0.03;
-const WHALE_TURN_LIMIT: f32 = std::f32::consts::FRAC_PI_2;
 
 pub const WHALE_SCREEN_BUFFER_FRACTION: f32 = 0.3;
 
@@ -184,8 +183,7 @@ fn move_whale(
         whale_rot.target_rotation = whale_rot.target_rotation;
     }
 
-    whale_rot.target_rotation = (whale_rot.target_rotation + WHALE_TURN_SPEED * movement.intent.x)
-        .clamp(-WHALE_TURN_LIMIT, WHALE_TURN_LIMIT);
+    whale_rot.target_rotation += WHALE_TURN_SPEED * movement.intent.x;
 
     whale_rot.current_rotation = whale_rot
         .current_rotation

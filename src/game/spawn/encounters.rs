@@ -43,6 +43,12 @@ impl Default for EncounterTimers {
     }
 }
 
+impl EncounterTimers {
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
+}
+
 fn spawn_encounters(
     mut commands: Commands,
     distance: Res<TravelDistance>,

@@ -7,6 +7,11 @@ use crate::{
     AppSet,
 };
 
+use super::{
+    spawn::encounters::EncounterTimers,
+    weather::{Raininess, TravelDistance},
+};
+
 #[derive(Resource)]
 pub struct IsFlipped(bool);
 
@@ -140,6 +145,9 @@ fn update_flip_timer(
     mut commands: Commands,
     time: Res<Time>,
     mut is_flipped: ResMut<IsFlipped>,
+    mut distance: ResMut<TravelDistance>,
+    mut encounters: ResMut<EncounterTimers>,
+    mut raininess: ResMut<Raininess>,
     mut timers: Query<(Entity, &mut FlipTimer)>,
     mut cameras: Query<&mut Transform, With<IsDefaultUiCamera>>,
 ) {
@@ -149,6 +157,9 @@ fn update_flip_timer(
             commands.entity(entity).despawn();
 
             is_flipped.toggle();
+            distance.reset();
+            encounters.reset();
+            raininess.reset();
 
             for mut camera in &mut cameras {
                 camera.rotate(Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI));

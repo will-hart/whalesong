@@ -12,6 +12,7 @@ mod rain;
 mod waves;
 
 pub use day_night_cycle::TintWithDayNightCycle;
+pub use rain::Raininess;
 pub use waves::Wave;
 
 /// How far the whale has travelled
@@ -27,6 +28,11 @@ impl TravelDistance {
     /// Generates a future time within `now + range`
     pub fn future_range(&self, range: Range<f32>) -> f32 {
         self.0 + rand::thread_rng().gen_range(range)
+    }
+
+    /// resets the distance travelled to 0
+    pub fn reset(&mut self) {
+        self.0 = 0.;
     }
 }
 

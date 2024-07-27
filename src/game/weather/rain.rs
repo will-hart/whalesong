@@ -21,39 +21,6 @@ pub struct Raininess {
     time_rain_ends: f32,
 }
 
-#[derive(Event)]
-pub struct RainChanged {
-    pub is_raining: bool,
-}
-
-const RAIN_THRESHOLD: f32 = 0.7;
-
-const RAIN_TO_SNOW_DISTANCE: f32 = 120.;
-
-const RAIN_MIN_DURATION: f32 = 16.0;
-const RAIN_MAX_DURATION: f32 = 25.0;
-const RAIN_MIN_GROWTH: f32 = 0.0;
-const RAIN_MAX_GROWTH: f32 = 0.0015;
-
-pub(super) fn plugin(app: &mut App) {
-    app.insert_resource(Raininess {
-        factor: 0.,
-        time_rain_ends: 0.,
-    });
-    app.add_systems(OnEnter(Screen::Playing), reset_raininess);
-    app.add_systems(
-        Update,
-        (
-            update_raininess,
-            spawn_rain_drops,
-            spawn_snow_flakes,
-            animate_snow_flakes,
-        )
-            .run_if(in_state(Screen::Playing)),
-    );
-    app.observe(handle_rain_changed);
-}
-
 impl Raininess {
     /// updates the rain status and returns true if the status changed
     pub fn update(&mut self, distance: &TravelDistance, delta: Range<f32>) -> bool {
@@ -85,6 +52,39 @@ impl Raininess {
         self.factor = 0.;
         self.time_rain_ends = 0.;
     }
+}
+
+#[derive(Event)]
+pub struct RainChanged {
+    pub is_raining: bool,
+}
+
+const RAIN_THRESHOLD: f32 = 0.7;
+
+const RAIN_TO_SNOW_DISTANCE: f32 = 120.;
+
+const RAIN_MIN_DURATION: f32 = 16.0;
+const RAIN_MAX_DURATION: f32 = 25.0;
+const RAIN_MIN_GROWTH: f32 = 0.0;
+const RAIN_MAX_GROWTH: f32 = 0.0015;
+
+pub(super) fn plugin(app: &mut App) {
+    app.insert_resource(Raininess {
+        factor: 0.,
+        time_rain_ends: 0.,
+    });
+    app.add_systems(OnEnter(Screen::Playing), reset_raininess);
+    app.add_systems(
+        Update,
+        (
+            update_raininess,
+            spawn_rain_drops,
+            spawn_snow_flakes,
+            animate_snow_flakes,
+        )
+            .run_if(in_state(Screen::Playing)),
+    );
+    app.observe(handle_rain_changed);
 }
 
 pub fn reset_raininess(mut raininess: ResMut<Raininess>) {

@@ -18,6 +18,8 @@ mod fish;
 mod iceberg;
 mod ship;
 
+pub use ship::Ship;
+
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
         adult_whale::plugin,

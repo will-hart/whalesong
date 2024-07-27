@@ -23,7 +23,7 @@ use crate::{
     screen::Screen,
 };
 
-use super::WindowSize;
+use super::{creature::Ship, WindowSize};
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_player).observe(handle_player_action);
@@ -277,9 +277,10 @@ fn handle_player_action(
     _trigger: Trigger<PlayerActionRequested>,
     mut commands: Commands,
     helpers: Query<Entity, With<InputHelp>>,
-    mut whales: Query<&mut AnimationPlayer, With<Whale>>,
+    ships: Query<&Transform, With<Ship>>,
+    mut whales: Query<(&mut AnimationPlayer, &Transform), With<Whale>>,
 ) {
-    for mut whale in &mut whales {
+    for (mut whale, tx) in &mut whales {
         if whale.in_state(AnimationPlayerState::WhaleBreaching) {
             // don't breach if we already are, this leads to out of context sound effects
             // being played in the middle of the animation
@@ -290,8 +291,21 @@ fn handle_player_action(
         commands.trigger(PlaySfx::once(SfxKey::WhaleBreach));
         whale.update_state(AnimationPlayerState::WhaleBreaching);
 
+        // make sure player helper icons go away when breaching
         for helper in &helpers {
             commands.entity(helper).despawn_recursive();
+        }
+
+        // see if there are any ships nearby. If they are, play the ship horn
+        for ship in &ships {
+            let distance = (ship.translation - tx.translation).length();
+            info!("Distance to ship: {distance}");
+
+            if distance < 150.0 {
+                commands.trigger(PlaySfx::once(SfxKey::ShipHorn).with_volume(2.5));
+                // only play the sound once
+                break;
+            }
         }
     }
 }

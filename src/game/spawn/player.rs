@@ -49,6 +49,7 @@ pub struct WhaleRotation {
     pub target_rotation: f32,
 }
 
+/// Marks an icon or element that is to help the player
 #[derive(Component)]
 pub struct InputHelp;
 
@@ -275,11 +276,16 @@ fn animation_completed(
 fn handle_player_action(
     _trigger: Trigger<PlayerActionRequested>,
     mut commands: Commands,
+    helpers: Query<Entity, With<InputHelp>>,
     mut whales: Query<&mut PlayerAnimation, With<Whale>>,
 ) {
     for mut whale in &mut whales {
         info!("Triggered whale breach");
         commands.trigger(PlaySfx::once(SfxKey::WhaleBreach));
         whale.update_state(PlayerAnimationState::WhaleBreaching);
+
+        for helper in &helpers {
+            commands.entity(helper).despawn_recursive();
+        }
     }
 }

@@ -38,7 +38,7 @@ impl Default for EncounterTimers {
             bird: 12.,
             fish: 17.,
             ship: 30.,
-            iceberg: 95.,
+            iceberg: 65.,
         }
     }
 }

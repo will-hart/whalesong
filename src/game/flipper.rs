@@ -8,8 +8,8 @@ use crate::{
 };
 
 use super::{
-    spawn::encounters::EncounterTimers,
-    weather::{Raininess, TravelDistance},
+    spawn::{creature::Creature, encounters::EncounterTimers},
+    weather::{Raininess, TravelDistance, WeatherState, INITIAL_TIME_OF_DAY},
 };
 
 #[derive(Resource)]
@@ -148,19 +148,30 @@ fn update_flip_timer(
     mut distance: ResMut<TravelDistance>,
     mut encounters: ResMut<EncounterTimers>,
     mut raininess: ResMut<Raininess>,
+    mut weather: ResMut<WeatherState>,
+    creatures: Query<Entity, With<Creature>>,
     mut timers: Query<(Entity, &mut FlipTimer)>,
     mut cameras: Query<&mut Transform, With<IsDefaultUiCamera>>,
 ) {
     for (entity, mut timer) in &mut timers {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
+            // despawn the timer
             commands.entity(entity).despawn();
 
+            // reset all the flippin' state
             is_flipped.toggle();
-            distance.reset();
+            distance.reset_timer();
             encounters.reset();
             raininess.reset();
+            weather.time_of_day = INITIAL_TIME_OF_DAY;
 
+            // despawn all creatures
+            for creature in &creatures {
+                commands.entity(creature).despawn();
+            }
+
+            // rotate the camera
             for mut camera in &mut cameras {
                 camera.rotate(Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI));
             }

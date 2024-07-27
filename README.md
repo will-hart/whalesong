@@ -86,8 +86,8 @@
     - [x] flip camera
     - [x] flip anything that needs flipping
     - [x] flip the controls
-    - [ ] flip on a timer
-    - [ ] flip text
+    - [x] flip on a timer
+    - [x] flip text
     - [ ] make sure the easter egg occurs before the flip if that makes sense
   - [ ] add more encounters
   - [ ] add islands

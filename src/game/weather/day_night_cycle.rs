@@ -43,6 +43,8 @@ const STORMY_COLOR_CYCLE: [Vec3; NUM_COLOURS] = [
     /*  9pm */ Vec3::new(p!(189), p!(189), p!(208)),
 ];
 
+pub const INITIAL_TIME_OF_DAY: f32 = 6.;
+
 #[derive(Resource)]
 pub struct WeatherState {
     pub sunny: [Vec3; NUM_COLOURS],
@@ -57,7 +59,7 @@ impl Default for WeatherState {
             sunny: SUNNY_COLOR_CYCLE,
             stormy: STORMY_COLOR_CYCLE,
             is_sunny: true,
-            time_of_day: 6.,
+            time_of_day: INITIAL_TIME_OF_DAY,
         }
     }
 }

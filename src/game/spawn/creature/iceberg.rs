@@ -5,6 +5,7 @@ use rand::Rng;
 use crate::{
     game::{
         assets::{HandleMap, ImageKey},
+        flipper::Flippable,
         movement::{MoveWithVelocity, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
         spawn::encounters::EncounterType,
         weather::TintWithDayNightCycle,
@@ -55,6 +56,7 @@ pub(super) fn spawn_iceberg(
             layout: texture_atlas_layout.clone(),
             index: rng.gen_range(8..14),
         },
+        Flippable,
         BoidRepulsor {
             strength: 0.6,
             range: 45.,

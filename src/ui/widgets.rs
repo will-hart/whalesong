@@ -10,6 +10,7 @@ use super::{interaction::InteractionPalette, palette::*};
 pub trait Widgets {
     /// Spawn a simple button with text.
     fn button(&mut self, text: impl Into<String>) -> EntityCommands;
+
     /// Spawn a simple button with text.
     fn image_button(&mut self, image: impl Into<UiImage>) -> EntityCommands;
 

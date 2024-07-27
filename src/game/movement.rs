@@ -7,9 +7,12 @@ use bevy::prelude::*;
 
 use crate::{screen::Screen, AppSet};
 
-use super::spawn::{
-    player::{InputHelp, Whale, WhaleArrivalMarker, WhaleRotation},
-    WindowSize,
+use super::{
+    flipper::IsFlipped,
+    spawn::{
+        player::{InputHelp, Whale, WhaleArrivalMarker, WhaleRotation},
+        WindowSize,
+    },
 };
 
 /// How fast the whale travels around the screen
@@ -74,6 +77,7 @@ pub struct PlayerActionRequested;
 fn update_movement_intent(
     mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
+    is_flipped: Res<IsFlipped>,
     mut controller_query: Query<&mut MovementController>,
     helpers: Query<Entity, With<InputHelp>>,
 ) {
@@ -85,15 +89,29 @@ fn update_movement_intent(
     if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
         intent.x += 1.0;
     }
-    if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-        intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
-                         // when no keys are pressed in the "move whale" system below
+
+    if is_flipped.get_flipped() {
+        // move the whale "up and down" the screen. Note that the key changes when the screen
+        // is flipped but as its just the camera being rotated, the direction doesn't
+        if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
+            intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
+                             // when no keys are pressed in the "move whale" system below
+        }
+    } else {
+        if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
+            intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
+                             // when no keys are pressed in the "move whale" system below
+        }
     }
 
     if intent.x.abs() > 0.01 {
         for entity in &helpers {
             commands.entity(entity).despawn();
         }
+    }
+
+    if is_flipped.get_flipped() {
+        intent.x = -intent.x;
     }
 
     // Apply movement intent to controllers.

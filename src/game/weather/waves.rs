@@ -5,6 +5,7 @@ use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
+        flipper::Flippable,
         movement::{
             DespawnWhenOutOfWindow, MoveWithVelocity, WHALE_TRAVEL_SPEED, WINDOW_DESPAWN_BUFFER,
         },
@@ -116,6 +117,7 @@ fn spawn_wave(
         },
         Wave,
         player_animation,
+        Flippable,
         DespawnWhenOutOfWindow,
         StateScoped(Screen::Playing),
     ));

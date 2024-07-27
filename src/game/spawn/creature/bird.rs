@@ -6,6 +6,7 @@ use crate::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
+        flipper::Flippable,
         movement::{MoveTowardsLocation, MoveWithVelocity, WHALE_TRAVEL_SPEED},
         spawn::{encounters::EncounterType, player::Whale, WindowSize},
     },
@@ -80,6 +81,7 @@ pub(super) fn spawn_bird(
             index: player_animation.get_atlas_index(),
         },
         player_animation,
+        Flippable,
         StateScoped(Screen::Playing),
         MoveWithVelocity((to_pos - from_pos).normalize() * BIRD_SPEED),
     ));

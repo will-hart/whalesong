@@ -28,6 +28,7 @@ pub enum ImageKey {
     CreditsButton,
     ExitButton,
     Ships,
+    BlackPixel,
 }
 
 impl AssetKey for ImageKey {
@@ -107,6 +108,13 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Ships,
                 asset_server.load_with_settings(
                     "images/ships.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::BlackPixel,
+                asset_server.load_with_settings(
+                    "images/black_pixel.png",
                     |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
                 ),
             ),

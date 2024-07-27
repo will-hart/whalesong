@@ -25,8 +25,7 @@ pub(super) fn plugin(app: &mut App) {
         (
             tick_fade_in_out.in_set(AppSet::TickTimers),
             apply_fade_in_out.in_set(AppSet::Update),
-        )
-            .run_if(in_state(Screen::Splash)),
+        ),
     );
 
     // Add splash timer.
@@ -91,9 +90,12 @@ fn spawn_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
+#[derive(Event)]
+pub struct UiFadeComplete;
+
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct UiImageFadeInOut {
+pub struct UiImageFadeInOut {
     /// Total duration in seconds.
     total_duration: f32,
     /// Fade duration in seconds.
@@ -103,6 +105,14 @@ struct UiImageFadeInOut {
 }
 
 impl UiImageFadeInOut {
+    pub fn new(fade_duration: f32, total_duration: f32) -> Self {
+        Self {
+            total_duration,
+            fade_duration,
+            t: 0.,
+        }
+    }
+
     fn alpha(&self) -> f32 {
         // Normalize by duration.
         let t = (self.t / self.total_duration).clamp(0.0, 1.0);
@@ -113,9 +123,19 @@ impl UiImageFadeInOut {
     }
 }
 
-fn tick_fade_in_out(time: Res<Time>, mut animation_query: Query<&mut UiImageFadeInOut>) {
-    for mut anim in &mut animation_query {
+fn tick_fade_in_out(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut animation_query: Query<(Entity, &mut UiImageFadeInOut)>,
+) {
+    for (anim_entity, mut anim) in &mut animation_query {
+        let prev = anim.t;
+
         anim.t += time.delta_seconds();
+
+        if prev <= anim.total_duration && anim.t >= anim.total_duration {
+            commands.trigger_targets(UiFadeComplete, anim_entity);
+        }
     }
 }
 

@@ -1,12 +1,11 @@
 use bevy::prelude::*;
+use ui_palette::WHALE_BLUE;
 
 use crate::{
     screen::{Screen, UiFadeComplete, UiImageFadeInOut},
     ui::prelude::*,
     AppSet,
 };
-
-use super::assets::{HandleMap, ImageKey};
 
 #[derive(Resource)]
 pub struct IsFlipped(bool);
@@ -25,7 +24,9 @@ impl IsFlipped {
 pub struct Flippable;
 
 #[derive(Event)]
-pub struct DoFlip;
+pub struct DoFlip {
+    pub flip_text: String,
+}
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(IsFlipped(false));
@@ -47,7 +48,9 @@ pub(super) fn plugin(app: &mut App) {
 #[cfg(debug_assertions)]
 fn debug_flip_system(mut commands: Commands, input: Res<ButtonInput<KeyCode>>) {
     if input.just_pressed(KeyCode::KeyF) {
-        commands.trigger(DoFlip);
+        commands.trigger(DoFlip {
+            flip_text: "Debug Flip".into(),
+        });
     }
 }
 
@@ -67,9 +70,8 @@ pub struct FlipTimer(Timer);
 
 /// when its time to flip, fade out the audio and fade the camera to black
 fn perform_direction_switch_with_fade(
-    _trigger: Trigger<DoFlip>,
+    trigger: Trigger<DoFlip>,
     mut commands: Commands,
-    image_handles: Res<HandleMap<ImageKey>>,
     existing_flip_timers: Query<Entity, With<FlipTimer>>,
 ) {
     if !existing_flip_timers.is_empty() {
@@ -77,23 +79,42 @@ fn perform_direction_switch_with_fade(
         return;
     }
 
-    commands.ui_root().with_children(|parent| {
-        parent
-            .spawn((
-                Name::new("FadedBackground UI"),
-                ImageBundle {
-                    image: image_handles[&ImageKey::BlackPixel].clone_weak().into(),
-                    style: Style {
-                        width: Val::Vw(100.),
-                        height: Val::Vh(100.),
-                        ..Default::default()
-                    },
+    let fade = UiImageFadeInOut::new(1.0, 3.0);
+
+    commands
+        .spawn((
+            NodeBundle {
+                background_color: BackgroundColor(WHALE_BLUE),
+                style: Style {
+                    width: Val::Vw(100.),
+                    height: Val::Vh(100.),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
                     ..Default::default()
                 },
-                UiImageFadeInOut::new(1.0, 3.0),
-            ))
-            .observe(despawn_when_flip_complete);
-    });
+                ..Default::default()
+            },
+            fade,
+        ))
+        .observe(despawn_when_flip_complete)
+        .with_children(|parent| {
+            parent.spawn((
+                Name::new("Label Text"),
+                TextBundle {
+                    text: Text::from_section(
+                        trigger.event().flip_text.clone(),
+                        TextStyle {
+                            font_size: 24.0,
+                            color: Color::WHITE,
+                            ..default()
+                        },
+                    ),
+                    background_color: BackgroundColor(Color::srgba(0., 0., 0., 0.)),
+                    ..Default::default()
+                },
+            ));
+        });
 
     // spawn a timer to handle the flip half way through the view transition
     commands.spawn((
@@ -109,7 +130,7 @@ fn despawn_when_flip_complete(
 ) {
     if let Ok(ui) = uis.get(trigger.entity()) {
         info!("Despawning flip black screen");
-        commands.entity(ui).despawn();
+        commands.entity(ui).despawn_recursive();
     }
 }
 

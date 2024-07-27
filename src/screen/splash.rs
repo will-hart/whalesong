@@ -24,7 +24,11 @@ pub(super) fn plugin(app: &mut App) {
         Update,
         (
             tick_fade_in_out.in_set(AppSet::TickTimers),
-            apply_fade_in_out.in_set(AppSet::Update),
+            (
+                apply_fade_in_out_to_backgrounds,
+                apply_fade_in_out_to_ui_images,
+            )
+                .in_set(AppSet::Update),
         ),
     );
 
@@ -93,7 +97,7 @@ fn spawn_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
 #[derive(Event)]
 pub struct UiFadeComplete;
 
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Clone, Copy)]
 #[reflect(Component)]
 pub struct UiImageFadeInOut {
     /// Total duration in seconds.
@@ -139,9 +143,17 @@ fn tick_fade_in_out(
     }
 }
 
-fn apply_fade_in_out(mut animation_query: Query<(&UiImageFadeInOut, &mut UiImage)>) {
+fn apply_fade_in_out_to_ui_images(mut animation_query: Query<(&UiImageFadeInOut, &mut UiImage)>) {
     for (anim, mut image) in &mut animation_query {
         image.color.set_alpha(anim.alpha())
+    }
+}
+
+fn apply_fade_in_out_to_backgrounds(
+    mut animation_query: Query<(&UiImageFadeInOut, &mut BackgroundColor)>,
+) {
+    for (anim, mut background) in &mut animation_query {
+        background.0.set_alpha(anim.alpha())
     }
 }
 

@@ -26,7 +26,7 @@ pub struct RainChanged {
     pub is_raining: bool,
 }
 
-const RAIN_THRESHOLD: f32 = 0.5;
+const RAIN_THRESHOLD: f32 = 0.7;
 
 const RAIN_TO_SNOW_DISTANCE: f32 = 120.;
 

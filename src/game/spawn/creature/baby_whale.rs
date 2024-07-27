@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::AnimationPlayer,
+        animation::SpriteAnimationPlayer,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
@@ -57,35 +57,37 @@ fn spawn_baby_on_flip(
 
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = AnimationPlayer::baby_swimming();
+    let player_animation = SpriteAnimationPlayer::baby_swimming();
 
     let target = whales.single().translation + Vec3::Y * BABY_WHALE_LAG_DISTANCE;
 
     // now spawn the baby
-    commands.spawn((
-        Name::new("Baby Whale"),
-        Creature(EncounterType::BabyWhale),
-        BabyWhale,
-        SpriteBundle {
-            texture: image_handles[&ImageKey::Creatures].clone_weak(),
-            transform: Transform::from_translation(target), // spawn above existing whale
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
-            index: player_animation.get_atlas_index(),
-        },
-        player_animation,
-        RotateToFaceMovement,
-        MoveTowardsLocation {
-            target,
-            speed: WHALE_TRAVEL_SPEED,
-        },
-        StateScoped(Screen::Playing),
-    ));
+    let entity = commands
+        .spawn((
+            Name::new("Baby Whale"),
+            Creature(EncounterType::BabyWhale),
+            BabyWhale,
+            SpriteBundle {
+                texture: image_handles[&ImageKey::Creatures].clone_weak(),
+                transform: Transform::from_translation(target), // spawn above existing whale
+                ..Default::default()
+            },
+            TextureAtlas {
+                layout: texture_atlas_layout.clone(),
+                index: player_animation.get_atlas_index(),
+            },
+            player_animation,
+            RotateToFaceMovement,
+            MoveTowardsLocation {
+                target,
+                speed: WHALE_TRAVEL_SPEED,
+            },
+            StateScoped(Screen::Playing),
+        ))
+        .id();
 
     // play the baby noises
-    commands.trigger(PlaySfx::once(SfxKey::BabyWhaleSong));
+    commands.trigger(PlaySfx::once(SfxKey::BabyWhaleSong).with_parent(entity));
 }
 
 fn move_baby_whale(

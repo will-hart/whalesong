@@ -8,6 +8,7 @@ use bevy::prelude::*;
 use crate::{screen::Screen, AppSet};
 
 use super::{
+    animation::{SpriteAnimationPlayer, FAST_WHALE_FRAME_MILLIS, WHALE_FRAME_MILLIS},
     flipper::IsFlipped,
     spawn::{
         player::{InputHelp, Whale, WhaleArrivalMarker, WhaleRotation},
@@ -163,7 +164,7 @@ fn move_whale(
     movements: Query<&MovementIntent>,
     // don't move whales that are being "moved to location" or are arriving
     mut whales: Query<
-        &mut Transform,
+        (&mut Transform, &mut SpriteAnimationPlayer),
         (
             With<Whale>,
             Without<WhaleArrivalMarker>,
@@ -176,11 +177,17 @@ fn move_whale(
     }
 
     let movement = movements.single();
-    let mut whale = whales.single_mut();
+    let (mut whale, mut animation) = whales.single_mut();
 
     if movement.intent.x.abs() < 0.01 {
         // if we take our hands off the keys, stop rotating
         whale_rot.target_rotation = whale_rot.current_rotation;
+    }
+
+    if movement.intent.y < 0.01 {
+        animation.set_frame_interval(FAST_WHALE_FRAME_MILLIS);
+    } else {
+        animation.set_frame_interval(WHALE_FRAME_MILLIS);
     }
 
     whale_rot.target_rotation += WHALE_TURN_SPEED * movement.intent.x;

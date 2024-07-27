@@ -168,11 +168,11 @@ impl FromWorld for HandleMap<SfxKey> {
             ),
             (
                 SfxKey::AdultWhaleSong,
-                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1_2.ogg"),
+                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1.ogg"),
             ),
             (
                 SfxKey::BabyWhaleSong,
-                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1.ogg"),
+                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1_2.ogg"),
             ),
             (
                 SfxKey::Gull,

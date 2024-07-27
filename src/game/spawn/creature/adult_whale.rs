@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::AnimationPlayer,
+        animation::{SpriteAnimationPlayer, FAST_WHALE_FRAME_MILLIS},
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
@@ -86,7 +86,7 @@ fn adult_whale_gain_curiosity(
         if delta_pos.length_squared() < WHALE_CURIOSITY_DISTANCE * WHALE_CURIOSITY_DISTANCE {
             info!("whale {whale:?} is curious");
 
-            commands.trigger(PlaySfx::once(SfxKey::AdultWhaleSong));
+            commands.trigger(PlaySfx::once(SfxKey::AdultWhaleSong).with_parent(whale));
 
             baby_status.has_whale = true;
 
@@ -133,8 +133,8 @@ pub(super) fn spawn(
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    let mut player_animation = AnimationPlayer::new();
-    player_animation.set_frame_interval(190.);
+    let mut player_animation = SpriteAnimationPlayer::new();
+    player_animation.set_frame_interval(FAST_WHALE_FRAME_MILLIS);
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
 

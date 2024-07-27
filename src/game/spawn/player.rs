@@ -9,8 +9,8 @@ use rand::Rng;
 use crate::{
     game::{
         animation::{
-            despawn_when_animation_complete, AnimationComplete, AnimationPlayer,
-            AnimationPlayerState, WHALE_BREATH_FRAME_RATE,
+            despawn_when_animation_complete, AnimationComplete, AnimationPlayerState,
+            SpriteAnimationPlayer, WHALE_BREATH_FRAME_RATE,
         },
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
@@ -76,7 +76,7 @@ fn breath_bundle(
 ) -> impl Bundle {
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 3, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = AnimationPlayer::breath();
+    let player_animation = SpriteAnimationPlayer::breath();
 
     (
         SpriteBundle {
@@ -147,7 +147,7 @@ fn spawn_player(
 ) {
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 6, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = AnimationPlayer::new();
+    let player_animation = SpriteAnimationPlayer::new();
 
     let half_height = win_size.half().y;
     let start_pos = Vec3::new(0.0, half_height + 64., 0.);
@@ -264,7 +264,7 @@ fn move_in_spawning_whale(
 
 fn animation_completed(
     trigger: Trigger<AnimationComplete>,
-    mut whales: Query<&mut AnimationPlayer, With<Whale>>,
+    mut whales: Query<&mut SpriteAnimationPlayer, With<Whale>>,
 ) {
     if matches!(trigger.event().0, AnimationPlayerState::WhaleBreaching) {
         for mut whale in &mut whales {
@@ -278,7 +278,7 @@ fn handle_player_action(
     mut commands: Commands,
     helpers: Query<Entity, With<InputHelp>>,
     ships: Query<&Transform, With<Ship>>,
-    mut whales: Query<(&mut AnimationPlayer, &Transform), With<Whale>>,
+    mut whales: Query<(&mut SpriteAnimationPlayer, &Transform), With<Whale>>,
 ) {
     for (mut whale, tx) in &mut whales {
         if whale.in_state(AnimationPlayerState::WhaleBreaching) {

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 use crate::{
     game::{
-        animation::AnimationPlayer,
+        animation::SpriteAnimationPlayer,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         movement::{MoveWithVelocity, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
@@ -35,7 +35,7 @@ pub(super) fn spawn(
     let layout = TextureAtlasLayout::from_grid(UVec2::new(64, 128), 5, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    let player_animation = AnimationPlayer::ship();
+    let player_animation = SpriteAnimationPlayer::ship();
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
 

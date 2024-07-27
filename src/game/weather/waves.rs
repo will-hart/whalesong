@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::AnimationPlayer,
+        animation::SpriteAnimationPlayer,
         assets::{HandleMap, ImageKey},
         flipper::Flippable,
         movement::{
@@ -100,7 +100,7 @@ fn spawn_wave(
 
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 9, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let mut player_animation = AnimationPlayer::wave();
+    let mut player_animation = SpriteAnimationPlayer::wave();
     player_animation.set_frame(event.start_frame);
 
     let mut cmds = commands.spawn((

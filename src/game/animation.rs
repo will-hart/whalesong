@@ -28,7 +28,7 @@ pub fn despawn_when_animation_complete(
 
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.
-    app.register_type::<AnimationPlayer>();
+    app.register_type::<SpriteAnimationPlayer>();
     app.add_systems(
         Update,
         (
@@ -42,7 +42,7 @@ pub(super) fn plugin(app: &mut App) {
 fn update_animation_timer(
     mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<(Entity, &mut AnimationPlayer)>,
+    mut query: Query<(Entity, &mut SpriteAnimationPlayer)>,
 ) {
     for (entity, mut animation) in &mut query {
         if animation.update_timer(time.delta()) {
@@ -52,7 +52,7 @@ fn update_animation_timer(
 }
 
 /// Update the texture atlas to reflect changes in the animation.
-fn update_animation_atlas(mut query: Query<(&AnimationPlayer, &mut TextureAtlas)>) {
+fn update_animation_atlas(mut query: Query<(&SpriteAnimationPlayer, &mut TextureAtlas)>) {
     for (animation, mut atlas) in &mut query {
         if animation.changed() {
             atlas.index = animation.get_atlas_index();
@@ -64,7 +64,7 @@ fn update_animation_atlas(mut query: Query<(&AnimationPlayer, &mut TextureAtlas)
 /// It is tightly bound to the texture atlas we use.
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
-pub struct AnimationPlayer {
+pub struct SpriteAnimationPlayer {
     timer: Timer,
     frame: usize,
     state: AnimationPlayerState,
@@ -84,11 +84,14 @@ pub enum AnimationPlayerState {
     RainDrop,
 }
 
-impl AnimationPlayer {
+pub const WHALE_FRAME_MILLIS: u64 = 250;
+pub const FAST_WHALE_FRAME_MILLIS: u64 = 200;
+
+impl SpriteAnimationPlayer {
     /// The duration of each idle frame.
-    const SWIM_INTERVAL: Duration = Duration::from_millis(250);
-    const BABY_SWIM_INTERVAL: Duration = Duration::from_millis(120);
-    const BREACH_INTERVAL: Duration = Duration::from_millis(120);
+    const SWIM_INTERVAL: Duration = Duration::from_millis(WHALE_FRAME_MILLIS);
+    const BABY_SWIM_INTERVAL: Duration = Duration::from_millis(FAST_WHALE_FRAME_MILLIS);
+    const BREACH_INTERVAL: Duration = Duration::from_millis(FAST_WHALE_FRAME_MILLIS);
 
     fn swimming() -> Self {
         Self {
@@ -184,10 +187,9 @@ impl AnimationPlayer {
     }
 
     /// Changes the interval on the frame timer, retaining mode and elapsed time since the last tick
-    pub fn set_frame_interval(&mut self, interval: f32) {
-        let elapsed = self.timer.elapsed();
-        self.timer = Timer::from_seconds(interval, self.timer.mode());
-        self.timer.set_elapsed(elapsed);
+    pub fn set_frame_interval(&mut self, interval: u64) {
+        // self.timer.reset();
+        self.timer.set_duration(Duration::from_millis(interval));
         self.timer.unpause();
     }
 

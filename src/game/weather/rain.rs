@@ -5,7 +5,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::{despawn_when_animation_complete, AnimationPlayer},
+        animation::{despawn_when_animation_complete, SpriteAnimationPlayer},
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::{FadeIn, FadeOut, PlaySfx},
         spawn::WindowSize,
@@ -203,7 +203,7 @@ fn spawn_rain_drops(
         }
         let layout = TextureAtlasLayout::from_grid(UVec2::splat(16), 8, 1, None, None);
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
-        let player_animation = AnimationPlayer::raindrop();
+        let player_animation = SpriteAnimationPlayer::raindrop();
 
         let pos = win_size.get_random_position();
 

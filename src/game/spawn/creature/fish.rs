@@ -4,7 +4,7 @@ use rand::{seq::SliceRandom, Rng};
 
 use crate::{
     game::{
-        animation::PlayerAnimation,
+        animation::AnimationPlayer,
         assets::{HandleMap, ImageKey},
         spawn::encounters::EncounterType,
     },
@@ -37,7 +37,7 @@ pub(super) fn spawn(
 
     let mut rng = rand::thread_rng();
 
-    let mut player_animation = PlayerAnimation::fish();
+    let mut player_animation = AnimationPlayer::fish();
     player_animation.set_frame(rng.gen_range(0..8));
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);

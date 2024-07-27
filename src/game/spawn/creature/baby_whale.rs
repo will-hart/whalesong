@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::PlayerAnimation,
+        animation::AnimationPlayer,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
@@ -57,7 +57,7 @@ fn spawn_baby_on_flip(
 
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = PlayerAnimation::baby_swimming();
+    let player_animation = AnimationPlayer::baby_swimming();
 
     let target = whales.single().translation + Vec3::Y * BABY_WHALE_LAG_DISTANCE;
 

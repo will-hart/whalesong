@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::PlayerAnimation,
+        animation::AnimationPlayer,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
@@ -87,7 +87,7 @@ fn adult_whale_gain_curiosity(
             commands.entity(whale).insert((
                 Curious {
                     // marks them for the curiosity AI system
-                    until: std::f32::MAX,
+                    until: f32::MAX,
                 },
                 MoveWithVelocity(delta_pos.normalize_or_zero() * WHALE_TRAVEL_SPEED),
             ));
@@ -127,7 +127,7 @@ pub(super) fn spawn(
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    let mut player_animation = PlayerAnimation::new();
+    let mut player_animation = AnimationPlayer::new();
     player_animation.set_frame_interval(190.);
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);

@@ -3,7 +3,7 @@ use rand::Rng;
 
 use crate::{
     game::{
-        animation::PlayerAnimation,
+        animation::AnimationPlayer,
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::Flippable,
@@ -62,7 +62,7 @@ pub(super) fn spawn(
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    let player_animation = PlayerAnimation::bird();
+    let player_animation = AnimationPlayer::bird();
 
     let (from_pos, to_pos) = get_creature_path(win_size, 64.);
     let mut rng = rand::thread_rng();

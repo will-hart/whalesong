@@ -46,8 +46,8 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-const SPLASH_BACKGROUND_COLOR: Color = Color::srgb(0.08, 0.08, 0.08);
-const SPLASH_DURATION_SECS: f32 = 1.8;
+const SPLASH_BACKGROUND_COLOR: Color = Color::BLACK;
+const SPLASH_DURATION_SECS: f32 = 2.0;
 const SPLASH_FADE_DURATION_SECS: f32 = 0.6;
 
 fn splash_image_bundle(asset_server: &AssetServer, path: &'static str) -> impl Bundle {
@@ -69,6 +69,7 @@ fn splash_image_bundle(asset_server: &AssetServer, path: &'static str) -> impl B
                     settings.sampler = ImageSampler::linear();
                 },
             )),
+            background_color: BackgroundColor(Color::srgba(0., 0., 0., 0.)),
             ..default()
         },
         UiImageFadeInOut {

@@ -19,7 +19,7 @@ pub use waves::Wave;
 /// The distance at which flipping occurs
 pub const DISTANCE_FLIPPING: f32 = 120.;
 
-const FLIP_MESSAGES: [&'static str; 2] = [
+const FLIP_MESSAGES: [&str; 2] = [
     "Our whale arrived in the warm Northern waters for winter.",
     "Our whale arrived in cooler Southern waters for the summer.",
 ];
@@ -61,11 +61,7 @@ impl TravelDistance {
         let was_flipping = self.is_flipping;
         self.is_flipping = self.distance % DISTANCE_FLIPPING < prev;
 
-        if self.is_flipping && self.is_flipping != was_flipping {
-            true
-        } else {
-            false
-        }
+        self.is_flipping && self.is_flipping != was_flipping
     }
 
     pub fn get_message(&self) -> String {

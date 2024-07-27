@@ -223,7 +223,7 @@ fn spawn_rain_drops(
             ))
             .observe(despawn_when_animation_complete);
 
-        rain.next_spawn = rain.next_spawn + rain.spawn_period;
+        rain.next_spawn += rain.spawn_period;
     }
 }
 
@@ -277,7 +277,7 @@ fn spawn_snow_flakes(
             ))
             .set_parent(entity);
 
-        snow.next_spawn = snow.next_spawn + snow.spawn_period;
+        snow.next_spawn += snow.spawn_period;
     }
 }
 

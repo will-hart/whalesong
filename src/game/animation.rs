@@ -46,7 +46,7 @@ fn update_animation_timer(
 ) {
     for (entity, mut animation) in &mut query {
         if animation.update_timer(time.delta()) {
-            commands.trigger_targets(AnimationComplete(animation.state.clone()), entity)
+            commands.trigger_targets(AnimationComplete(animation.state), entity)
         }
     }
 }

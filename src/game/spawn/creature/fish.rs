@@ -78,7 +78,7 @@ pub(super) fn spawn_fish(
             StateScoped(Screen::Playing),
             boid,
             BoidJitter(1.3),
-            collision.clone(),
+            *collision,
         ));
 
         if fish == 0 {

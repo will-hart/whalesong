@@ -97,11 +97,9 @@ fn update_movement_intent(
             intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
                              // when no keys are pressed in the "move whale" system below
         }
-    } else {
-        if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-            intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
-                             // when no keys are pressed in the "move whale" system below
-        }
+    } else if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
+        intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
+                         // when no keys are pressed in the "move whale" system below
     }
 
     if intent.x.abs() > 0.01 {

@@ -154,6 +154,6 @@ pub(super) fn spawn(
         },
         player_animation,
         StateScoped(Screen::Playing),
-        MoveWithVelocity((to_pos - from_pos).normalize() * WHALE_TRAVEL_SPEED),
+        MoveWithVelocity((to_pos - from_pos).normalize() * WHALE_TRAVEL_SPEED * 0.75),
     ));
 }

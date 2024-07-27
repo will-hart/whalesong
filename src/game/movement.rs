@@ -19,8 +19,8 @@ use super::{
 pub const WHALE_TRAVEL_SPEED: f32 = 0.4; // magic number
 
 /// how far the whale turns when pointing left or right (in radians)
-const WHALE_MOVEMENT_SCALE: f32 = 0.6;
-const WHALE_TURN_SPEED: f32 = 0.02;
+const WHALE_TURN_SPEED: f32 = 0.03;
+const WHALE_TURN_LIMIT: f32 = std::f32::consts::FRAC_PI_2;
 
 pub const WHALE_SCREEN_BUFFER_FRACTION: f32 = 0.3;
 
@@ -46,7 +46,7 @@ pub struct RotateToFaceMovement;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
-    app.register_type::<MovementController>();
+    app.register_type::<MovementIntent>();
     app.add_systems(Update, update_movement_intent.in_set(AppSet::RecordInput));
 
     // Apply movement based on controls.
@@ -66,7 +66,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Component, Reflect, Default)]
 #[reflect(Component)]
-pub struct MovementController {
+pub struct MovementIntent {
     pub intent: Vec2,
     pub action: bool,
 }
@@ -78,10 +78,10 @@ fn update_movement_intent(
     mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
     is_flipped: Res<IsFlipped>,
-    mut controller_query: Query<&mut MovementController>,
+    mut controller_query: Query<&mut MovementIntent>,
     helpers: Query<Entity, With<InputHelp>>,
 ) {
-    let mut intent = Vec2::ZERO;
+    let mut intent = Vec2::Y * 0.25;
 
     if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
         intent.x -= 1.0;
@@ -159,9 +159,9 @@ fn despawn_out_of_view(
 }
 
 fn move_whale(
-    mut whale_pos: ResMut<WhaleRotation>,
+    mut whale_rot: ResMut<WhaleRotation>,
     win_size: Res<WindowSize>,
-    movements: Query<&MovementController>,
+    movements: Query<&MovementIntent>,
     // don't move whales that are being "moved to location" or are arriving
     mut whales: Query<
         &mut Transform,
@@ -172,32 +172,31 @@ fn move_whale(
         ),
     >,
 ) {
-    let movement = movements.single();
-    let delta_move = if movement.intent.length_squared() < 0.1 {
-        // no input, drift the whale back up the screen slowly
-        Vec2::new(0., 0.35)
-    } else {
-        movement.intent.normalize_or_zero()
-    } * WHALE_MOVEMENT_SCALE;
-
-    if let Ok(mut whale) = whales.get_single_mut() {
-        whale.translation = win_size.clamp_to_screen_with_buffer(
-            whale.translation + delta_move.extend(0.),
-            Val::Percent(WHALE_SCREEN_BUFFER_FRACTION * 100.),
-        );
-
-        whale_pos.target_rotation = if movement.intent.y < 0. {
-            movement.intent.x * 0.5 * WHALE_MOVEMENT_SCALE
-        } else {
-            movement.intent.x * WHALE_MOVEMENT_SCALE
-        };
-        whale_pos.current_rotation = whale_pos
-            .current_rotation
-            .lerp(whale_pos.target_rotation, WHALE_TURN_SPEED);
-
-        whale.rotation =
-            Quat::from_axis_angle(Vec3::new(0., 0., 1.), whale_pos.current_rotation * 1.3);
+    if movements.is_empty() || whales.is_empty() {
+        return;
     }
+
+    let movement = movements.single();
+    let mut whale = whales.single_mut();
+
+    if movement.intent.x.abs() < 0.01 {
+        // if we take our hands off the keys, stop rotating
+        whale_rot.target_rotation = whale_rot.target_rotation;
+    }
+
+    whale_rot.target_rotation = (whale_rot.target_rotation + WHALE_TURN_SPEED * movement.intent.x)
+        .clamp(-WHALE_TURN_LIMIT, WHALE_TURN_LIMIT);
+
+    whale_rot.current_rotation = whale_rot
+        .current_rotation
+        .lerp(whale_rot.target_rotation, WHALE_TURN_SPEED);
+    whale.rotation = Quat::from_axis_angle(Vec3::Z, whale_rot.current_rotation);
+
+    let forward = whale.up();
+    whale.translation = win_size.clamp_to_screen_with_buffer(
+        whale.translation + forward.normalize_or_zero() * WHALE_TRAVEL_SPEED * movement.intent.y,
+        Val::Percent(WHALE_SCREEN_BUFFER_FRACTION * 100.),
+    );
 }
 
 /// Moves entities that have the [`MoveTowardsLocation`] component towards their location

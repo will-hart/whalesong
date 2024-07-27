@@ -71,9 +71,9 @@
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
   - [x] move whale not things around the whale
   - [x] update the credits
-  - [ ] fix baby not displaying
+  - [x] refactor whale movement to make it a bit less janky when turning
   - [ ] refactor whale following movement
-  - [ ] refactor whale movement to make it a bit less janky when turning
+  - [ ] fix baby not displaying
   - [ ] refactor spawning rates to correspond with distance a bit better
 - [x] code "quality" lol
   - [x] store whale position in a resource

@@ -15,7 +15,7 @@ use crate::{
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         movement::{
-            MoveWithVelocity, Movement, MovementController, PlayerActionRequested,
+            MoveWithVelocity, Movement, MovementIntent, PlayerActionRequested,
             WHALE_SCREEN_BUFFER_FRACTION, WHALE_TRAVEL_SPEED,
         },
         weather::Wave,
@@ -162,7 +162,7 @@ fn spawn_player(
             Name::new("Player"),
             Whale,
             BoidRepulsor {
-                strength: 0.65,
+                strength: 0.85,
                 range: 80.,
             },
             SpriteBundle {
@@ -174,7 +174,7 @@ fn spawn_player(
                 layout: texture_atlas_layout.clone(),
                 index: player_animation.get_atlas_index(),
             },
-            MovementController::default(),
+            MovementIntent::default(),
             Movement { speed: 420.0 },
             player_animation,
             WhaleArrivalMarker {

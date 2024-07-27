@@ -180,7 +180,7 @@ fn move_whale(
 
     if movement.intent.x.abs() < 0.01 {
         // if we take our hands off the keys, stop rotating
-        whale_rot.target_rotation = whale_rot.target_rotation;
+        whale_rot.target_rotation = whale_rot.current_rotation;
     }
 
     whale_rot.target_rotation += WHALE_TURN_SPEED * movement.intent.x;

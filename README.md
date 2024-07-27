@@ -71,24 +71,25 @@
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
   - [x] move whale not things around the whale
   - [x] update the credits
+  - [ ] fix baby not displaying
   - [ ] refactor whale following movement
   - [ ] refactor whale movement to make it a bit less janky when turning
   - [ ] refactor spawning rates to correspond with distance a bit better
 - [x] code "quality" lol
   - [x] store whale position in a resource
-- [ ] stretch goals
+- [x] stretch goals
   - [x] periodically come up to breathe
   - [x] don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
   - [x] Display player help icons after movement complete.
   - [x] add the movement easter egg (its a secret)
-  - [ ] add the cycles easter egg (its also a secret)
+  - [x] add the cycles easter egg (its also a secret)
     - [x] flip camera
     - [x] flip anything that needs flipping
     - [x] flip the controls
     - [x] flip on a timer
     - [x] flip text
-    - [ ] add phase 1 on the northern flip 
-      - [ ] make it 100% likely on flip 1
+    - [x] add phase 1 on the northern flip 
+      - [x] make it 100% likely on flip 1
       - [x] make it not 100% on future flips
     - [x] add phase 2 on the southern flip (if the northern one occurs)
 - [x] bugs

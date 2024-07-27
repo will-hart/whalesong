@@ -24,6 +24,7 @@ pub struct AdultWhale;
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(set_adult_spawn_time);
+    app.add_systems(OnEnter(Screen::Playing), set_initial_adult_spawn);
     app.add_systems(
         Update,
         adult_whale_gain_curiosity.run_if(in_state(Screen::Playing)),
@@ -32,6 +33,11 @@ pub(super) fn plugin(app: &mut App) {
         FixedUpdate,
         adult_whale_follows_player_whale.run_if(in_state(Screen::Playing)),
     );
+}
+
+fn set_initial_adult_spawn(mut encounter_timers: ResMut<EncounterTimers>) {
+    info!("Setting initial adult whale spawn time");
+    encounter_timers.set_adult_spawn(5.4);
 }
 
 fn set_adult_spawn_time(
@@ -48,7 +54,7 @@ fn set_adult_spawn_time(
     let mut rng = rand::thread_rng();
 
     if distance.get_flip_number() == 1 || rng.gen_bool(0.5) {
-        let time = rng.gen_range(3.0..4.0);
+        let time = rng.gen_range(23.0..39.0);
         info!("Planning an adult whale arrival at {time}");
         encounter_timers.set_adult_spawn(time);
     }

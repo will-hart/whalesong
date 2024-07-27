@@ -1,3 +1,4 @@
+use bevoids::boids::BoidRepulsor;
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -7,7 +8,7 @@ use crate::{
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
-        movement::{MoveWithVelocity, WHALE_TRAVEL_SPEED},
+        movement::{MoveWithVelocity, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
         spawn::{
             encounters::{EncounterTimers, EncounterType},
             player::Whale,
@@ -37,7 +38,7 @@ pub(super) fn plugin(app: &mut App) {
 
 fn set_initial_adult_spawn(mut encounter_timers: ResMut<EncounterTimers>) {
     info!("Setting initial adult whale spawn time");
-    encounter_timers.set_adult_spawn(5.4);
+    encounter_timers.set_adult_spawn(37.5);
 }
 
 fn set_adult_spawn_time(
@@ -110,16 +111,15 @@ fn adult_whale_follows_player_whale(
     }
 
     let whale = whales.single();
-    let mut rng = rand::thread_rng();
+    let target_point = whale.translation + 10. * whale.up();
 
-    for (whale_tx, mut movement) in &mut adults {
-        movement.0 = (Vec3::new(
-            whale.translation.x + rng.gen_range(-20.0..20.0),
-            whale.translation.y + rng.gen_range(-20.0..20.0),
-            0.,
-        ) - whale_tx.translation)
-            .normalize_or_zero()
-            * WHALE_TRAVEL_SPEED;
+    for (adult_tx, mut movement) in &mut adults {
+        let delta = target_point - adult_tx.translation;
+        if delta.length() < 70. {
+            movement.0 = -whale.up().as_vec3() * WHALE_TRAVEL_SPEED * 0.98;
+        } else {
+            movement.0 = delta.normalize_or_zero() * WHALE_TRAVEL_SPEED * 0.98;
+        }
     }
 }
 
@@ -143,6 +143,10 @@ pub(super) fn spawn(
         Name::new("Adult Whale"),
         Creature(EncounterType::AdultWhale),
         AdultWhale,
+        BoidRepulsor {
+            strength: 0.7,
+            range: 80.,
+        },
         SpriteBundle {
             texture: image_handles[&ImageKey::Creatures].clone_weak(),
             transform: Transform::from_translation(from_pos),
@@ -153,6 +157,7 @@ pub(super) fn spawn(
             index: player_animation.get_atlas_index(),
         },
         player_animation,
+        RotateToFaceMovement,
         StateScoped(Screen::Playing),
         MoveWithVelocity((to_pos - from_pos).normalize() * WHALE_TRAVEL_SPEED * 0.75),
     ));

@@ -72,7 +72,7 @@
   - [x] move whale not things around the whale
   - [x] update the credits
   - [x] refactor whale movement to make it a bit less janky when turning
-  - [ ] refactor whale following movement
+  - [x] refactor whale following movement
   - [ ] fix baby not displaying
   - [ ] refactor spawning rates to correspond with distance a bit better
 - [x] code "quality" lol

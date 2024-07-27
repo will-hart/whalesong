@@ -38,7 +38,7 @@
 - [x] whale movement
   - [x] turn the whale when arrow keys are pressed
   - [x] move the waves diagonally when arrow keys pressed
-- [ ] add encounters
+- [x] add encounters
   - [x] birds
     - [x] bird graphics added to `creature.png`
     - [x] bird spawner
@@ -58,8 +58,8 @@
     - [x] ship wake
     - [x] engine noise
     - [x] ship occludes waves, fish, whale but not birds
-  - [ ] other whales
-    - [ ] whalesong
+  - [x] other whales
+    - [x] whalesong
 - [x] Weather cycles
   - [x] day/night
   - [x] rain
@@ -71,6 +71,9 @@
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
   - [x] move whale not things around the whale
   - [x] update the credits
+  - [ ] refactor whale following movement
+  - [ ] refactor whale movement to make it a bit less janky when turning
+  - [ ] refactor spawning rates to correspond with distance a bit better
 - [x] code "quality" lol
   - [x] store whale position in a resource
 - [ ] stretch goals
@@ -86,8 +89,8 @@
     - [x] flip text
     - [ ] add phase 1 on the northern flip 
       - [ ] make it 100% likely on flip 1
-      - [ ] make it not 100% on future flips
-    - [ ] add phase 2 on the southern flip (if the northern one occurs)
+      - [x] make it not 100% on future flips
+    - [x] add phase 2 on the southern flip (if the northern one occurs)
 - [x] bugs
   - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`

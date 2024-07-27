@@ -108,10 +108,6 @@ fn update_movement_intent(
         }
     }
 
-    if is_flipped.get_flipped() {
-        intent.x = -intent.x;
-    }
-
     // Apply movement intent to controllers.
     for mut controller in &mut controller_query {
         controller.intent = intent;
@@ -224,7 +220,10 @@ fn move_towards_location(
 
         if rotate_to_face.is_some() {
             let direction = (prev - mover.translation).xy().normalize();
-            mover.rotation = Quat::from_rotation_arc(Vec3::Y, direction.extend(0.));
+            mover.rotation = mover.rotation.slerp(
+                Quat::from_rotation_arc(Vec3::Y, direction.extend(0.)),
+                WHALE_TURN_SPEED,
+            );
         }
 
         if (mover.translation - details.target).length_squared() < 1.0 {

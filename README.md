@@ -60,21 +60,17 @@
     - [x] ship occludes waves, fish, whale but not birds
   - [ ] other whales
     - [ ] whalesong
-    - [ ] forming a pod
-- [ ] Weather cycles
+- [x] Weather cycles
   - [x] day/night
   - [x] rain
   - [x] snow
   - [x] icebergs
-  - [ ] storm
-- [] polish
+- [x] polish
   - [x] restyle the menu
   - [x] make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
   - [x] when the whale turns there is a lot of empty space at the screen edges - no waves
   - [x] move whale not things around the whale
-  - [ ] update the credits
-  - [ ] ship volume depends on proximity to whale
-  - [ ] icebergs have different sizes without blurring
+  - [x] update the credits
 - [x] code "quality" lol
   - [x] store whale position in a resource
 - [ ] stretch goals
@@ -88,11 +84,10 @@
     - [x] flip the controls
     - [x] flip on a timer
     - [x] flip text
-    - [ ] make sure the easter egg occurs before the flip if that makes sense
-  - [ ] add more encounters
-  - [ ] add islands
-  - [ ] add more music variety
-  - [ ] ships avoid icebergs
+    - [ ] add phase 1 on the northern flip 
+      - [ ] make it 100% likely on flip 1
+      - [ ] make it not 100% on future flips
+    - [ ] add phase 2 on the southern flip (if the northern one occurs)
 - [x] bugs
   - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`
@@ -105,10 +100,21 @@
   - [x] work out why the itch build isn't working
   - [ ] do a "Final final v1 latest" release before the jam ends
   - [ ] deploy to itch
-  - [ ] add screenshots and details to the jam page
+  - [x] add screenshots and details to the jam page
   - [ ] test deployed version
-- abandoned 
-  - wind
+
+These ideas were abandoned due to it being a game jam game:
+
+  - weather
+    - wind
+    - storms
+  - stretch goals
+    - add more encounters
+    - add islands
+    - add more music variety
+    - ships avoid icebergs :grimace:
+  - ship volume depends on proximity to the whale
+  - icebergs have different sizes without blurring
   
 [https://www.youtube.com/shorts/QaFM5X7KZX4](https://www.youtube.com/shorts/QaFM5X7KZX4)
 

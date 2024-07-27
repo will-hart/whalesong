@@ -20,7 +20,6 @@ pub enum EncounterType {
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, spawn_encounters.run_if(in_state(Screen::Playing)));
-
     app.init_resource::<EncounterTimers>();
 }
 

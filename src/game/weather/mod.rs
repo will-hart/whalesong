@@ -20,8 +20,8 @@ pub use waves::Wave;
 pub const DISTANCE_FLIPPING: f32 = 120.;
 
 const FLIP_MESSAGES: [&str; 2] = [
-    "Our whale arrived in the warm Northern waters for winter.",
-    "Our whale arrived in cooler Southern waters for the summer.",
+    "The warm Northern waters for are perfect for winter.",
+    "The cooler Southern waters are ideal for summer.",
 ];
 
 /// How far the whale has travelled

@@ -29,6 +29,7 @@ pub enum ImageKey {
     ExitButton,
     Ships,
     BlackPixel,
+    Credits,
 }
 
 impl AssetKey for ImageKey {
@@ -39,6 +40,13 @@ impl FromWorld for HandleMap<ImageKey> {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
         [
+            (
+                ImageKey::Credits,
+                asset_server.load_with_settings(
+                    "images/credits.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
             (
                 ImageKey::Icons,
                 asset_server.load_with_settings(

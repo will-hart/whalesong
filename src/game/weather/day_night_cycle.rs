@@ -1,6 +1,6 @@
 //! The day / night cycle for the background colours. Borrows day night cycle stuff
 //! from my Bevy Jam 2 entry, here
-//! https://github.com/will-hart/bevy_jam_2/blob/main/src/game/day_night_cycle.rs
+//! <https://github.com/will-hart/bevy_jam_2/blob/main/src/game/day_night_cycle.rs>
 
 use bevy::prelude::*;
 use rand::Rng;

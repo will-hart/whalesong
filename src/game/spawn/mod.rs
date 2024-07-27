@@ -3,7 +3,9 @@
 //! for this, but you could also use `Events<E>` or `Commands`.
 
 use bevy::{prelude::*, window::PrimaryWindow};
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
+
+use super::movement::WINDOW_DESPAWN_BUFFER;
 
 pub mod creature;
 pub mod encounters;
@@ -70,6 +72,35 @@ impl WindowSize {
             rng.gen_range(-half.x..half.x),
             rng.gen_range(-half.y..half.y),
         )
+    }
+
+    pub fn get_random_position_outside(&self) -> Vec2 {
+        let mut rng = rand::thread_rng();
+        let half = self.half();
+
+        if rng.gen_bool(0.5) {
+            // leave via x edge
+            Vec2::new(
+                *[
+                    -half.x - 2. * WINDOW_DESPAWN_BUFFER,
+                    half.x + 2. * WINDOW_DESPAWN_BUFFER,
+                ]
+                .choose(&mut rng)
+                .unwrap_or(&(half.x + 2. * WINDOW_DESPAWN_BUFFER)),
+                rng.gen_range(-half.y..half.y),
+            )
+        } else {
+            // leave via y edge
+            Vec2::new(
+                rng.gen_range(-half.x..half.x),
+                *[
+                    -half.y - 2. * WINDOW_DESPAWN_BUFFER,
+                    half.y + 2. * WINDOW_DESPAWN_BUFFER,
+                ]
+                .choose(&mut rng)
+                .unwrap_or(&(half.y + 2. * WINDOW_DESPAWN_BUFFER)),
+            )
+        }
     }
 }
 

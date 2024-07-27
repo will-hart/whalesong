@@ -3,7 +3,7 @@
 use std::time::Duration;
 
 use bevoids::boids::BoidRepulsor;
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 use rand::Rng;
 
 use crate::{
@@ -22,6 +22,8 @@ use crate::{
     },
     screen::Screen,
 };
+
+use super::WindowSize;
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_player).observe(handle_player_action);
@@ -138,20 +140,15 @@ fn spawn_breaths(
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
+    win_size: Res<WindowSize>,
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 6, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    let height = match windows.get_single() {
-        Ok(w) => w.height(),
-        Err(_) => return,
-    };
-    let half_height = height / 2.0;
-
+    let half_height = win_size.half().y;
     let start_pos = Vec3::new(0.0, half_height + 64., 0.);
 
     let breath_timer = BreathingTimer {

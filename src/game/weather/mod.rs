@@ -24,6 +24,11 @@ const FLIP_MESSAGES: [&str; 2] = [
     "The cooler Southern waters are ideal for summer.",
 ];
 
+pub enum TravelDirection {
+    North,
+    South,
+}
+
 /// How far the whale has travelled
 #[derive(Resource, Default)]
 pub struct TravelDistance {
@@ -37,6 +42,10 @@ impl TravelDistance {
     /// Gets the current travel distance (in seconds because physics)
     pub fn get(&self) -> f32 {
         self.distance
+    }
+
+    pub fn get_flip_number(&self) -> u32 {
+        self.num_flips
     }
 
     /// Generates a future time within `now + range`
@@ -66,6 +75,14 @@ impl TravelDistance {
 
     pub fn get_message(&self) -> String {
         FLIP_MESSAGES[(self.num_flips % 2) as usize].to_owned()
+    }
+
+    pub fn travel_direction(&self) -> TravelDirection {
+        if self.num_flips % 2 == 0 {
+            TravelDirection::North
+        } else {
+            TravelDirection::South
+        }
     }
 }
 

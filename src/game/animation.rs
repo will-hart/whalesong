@@ -74,6 +74,7 @@ pub struct PlayerAnimation {
 #[derive(Reflect, PartialEq, Clone, Copy, Debug)]
 pub enum PlayerAnimationState {
     WhaleSwimming,
+    BabyWhaleSwimming,
     WhaleBreaching,
     Wave,
     Bird,
@@ -85,14 +86,24 @@ pub enum PlayerAnimationState {
 
 impl PlayerAnimation {
     /// The duration of each idle frame.
-    const IDLE_INTERVAL: Duration = Duration::from_millis(250);
+    const SWIM_INTERVAL: Duration = Duration::from_millis(250);
+    const BABY_SWIM_INTERVAL: Duration = Duration::from_millis(120);
     const BREACH_INTERVAL: Duration = Duration::from_millis(120);
 
     fn swimming() -> Self {
         Self {
-            timer: Timer::new(Self::IDLE_INTERVAL, TimerMode::Repeating),
+            timer: Timer::new(Self::SWIM_INTERVAL, TimerMode::Repeating),
             frame: 0,
             state: PlayerAnimationState::WhaleSwimming,
+            oneshot: false,
+        }
+    }
+
+    pub fn baby_swimming() -> Self {
+        Self {
+            timer: Timer::new(Self::BABY_SWIM_INTERVAL, TimerMode::Repeating),
+            frame: 0,
+            state: PlayerAnimationState::BabyWhaleSwimming,
             oneshot: false,
         }
     }
@@ -172,6 +183,14 @@ impl PlayerAnimation {
         self.frame = frame;
     }
 
+    /// Changes the interval on the frame timer, retaining mode and elapsed time since the last tick
+    pub fn set_frame_interval(&mut self, interval: f32) {
+        let elapsed = self.timer.elapsed();
+        self.timer = Timer::from_seconds(interval, self.timer.mode());
+        self.timer.set_elapsed(elapsed);
+        self.timer.unpause();
+    }
+
     /// Update animation timers. Returns true if
     /// - the animation ticked,
     /// - this is a oneshot animation, and
@@ -190,7 +209,8 @@ impl PlayerAnimation {
                 PlayerAnimationState::WhaleSwimming
                 | PlayerAnimationState::Bird
                 | PlayerAnimationState::Fish
-                | PlayerAnimationState::RainDrop => 8,
+                | PlayerAnimationState::RainDrop
+                | PlayerAnimationState::BabyWhaleSwimming => 8,
                 PlayerAnimationState::Wave => 9,
                 PlayerAnimationState::WhaleBreath => 16,
                 PlayerAnimationState::WhaleBreaching => 24,
@@ -226,8 +246,9 @@ impl PlayerAnimation {
             | PlayerAnimationState::Fish
             | PlayerAnimationState::RainDrop => self.frame,
             PlayerAnimationState::Bird => BIRD_START_FRAME + self.frame,
-            PlayerAnimationState::WhaleBreaching => 24 + self.frame,
             PlayerAnimationState::WhaleBreath => 8 + self.frame,
+            PlayerAnimationState::WhaleBreaching => 24 + self.frame,
+            PlayerAnimationState::BabyWhaleSwimming => 56 + self.frame,
         }
     }
 }

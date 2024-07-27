@@ -10,6 +10,8 @@ use super::{
     WindowSize,
 };
 
+pub mod adult_whale;
+pub mod baby_whale;
 mod bird;
 pub mod boid;
 mod fish;
@@ -18,6 +20,8 @@ mod ship;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
+        adult_whale::plugin,
+        baby_whale::plugin,
         bird::plugin,
         fish::plugin,
         ship::plugin,
@@ -41,7 +45,7 @@ fn spawn_creature(
 
     match trigger.event().encounter_type {
         EncounterType::Bird => {
-            bird::spawn_bird(
+            bird::spawn(
                 &mut commands,
                 size,
                 &image_handles,
@@ -49,7 +53,7 @@ fn spawn_creature(
             );
         }
         EncounterType::Fish => {
-            fish::spawn_fish(
+            fish::spawn(
                 &mut commands,
                 size,
                 &image_handles,
@@ -57,7 +61,7 @@ fn spawn_creature(
             );
         }
         EncounterType::Ship => {
-            ship::spawn_ship(
+            ship::spawn(
                 &mut commands,
                 size,
                 &image_handles,
@@ -65,12 +69,23 @@ fn spawn_creature(
             );
         }
         EncounterType::Iceberg => {
-            iceberg::spawn_iceberg(
+            iceberg::spawn(
                 &mut commands,
                 size,
                 &image_handles,
                 &mut texture_atlas_layouts,
             );
+        }
+        EncounterType::AdultWhale => {
+            adult_whale::spawn(
+                &mut commands,
+                size,
+                &image_handles,
+                &mut texture_atlas_layouts,
+            );
+        }
+        EncounterType::BabyWhale => {
+            warn!("Found encounter BabyWhale, this shouldn't be created using SpawnEncounter. Ignoring");
         }
     }
 }

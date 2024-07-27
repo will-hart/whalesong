@@ -26,7 +26,7 @@ pub(super) fn plugin(_app: &mut App) {
 }
 
 /// Spawns an iceberg when `SpawnEncounter(Iceberg)` is triggered. Called by the parent creature plugin
-pub(super) fn spawn_iceberg(
+pub(super) fn spawn(
     commands: &mut Commands,
     win_size: Vec2,
     image_handles: &HandleMap<ImageKey>,

@@ -16,6 +16,8 @@ pub enum EncounterType {
     Fish,
     Ship,
     Iceberg,
+    AdultWhale,
+    BabyWhale,
 }
 
 pub(super) fn plugin(app: &mut App) {
@@ -29,6 +31,7 @@ pub struct EncounterTimers {
     fish: f32,
     ship: f32,
     iceberg: f32,
+    adult_whale: Option<f32>,
 }
 
 impl Default for EncounterTimers {
@@ -38,6 +41,7 @@ impl Default for EncounterTimers {
             fish: 17.,
             ship: 30.,
             iceberg: 65.,
+            adult_whale: None,
         }
     }
 }
@@ -45,6 +49,11 @@ impl Default for EncounterTimers {
 impl EncounterTimers {
     pub fn reset(&mut self) {
         *self = Self::default();
+    }
+
+    /// Sets a time for an adult male to be spawned
+    pub fn set_adult_spawn(&mut self, time: f32) {
+        self.adult_whale = Some(time);
     }
 }
 
@@ -85,5 +94,13 @@ fn spawn_encounters(
             encounter_type: EncounterType::Iceberg,
         });
         encounters.iceberg = distance.future_range(10.0..15.0);
+    }
+
+    if encounters.adult_whale.is_some() && encounters.adult_whale.unwrap() < now {
+        info!("Adult Whale spawning");
+        commands.trigger(SpawnEncounter {
+            encounter_type: EncounterType::AdultWhale,
+        });
+        encounters.adult_whale = None; // only spawn one each flip
     }
 }

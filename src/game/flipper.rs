@@ -33,6 +33,9 @@ pub struct DoFlip {
     pub flip_text: String,
 }
 
+#[derive(Event)]
+pub struct FlipComplete;
+
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(IsFlipped(false));
     app.add_systems(
@@ -168,13 +171,16 @@ fn update_flip_timer(
 
             // despawn all creatures
             for creature in &creatures {
-                commands.entity(creature).despawn();
+                commands.entity(creature).despawn_recursive();
             }
 
             // rotate the camera
             for mut camera in &mut cameras {
                 camera.rotate(Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI));
             }
+
+            // notify others that the flip is complete
+            commands.trigger(FlipComplete);
         }
     }
 }

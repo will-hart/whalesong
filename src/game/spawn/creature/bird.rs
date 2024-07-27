@@ -20,7 +20,7 @@ pub const BIRD_SPEED: f32 = WHALE_TRAVEL_SPEED * 1.2;
 /// Used to indicate a curious creature, such as a bird
 #[derive(Component)]
 pub struct Curious {
-    until: f32,
+    pub until: f32,
 }
 
 /// Denotes birds that can not become curious (they may have already been curious, or may just be immune as some birds are)
@@ -53,7 +53,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 /// Spawns a bird when `SpawnEncounter(Bird)` is triggered. Called by the parent creature plugin
-pub(super) fn spawn_bird(
+pub(super) fn spawn(
     commands: &mut Commands,
     win_size: Vec2,
     image_handles: &HandleMap<ImageKey>,
@@ -156,7 +156,7 @@ fn curious_birds_follow_whale(
     }
 }
 
-fn scale_curious_birds(mut birds: Query<&mut Transform, With<Curious>>) {
+fn scale_curious_birds(mut birds: Query<&mut Transform, (With<Bird>, With<Curious>)>) {
     for mut tx in &mut birds {
         // update the scale
         let scale = (tx.scale.x - 0.001).clamp(0.65, 1.0);

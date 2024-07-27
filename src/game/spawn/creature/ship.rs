@@ -26,7 +26,7 @@ pub(super) fn plugin(_app: &mut App) {
 }
 
 /// Spawns a ship when `SpawnEncounter(Ship)` is triggered. Called by the parent creature plugin
-pub(super) fn spawn_ship(
+pub(super) fn spawn(
     commands: &mut Commands,
     win_size: Vec2,
     image_handles: &HandleMap<ImageKey>,

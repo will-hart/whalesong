@@ -65,8 +65,8 @@ const RAIN_TO_SNOW_DISTANCE: f32 = 120.;
 
 const RAIN_MIN_DURATION: f32 = 16.0;
 const RAIN_MAX_DURATION: f32 = 25.0;
-const RAIN_MIN_GROWTH: f32 = 0.0;
-const RAIN_MAX_GROWTH: f32 = 0.0015;
+const RAIN_MIN_GROWTH: f32 = -0.001;
+const RAIN_MAX_GROWTH: f32 = 0.0017;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(Raininess {

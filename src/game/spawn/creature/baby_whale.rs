@@ -7,7 +7,9 @@ use crate::{
         assets::{HandleMap, ImageKey, SfxKey},
         audio::sfx::PlaySfx,
         flipper::FlipComplete,
-        movement::{MoveTowardsLocation, RotateToFaceMovement, WHALE_TRAVEL_SPEED},
+        movement::{
+            MoveTowardsLocation, MoveWithVelocity, RotateToFaceMovement, WHALE_TRAVEL_SPEED,
+        },
         spawn::{encounters::EncounterType, player::Whale, WindowSize},
         weather::TravelDistance,
     },
@@ -25,7 +27,7 @@ pub struct BabyWhaleStatus {
 #[derive(Component)]
 pub struct BabyWhale;
 
-const BABY_WHALE_LAG_DISTANCE: f32 = 45.;
+const BABY_WHALE_SPAWN_DISTANCE: f32 = 20.;
 
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<BabyWhaleStatus>()
@@ -33,7 +35,7 @@ pub(super) fn plugin(app: &mut App) {
 
     app.add_systems(
         FixedUpdate,
-        move_baby_whale.run_if(in_state(Screen::Playing)),
+        baby_follows_adult_whale.run_if(in_state(Screen::Playing)),
     );
     app.add_systems(Update, depart_baby_whale.run_if(in_state(Screen::Playing)));
 }
@@ -59,7 +61,7 @@ fn spawn_baby_on_flip(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = SpriteAnimationPlayer::baby_swimming();
 
-    let target = whales.single().translation + Vec3::Y * BABY_WHALE_LAG_DISTANCE;
+    let target = whales.single().translation + Vec3::Y * BABY_WHALE_SPAWN_DISTANCE;
 
     // now spawn the baby
     let entity = commands
@@ -78,10 +80,7 @@ fn spawn_baby_on_flip(
             },
             player_animation,
             RotateToFaceMovement,
-            MoveTowardsLocation {
-                target,
-                speed: WHALE_TRAVEL_SPEED,
-            },
+            MoveWithVelocity(Vec3::Y * WHALE_TRAVEL_SPEED),
             StateScoped(Screen::Playing),
         ))
         .id();
@@ -90,13 +89,24 @@ fn spawn_baby_on_flip(
     commands.trigger(PlaySfx::once(SfxKey::BabyWhaleSong).with_parent(entity));
 }
 
-fn move_baby_whale(
+fn baby_follows_adult_whale(
     whales: Query<&Transform, (With<Whale>, Without<BabyWhale>)>,
-    mut babies: Query<&mut MoveTowardsLocation, With<BabyWhale>>,
+    mut babies: Query<(&Transform, &mut MoveWithVelocity), With<BabyWhale>>,
 ) {
-    if let Ok(mut baby_mover) = babies.get_single_mut() {
-        let whale = whales.single();
-        baby_mover.target = whale.translation + Vec3::Y * BABY_WHALE_LAG_DISTANCE;
+    if babies.is_empty() || whales.is_empty() {
+        return;
+    }
+
+    let whale = whales.single();
+    let target_point = whale.translation + 10. * whale.up();
+
+    for (baby_tx, mut movement) in &mut babies {
+        let delta = target_point - baby_tx.translation;
+        if delta.length() < 50. {
+            movement.0 = -whale.up().as_vec3() * WHALE_TRAVEL_SPEED * 0.98;
+        } else {
+            movement.0 = delta.normalize_or_zero() * WHALE_TRAVEL_SPEED * 0.98;
+        }
     }
 }
 

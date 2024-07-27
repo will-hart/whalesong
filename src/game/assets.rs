@@ -150,6 +150,8 @@ pub enum SfxKey {
     ShipHorn,
     OceanAmbient,
     RainAmbient,
+    AdultWhaleSong,
+    BabyWhaleSong,
 }
 
 impl AssetKey for SfxKey {
@@ -163,6 +165,14 @@ impl FromWorld for HandleMap<SfxKey> {
             (
                 SfxKey::WhaleBreath,
                 asset_server.load("audio/sfx/whale_breath.ogg"),
+            ),
+            (
+                SfxKey::AdultWhaleSong,
+                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1_2.ogg"),
+            ),
+            (
+                SfxKey::BabyWhaleSong,
+                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1.ogg"),
             ),
             (
                 SfxKey::Gull,

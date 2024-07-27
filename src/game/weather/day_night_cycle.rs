@@ -8,7 +8,7 @@ use rand::Rng;
 use crate::screen::Screen;
 
 // The amount of world time that elapses per game second
-const TIME_OF_DAY_HOURS_PER_GAME_SECONDS: f32 = 2.0;
+const TIME_OF_DAY_HOURS_PER_GAME_SECONDS: f32 = 1.2;
 const NUM_COLOURS: usize = 8;
 const HOURS_PER_COLOUR: f32 = 24.0 / (NUM_COLOURS as f32);
 const CHANCE_OF_SUN: f64 = 0.8;

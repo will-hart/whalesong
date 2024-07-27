@@ -192,7 +192,8 @@ impl PlayerAnimation {
                 | PlayerAnimationState::Fish
                 | PlayerAnimationState::RainDrop => 8,
                 PlayerAnimationState::Wave => 9,
-                PlayerAnimationState::WhaleBreath | PlayerAnimationState::WhaleBreaching => 16,
+                PlayerAnimationState::WhaleBreath => 16,
+                PlayerAnimationState::WhaleBreaching => 24,
             };
 
         self.oneshot && self.frame < prev

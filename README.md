@@ -75,7 +75,7 @@
   - [ ] update the credits
   - [ ] ship volume depends on proximity to whale
   - [ ] icebergs have different sizes without blurring
-- [ ] code "quality"
+- [x] code "quality" lol
   - [x] store whale position in a resource
 - [ ] stretch goals
   - [x] periodically come up to breathe
@@ -83,6 +83,12 @@
   - [x] Display player help icons after movement complete.
   - [x] add the movement easter egg (its a secret)
   - [ ] add the cycles easter egg (its also a secret)
+    - [x] flip camera
+    - [x] flip anything that needs flipping
+    - [x] flip the controls
+    - [ ] flip on a timer
+    - [ ] flip text
+    - [ ] make sure the easter egg occurs before the flip if that makes sense
   - [ ] add more encounters
   - [ ] add islands
   - [ ] add more music variety

@@ -90,14 +90,14 @@ fn perform_direction_switch_with_fade(
                     },
                     ..Default::default()
                 },
-                UiImageFadeInOut::new(1.5, 5.),
+                UiImageFadeInOut::new(1.0, 3.0),
             ))
             .observe(despawn_when_flip_complete);
     });
 
     // spawn a timer to handle the flip half way through the view transition
     commands.spawn((
-        FlipTimer(Timer::from_seconds(2.5, TimerMode::Once)),
+        FlipTimer(Timer::from_seconds(1.5, TimerMode::Once)),
         StateScoped(Screen::Playing),
     ));
 }

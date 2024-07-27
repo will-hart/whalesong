@@ -195,6 +195,7 @@ impl AnimationPlayer {
     /// - the animation ticked,
     /// - this is a oneshot animation, and
     /// - the animation index has wrapped back to the start.
+    ///
     /// For now ignore that some animations don't start at the lowest index frame.
     pub fn update_timer(&mut self, delta: Duration) -> bool {
         self.timer.tick(delta);

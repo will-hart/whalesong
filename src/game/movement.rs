@@ -9,7 +9,6 @@ use crate::{screen::Screen, AppSet};
 
 use super::{
     animation::{SpriteAnimationPlayer, FAST_WHALE_FRAME_MILLIS, WHALE_FRAME_MILLIS},
-    flipper::IsFlipped,
     spawn::{
         player::{InputHelp, Whale, WhaleArrivalMarker, WhaleRotation},
         WindowSize,
@@ -77,27 +76,25 @@ pub struct PlayerActionRequested;
 fn update_movement_intent(
     mut commands: Commands,
     input: Res<ButtonInput<KeyCode>>,
-    is_flipped: Res<IsFlipped>,
     mut controller_query: Query<&mut MovementIntent>,
     helpers: Query<Entity, With<InputHelp>>,
 ) {
     let mut intent = Vec2::Y * 0.25;
 
     if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
-        intent.x -= 1.0;
-    }
-    if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
         intent.x += 1.0;
     }
+    if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
+        intent.x -= 1.0;
+    }
 
-    if is_flipped.get_flipped() {
-        // move the whale "up and down" the screen. Note that the key changes when the screen
-        // is flipped but as its just the camera being rotated, the direction doesn't
-        if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
-            intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
-                             // when no keys are pressed in the "move whale" system below
-        }
-    } else if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
+    // move the whale "up and down" the screen. They all move in the same direction but
+    // I can't be bothered working out the "IsFlipped" logic
+    if input.pressed(KeyCode::KeyW)
+        || input.pressed(KeyCode::ArrowUp)
+        || input.pressed(KeyCode::KeyS)
+        || input.pressed(KeyCode::ArrowDown)
+    {
         intent.y = -1.0; // we can only move "down" the screen. the whale naturally drifts back up
                          // when no keys are pressed in the "move whale" system below
     }
@@ -106,10 +103,6 @@ fn update_movement_intent(
         for entity in &helpers {
             commands.entity(entity).despawn();
         }
-    }
-
-    if is_flipped.get_flipped() {
-        intent.x = -intent.x;
     }
 
     // Apply movement intent to controllers.

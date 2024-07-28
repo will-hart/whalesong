@@ -74,8 +74,8 @@
   - [x] refactor whale movement to make it a bit less janky when turning
   - [x] refactor whale following movement
   - [x] fix baby not displaying
-  - [ ] fix baby whale movement
-  - [ ] fix flipped movement
+  - [x] fix baby whale movement
+  - [x] fix flipped movement
   - [ ] refactor spawning rates to correspond with distance a bit better
 - [x] code "quality" lol
   - [x] store whale position in a resource

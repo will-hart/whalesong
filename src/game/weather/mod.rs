@@ -20,8 +20,8 @@ pub use waves::Wave;
 pub const DISTANCE_FLIPPING: f32 = 120.;
 
 const FLIP_MESSAGES: [&str; 2] = [
-    "The warm Northern waters for are perfect for winter.",
-    "The cooler Southern waters are ideal for summer.",
+    "The Northern waters are perfect for winter.\n\nThe migration cycle will continue when the season turns.",
+    "The Southern waters are ideal for summer.\n\nThe migration cycle will continue when the water cools.",
 ];
 
 #[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]

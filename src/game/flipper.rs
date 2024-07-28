@@ -59,10 +59,14 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 #[cfg(debug_assertions)]
-fn debug_flip_system(mut commands: Commands, input: Res<ButtonInput<KeyCode>>) {
+fn debug_flip_system(
+    mut commands: Commands,
+    input: Res<ButtonInput<KeyCode>>,
+    distance: Res<TravelDistance>,
+) {
     if input.just_pressed(KeyCode::KeyF) {
         commands.trigger(DoFlip {
-            flip_text: "Debug Flip".into(),
+            flip_text: distance.get_message(),
         });
     }
 }
@@ -81,6 +85,9 @@ fn set_flippable_components(
 #[derive(Component)]
 pub struct FlipTimer(Timer);
 
+const FLIP_FADE: f32 = 2.0;
+const FLIP_DURATION: f32 = 7.0;
+
 /// when its time to flip, fade out the audio and fade the camera to black
 fn perform_direction_switch_with_fade(
     trigger: Trigger<DoFlip>,
@@ -92,7 +99,7 @@ fn perform_direction_switch_with_fade(
         return;
     }
 
-    let fade = UiImageFadeInOut::new(1.0, 3.0);
+    let fade = UiImageFadeInOut::new(FLIP_FADE, FLIP_DURATION);
 
     commands
         .spawn((
@@ -122,7 +129,8 @@ fn perform_direction_switch_with_fade(
                             color: Color::WHITE,
                             ..default()
                         },
-                    ),
+                    )
+                    .with_justify(JustifyText::Center),
                     background_color: BackgroundColor(Color::srgba(0., 0., 0., 0.)),
                     ..Default::default()
                 },
@@ -131,7 +139,7 @@ fn perform_direction_switch_with_fade(
 
     // spawn a timer to handle the flip half way through the view transition
     commands.spawn((
-        FlipTimer(Timer::from_seconds(1.5, TimerMode::Once)),
+        FlipTimer(Timer::from_seconds(FLIP_DURATION / 2.0, TimerMode::Once)),
         StateScoped(Screen::Playing),
     ));
 }

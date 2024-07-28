@@ -273,11 +273,15 @@ fn animation_completed(
     }
 }
 
+/// A ship that has horned already
+#[derive(Component)]
+struct HornyShip;
+
 fn handle_player_action(
     _trigger: Trigger<PlayerActionRequested>,
     mut commands: Commands,
     helpers: Query<Entity, With<InputHelp>>,
-    ships: Query<&Transform, With<Ship>>,
+    ships: Query<(Entity, &Transform), (With<Ship>, Without<HornyShip>)>,
     mut whales: Query<(&mut SpriteAnimationPlayer, &Transform), With<Whale>>,
 ) {
     for (mut whale, tx) in &mut whales {
@@ -296,14 +300,19 @@ fn handle_player_action(
             commands.entity(helper).despawn_recursive();
         }
 
-        // see if there are any ships nearby. If they are, play the ship horn
-        for ship in &ships {
-            let distance = (ship.translation - tx.translation).length();
+        // see if there are any ships nearby. If they are, play the ship
+        // but only once per ship
+        for (ship_ent, ship_tx) in &ships {
+            let distance = (ship_tx.translation - tx.translation).length();
             info!("Distance to ship: {distance}");
 
             if distance < 150.0 {
                 commands.trigger(PlaySfx::once(SfxKey::ShipHorn).with_volume(2.5));
-                // only play the sound once
+
+                // only play the sound once per ship
+                commands.entity(ship_ent).insert(HornyShip);
+
+                // only play the sound once at a time
                 break;
             }
         }

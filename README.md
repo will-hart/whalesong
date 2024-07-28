@@ -79,7 +79,7 @@
   - [x] refactor spawning rates to correspond with distance a bit better
   - [x] snow first when travelling north
   - [ ] fix flip text
-  - [ ] ship horn only sounds once
+  - [x] ship horn only sounds once
 - [x] code "quality" lol
   - [x] store whale position in a resource
 - [x] stretch goals

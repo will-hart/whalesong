@@ -61,7 +61,7 @@ pub struct RainChanged {
 
 const RAIN_THRESHOLD: f32 = 0.7;
 
-const RAIN_TO_SNOW_DISTANCE: f32 = 120.;
+const RAIN_TO_SNOW_DISTANCE: f32 = 60.;
 
 const RAIN_MIN_DURATION: f32 = 16.0;
 const RAIN_MAX_DURATION: f32 = 25.0;
@@ -73,7 +73,7 @@ pub(super) fn plugin(app: &mut App) {
         factor: 0.,
         time_rain_ends: 0.,
     });
-    app.add_systems(OnEnter(Screen::Playing), reset_raininess);
+    app.add_systems(OnEnter(Screen::Playing), (set_up_snow, reset_raininess));
     app.add_systems(
         Update,
         (
@@ -101,9 +101,10 @@ pub fn update_raininess(
             is_raining: raininess.is_raining(),
         });
         info!(
-            "Raininess: {}, {} raining",
+            "Raininess: {}, {} raining at {}",
             raininess.factor(),
-            if raininess.is_raining() { "is" } else { "not" }
+            if raininess.is_raining() { "is" } else { "not" },
+            distance.get(),
         );
     }
 }
@@ -120,6 +121,15 @@ pub struct Snow {
     next_spawn: f32,
 }
 
+impl Default for Snow {
+    fn default() -> Self {
+        Self {
+            spawn_period: 0.15,
+            next_spawn: 0.,
+        }
+    }
+}
+
 #[derive(Component)]
 pub struct Precipitation;
 
@@ -127,66 +137,58 @@ fn handle_rain_changed(
     trigger: Trigger<RainChanged>,
     distance: Res<TravelDistance>,
     mut commands: Commands,
-    precips: Query<(Entity, &Children, Option<&Rain>), With<Rain>>,
+    precips: Query<(Entity, &Children), With<Precipitation>>,
     audio_children: Query<Entity, With<Handle<AudioSource>>>,
 ) {
     let evt = trigger.event();
 
-    if evt.is_raining {
-        if distance.get() < RAIN_TO_SNOW_DISTANCE {
-            info!("Spawning rain");
-            let entity = commands
-                .spawn((
-                    Rain {
-                        spawn_period: 0.1,
-                        next_spawn: 0.,
-                    },
-                    Precipitation,
-                ))
-                .id();
+    // only rain at northern latitudes
+    if match distance.travel_direction() {
+        super::TravelDirection::North => distance.get() < (100. - RAIN_TO_SNOW_DISTANCE),
+        super::TravelDirection::South => distance.get() > RAIN_TO_SNOW_DISTANCE,
+    } {
+        return;
+    }
 
-            commands.trigger(
-                PlaySfx::once(SfxKey::RainAmbient)
-                    .with_parent(entity)
-                    .with_volume(0.1)
-                    .with_fade_in(FadeIn {
-                        final_volume: 2.5,
-                        rate_per_second: 1.0,
-                    }),
-            );
-        } else {
-            info!("Spawning snow");
-            commands.spawn((
-                SpatialBundle::default(),
-                Snow {
-                    spawn_period: 0.15,
+    if evt.is_raining {
+        info!("Spawning rain");
+        let entity = commands
+            .spawn((
+                Rain {
+                    spawn_period: 0.1,
                     next_spawn: 0.,
                 },
                 Precipitation,
-            ));
-        };
+            ))
+            .id();
+
+        commands.trigger(
+            PlaySfx::once(SfxKey::RainAmbient)
+                .with_parent(entity)
+                .with_volume(0.1)
+                .with_fade_in(FadeIn {
+                    final_volume: 2.5,
+                    rate_per_second: 1.0,
+                }),
+        );
     } else {
-        for (entity, children, is_rain) in &precips {
+        for (entity, children) in &precips {
             for child in children {
-                if is_rain.is_some() {
-                    info!("Despawning rain");
-                    if let Ok(audio) = audio_children.get(*child) {
-                        info!("--> adding FadeOut component");
-                        commands.entity(entity).clear_children();
-                        commands.entity(audio).insert(FadeOut {
-                            rate_per_second: 1.,
-                        });
-                    }
-                } else {
-                    info!("Despawning snow");
+                info!("Despawning rain");
+                if let Ok(audio) = audio_children.get(*child) {
+                    info!("--> adding FadeOut component");
+                    commands.entity(entity).clear_children();
+                    commands.entity(audio).insert(FadeOut {
+                        rate_per_second: 1.,
+                    });
                 }
-
-                commands.entity(entity).despawn();
             }
-        }
 
-        info!("Despawning snow");
+            commands.entity(entity).despawn_recursive();
+        }
     }
+
+    info!("Despawning snow");
 }
 
 fn spawn_rain_drops(
@@ -233,6 +235,14 @@ pub struct Snowflake {
     velocity: Vec3,
 }
 
+fn set_up_snow(mut commands: Commands, snows: Query<Entity, With<Snow>>) {
+    for snow in &snows {
+        commands.entity(snow).despawn_recursive();
+    }
+
+    commands.spawn((SpatialBundle::default(), Snow::default()));
+}
+
 fn spawn_snow_flakes(
     mut commands: Commands,
     distance: Res<TravelDistance>,
@@ -241,6 +251,14 @@ fn spawn_snow_flakes(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut snows: Query<(Entity, &mut Snow)>,
 ) {
+    // only snow at southern latitudes
+    if match distance.travel_direction() {
+        super::TravelDirection::North => distance.get() > (100. - RAIN_TO_SNOW_DISTANCE),
+        super::TravelDirection::South => distance.get() < RAIN_TO_SNOW_DISTANCE,
+    } {
+        return;
+    }
+
     let mut rng = rand::thread_rng();
 
     for (entity, mut snow) in &mut snows {
@@ -301,7 +319,7 @@ fn animate_snow_flakes(
         tx.rotate(Quat::from_axis_angle(Vec3::Z, 0.3 * time.delta_seconds()));
         tx.scale = Vec3::splat(tx.scale.x - snowflake.shrink_per_frame);
 
-        if tx.scale.x < 0.01 {
+        if tx.scale.x < 0.03 {
             commands.entity(entity).despawn();
         }
     }

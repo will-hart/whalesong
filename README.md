@@ -101,16 +101,16 @@
   - [x] starting wave animations all start at the same frame so they're all in sync
   - [x] crash in movement when window minimised or in the background due to `windows.single()`
   - [x] move targets aren't updated on screen resize, meaning that things just pile up on the screen edges
-- [ ] jam admin
+- [x] jam admin
   - [x] update `Cargo.toml`
   - [x] fix CI yaml file
   - [x] set up itch page
   - [x] do a test release
   - [x] work out why the itch build isn't working
-  - [ ] do a "Final final v1 latest" release before the jam ends
-  - [ ] deploy to itch
+  - [x] do a "Final final v1 latest" release before the jam ends
+  - [x] deploy to itch
   - [x] add screenshots and details to the jam page
-  - [ ] test deployed version
+  - [x] test deployed version
 
 These ideas were abandoned due to it being a game jam game:
 

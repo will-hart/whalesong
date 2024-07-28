@@ -221,14 +221,11 @@ fn spawn_encounters(
             .unwrap()
             .next_spawn(now);
 
-        match direction {
-            TravelDirection::South => {
-                // stop spawning ships after 65s when travelling South
-                if now > 65. {
-                    encounters.ship = f32::MAX;
-                }
+        if direction == TravelDirection::South {
+            // stop spawning ships after 65s when travelling South
+            if now > 65. {
+                encounters.ship = f32::MAX;
             }
-            _ => {}
         }
 
         info!(
@@ -248,14 +245,11 @@ fn spawn_encounters(
             .unwrap()
             .next_spawn(now);
 
-        match direction {
-            TravelDirection::North => {
-                // stop spawning icebergs after 40s when travelling north
-                if now > 40. {
-                    encounters.iceberg = f32::MAX;
-                }
+        if direction == TravelDirection::North {
+            // stop spawning icebergs after 40s when travelling north
+            if now > 40. {
+                encounters.iceberg = f32::MAX;
             }
-            _ => {}
         }
 
         info!(

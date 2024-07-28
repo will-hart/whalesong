@@ -76,7 +76,8 @@
   - [x] fix baby not displaying
   - [x] fix baby whale movement
   - [x] fix flipped movement
-  - [ ] refactor spawning rates to correspond with distance a bit better
+  - [x] refactor spawning rates to correspond with distance a bit better
+  - [ ] snow first when travelling north
 - [x] code "quality" lol
   - [x] store whale position in a resource
 - [x] stretch goals
@@ -119,6 +120,7 @@ These ideas were abandoned due to it being a game jam game:
     - add islands
     - add more music variety
     - ships avoid icebergs :grimace:
+    - whale turning animation
   - ship volume depends on proximity to the whale
   - icebergs have different sizes without blurring
   

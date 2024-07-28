@@ -1,8 +1,14 @@
 //! an encounter system
 
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
+use rand::Rng;
 
-use crate::{game::weather::TravelDistance, screen::Screen};
+use crate::{
+    game::weather::{TravelDirection, TravelDistance},
+    screen::Screen,
+};
+
+use std::ops::Range;
 
 #[derive(Event, Debug)]
 pub struct SpawnEncounter {
@@ -25,6 +31,21 @@ pub(super) fn plugin(app: &mut App) {
     app.init_resource::<EncounterTimers>();
 }
 
+pub struct EncounterSpawnRate {
+    slope: f32,
+    intercept: Range<f32>,
+}
+
+impl EncounterSpawnRate {
+    fn next_spawn(&self, t: f32) -> f32 {
+        let mut rng = rand::thread_rng();
+        let intercept = rng.gen_range(self.intercept.clone());
+        t + ((t * self.slope / 100.) + intercept).clamp(1., 100.)
+    }
+}
+
+pub type EncounterConfig = HashMap<TravelDirection, EncounterSpawnRate>;
+
 #[derive(Resource)]
 pub struct EncounterTimers {
     bird: f32,
@@ -32,6 +53,11 @@ pub struct EncounterTimers {
     ship: f32,
     iceberg: f32,
     adult_whale: Option<f32>,
+
+    bird_config: EncounterConfig,
+    fish_config: EncounterConfig,
+    ship_config: EncounterConfig,
+    iceberg_config: EncounterConfig,
 }
 
 impl Default for EncounterTimers {
@@ -39,16 +65,101 @@ impl Default for EncounterTimers {
         Self {
             bird: 12.,
             fish: 17.,
-            ship: 30.,
-            iceberg: 65.,
+            ship: 45.,
+            iceberg: 1.,
             adult_whale: None,
+
+            bird_config: vec![
+                (
+                    TravelDirection::South,
+                    EncounterSpawnRate {
+                        slope: 0.,
+                        intercept: 18.0..24.0,
+                    },
+                ),
+                (
+                    TravelDirection::North,
+                    EncounterSpawnRate {
+                        slope: 0.,
+                        intercept: 18.0..22.0,
+                    },
+                ),
+            ]
+            .into_iter()
+            .collect(),
+
+            fish_config: vec![
+                (
+                    TravelDirection::South,
+                    EncounterSpawnRate {
+                        slope: 0.,
+                        intercept: 12.0..22.0,
+                    },
+                ),
+                (
+                    TravelDirection::North,
+                    EncounterSpawnRate {
+                        slope: 0.,
+                        intercept: 12.0..22.0,
+                    },
+                ),
+            ]
+            .into_iter()
+            .collect(),
+
+            ship_config: vec![
+                (
+                    TravelDirection::South,
+                    EncounterSpawnRate {
+                        slope: -24.,
+                        intercept: 40.0..50.0,
+                    },
+                ),
+                (
+                    TravelDirection::North,
+                    EncounterSpawnRate {
+                        slope: -24.,
+                        intercept: 40.0..50.0,
+                    },
+                ),
+            ]
+            .into_iter()
+            .collect(),
+            iceberg_config: vec![
+                (
+                    TravelDirection::South,
+                    EncounterSpawnRate {
+                        slope: -67.,
+                        intercept: 2.0..5.0,
+                    },
+                ),
+                (
+                    TravelDirection::North,
+                    EncounterSpawnRate {
+                        slope: 34.,
+                        intercept: -7.0..-3.0,
+                    },
+                ),
+            ]
+            .into_iter()
+            .collect(),
         }
     }
 }
 
 impl EncounterTimers {
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, direction: TravelDirection) {
         *self = Self::default();
+
+        self.iceberg = match direction {
+            TravelDirection::North => 1.0,
+            TravelDirection::South => 65.0,
+        };
+
+        info!(
+            "Travelling {direction:?}, first iceberg spawn at {}",
+            self.iceberg
+        );
     }
 
     /// Sets a time for an adult male to be spawned
@@ -63,37 +174,94 @@ fn spawn_encounters(
     mut encounters: ResMut<EncounterTimers>,
 ) {
     let now = distance.get();
+    let direction = distance.travel_direction();
 
     if encounters.bird < now {
-        info!("Bird spawn triggered");
         commands.trigger(SpawnEncounter {
             encounter_type: EncounterType::Bird,
         });
-        encounters.bird = distance.future_range(15.0..35.0);
+
+        encounters.bird = encounters
+            .bird_config
+            .get(&direction)
+            .unwrap()
+            .next_spawn(now);
+
+        info!(
+            "Bird spawning at {now:.02} next bird at {:.02}",
+            encounters.bird
+        );
     }
 
     if encounters.fish < now {
-        info!("Fish school spawning");
         commands.trigger(SpawnEncounter {
             encounter_type: EncounterType::Fish,
         });
-        encounters.fish = distance.future_range(5.0..15.0);
+
+        encounters.fish = encounters
+            .fish_config
+            .get(&direction)
+            .unwrap()
+            .next_spawn(now);
+
+        info!(
+            "Fish spawning at {now:.02} next fish at {:.02}",
+            encounters.fish
+        );
     }
 
     if encounters.ship < now {
-        info!("Ship spawning");
         commands.trigger(SpawnEncounter {
             encounter_type: EncounterType::Ship,
         });
-        encounters.ship = distance.future_range(25.0..55.0);
+
+        encounters.ship = encounters
+            .ship_config
+            .get(&direction)
+            .unwrap()
+            .next_spawn(now);
+
+        match direction {
+            TravelDirection::South => {
+                // stop spawning ships after 65s when travelling South
+                if now > 65. {
+                    encounters.ship = f32::MAX;
+                }
+            }
+            _ => {}
+        }
+
+        info!(
+            "Ship spawning at {now:.02} next ship at {:.02}",
+            encounters.ship
+        );
     }
 
     if encounters.iceberg < now {
-        info!("Iceberg spawning");
         commands.trigger(SpawnEncounter {
             encounter_type: EncounterType::Iceberg,
         });
-        encounters.iceberg = distance.future_range(10.0..15.0);
+
+        encounters.iceberg = encounters
+            .iceberg_config
+            .get(&direction)
+            .unwrap()
+            .next_spawn(now);
+
+        match direction {
+            TravelDirection::North => {
+                // stop spawning icebergs after 40s when travelling north
+                if now > 40. {
+                    encounters.iceberg = f32::MAX;
+                }
+            }
+            _ => {}
+        }
+
+        info!(
+            "Iceberg spawning at {now:.02} next iceberg at {:.02}",
+            encounters.iceberg
+        );
     }
 
     if encounters.adult_whale.is_some() && encounters.adult_whale.unwrap() < now {
@@ -101,6 +269,7 @@ fn spawn_encounters(
         commands.trigger(SpawnEncounter {
             encounter_type: EncounterType::AdultWhale,
         });
+
         encounters.adult_whale = None; // only spawn one each flip
     }
 }

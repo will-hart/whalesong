@@ -174,7 +174,7 @@ fn update_flip_timer(
             // reset all the flippin' state
             is_flipped.toggle();
             distance.reset_timer();
-            encounters.reset();
+            encounters.reset(distance.travel_direction());
             raininess.reset();
             weather.time_of_day = INITIAL_TIME_OF_DAY;
 

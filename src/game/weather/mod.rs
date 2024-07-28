@@ -24,6 +24,7 @@ const FLIP_MESSAGES: [&str; 2] = [
     "The cooler Southern waters are ideal for summer.",
 ];
 
+#[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]
 pub enum TravelDirection {
     North,
     South,

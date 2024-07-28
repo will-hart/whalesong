@@ -4,7 +4,9 @@ use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 
 use super::Screen;
 use crate::game::{
-    assets::SoundtrackKey, audio::soundtrack::PlaySoundtrack, spawn::level::SpawnLevel,
+    assets::{SfxKey, SoundtrackKey},
+    audio::{sfx::PlaySfx, soundtrack::PlaySoundtrack},
+    spawn::{level::SpawnLevel, player::WhaleRotation},
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -18,9 +20,13 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-fn enter_playing(mut commands: Commands) {
+fn enter_playing(mut commands: Commands, mut whale_rot: ResMut<WhaleRotation>) {
     commands.trigger(SpawnLevel);
     commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Gameplay));
+    commands.trigger(PlaySfx::looped(SfxKey::OceanAmbient).with_volume(0.35));
+
+    whale_rot.current_rotation = 0.;
+    whale_rot.target_rotation = 0.;
 }
 
 fn exit_playing(mut commands: Commands) {

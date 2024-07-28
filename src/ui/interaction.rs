@@ -38,8 +38,8 @@ fn trigger_interaction_sfx(
 ) {
     for interaction in &mut interactions {
         match interaction {
-            Interaction::Hovered => commands.trigger(PlaySfx::Key(SfxKey::ButtonHover)),
-            Interaction::Pressed => commands.trigger(PlaySfx::Key(SfxKey::ButtonPress)),
+            Interaction::Hovered => commands.trigger(PlaySfx::once(SfxKey::ButtonHover)),
+            Interaction::Pressed => commands.trigger(PlaySfx::once(SfxKey::ButtonPress)),
             _ => (),
         }
     }

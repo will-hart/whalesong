@@ -1,9 +1,7 @@
-mod data;
 #[cfg(feature = "dev")]
 mod dev_tools;
 mod game;
 mod screen;
-mod state;
 mod ui;
 
 use bevy::{
@@ -48,20 +46,14 @@ impl Plugin for AppPlugin {
                 })
                 .set(AudioPlugin {
                     global_volume: GlobalVolume {
-                        volume: Volume::new(0.3),
+                        volume: Volume::new(0.35),
                     },
                     ..default()
                 }),
         );
 
         // Add other plugins.
-        app.add_plugins((
-            data::plugin,
-            state::example::plugin,
-            game::plugin,
-            screen::plugin,
-            ui::plugin,
-        ));
+        app.add_plugins((game::plugin, screen::plugin, ui::plugin));
 
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]

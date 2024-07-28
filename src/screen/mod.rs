@@ -6,6 +6,8 @@ mod playing;
 mod splash;
 mod title;
 
+pub use splash::{UiFadeComplete, UiImageFadeInOut};
+
 use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
@@ -27,9 +29,6 @@ pub enum Screen {
     #[default]
     Splash,
     Loading,
-    LoadManifests,
-    ProcessManifests,
-    ManifestLoadingFailed,
     Title,
     Credits,
     Playing,

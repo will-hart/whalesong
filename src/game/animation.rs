@@ -8,55 +8,51 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use super::{audio::sfx::PlaySfx, movement::MovementController};
 use crate::AppSet;
+
+/// The frame number where the whale starts to turn
+const BIRD_START_FRAME: usize = 48;
+
+pub const WHALE_BREATH_FRAME_RATE: u64 = 150;
+
+#[derive(Event)]
+pub struct AnimationComplete(pub AnimationPlayerState);
+
+/// A shared observer that can be added to despawn the element when the animation is complete
+pub fn despawn_when_animation_complete(
+    trigger: Trigger<AnimationComplete>,
+    mut commands: Commands,
+) {
+    commands.entity(trigger.entity()).despawn();
+}
 
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.
-    app.register_type::<PlayerAnimation>();
+    app.register_type::<SpriteAnimationPlayer>();
     app.add_systems(
         Update,
         (
             update_animation_timer.in_set(AppSet::TickTimers),
-            (
-                update_animation_movement,
-                update_animation_atlas,
-                trigger_step_sfx,
-            )
-                .chain()
-                .in_set(AppSet::Update),
+            update_animation_atlas.in_set(AppSet::Update),
         ),
     );
 }
 
-/// Update the sprite direction and animation state (idling/walking).
-fn update_animation_movement(
-    mut player_query: Query<(&MovementController, &mut Sprite, &mut PlayerAnimation)>,
-) {
-    for (controller, mut sprite, mut animation) in &mut player_query {
-        let dx = controller.0.x;
-        if dx != 0.0 {
-            sprite.flip_x = dx < 0.0;
-        }
-
-        let animation_state = if controller.0 == Vec2::ZERO {
-            PlayerAnimationState::Idling
-        } else {
-            PlayerAnimationState::Walking
-        };
-        animation.update_state(animation_state);
-    }
-}
-
 /// Update the animation timer.
-fn update_animation_timer(time: Res<Time>, mut query: Query<&mut PlayerAnimation>) {
-    for mut animation in &mut query {
-        animation.update_timer(time.delta());
+fn update_animation_timer(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut SpriteAnimationPlayer)>,
+) {
+    for (entity, mut animation) in &mut query {
+        if animation.update_timer(time.delta()) {
+            commands.trigger_targets(AnimationComplete(animation.state), entity)
+        }
     }
 }
 
 /// Update the texture atlas to reflect changes in the animation.
-fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)>) {
+fn update_animation_atlas(mut query: Query<(&SpriteAnimationPlayer, &mut TextureAtlas)>) {
     for (animation, mut atlas) in &mut query {
         if animation.changed() {
             atlas.index = animation.get_atlas_index();
@@ -64,86 +60,185 @@ fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)
     }
 }
 
-/// If the player is moving, play a step sound effect synchronized with the animation.
-fn trigger_step_sfx(mut commands: Commands, mut step_query: Query<&PlayerAnimation>) {
-    for animation in &mut step_query {
-        if animation.state == PlayerAnimationState::Walking
-            && animation.changed()
-            && (animation.frame == 2 || animation.frame == 5)
-        {
-            commands.trigger(PlaySfx::RandomStep);
-        }
-    }
-}
-
 /// Component that tracks player's animation state.
 /// It is tightly bound to the texture atlas we use.
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
-pub struct PlayerAnimation {
+pub struct SpriteAnimationPlayer {
     timer: Timer,
     frame: usize,
-    state: PlayerAnimationState,
+    state: AnimationPlayerState,
+    oneshot: bool,
 }
 
-#[derive(Reflect, PartialEq)]
-pub enum PlayerAnimationState {
-    Idling,
-    Walking,
+#[derive(Reflect, PartialEq, Clone, Copy, Debug)]
+pub enum AnimationPlayerState {
+    WhaleSwimming,
+    BabyWhaleSwimming,
+    WhaleBreaching,
+    Wave,
+    Bird,
+    Ship,
+    Fish,
+    WhaleBreath,
+    RainDrop,
 }
 
-impl PlayerAnimation {
-    /// The number of idle frames.
-    const IDLE_FRAMES: usize = 2;
+pub const WHALE_FRAME_MILLIS: u64 = 230;
+pub const FAST_WHALE_FRAME_MILLIS: u64 = 180;
+pub const SLOW_WHALE_FRAME_MILLIS: u64 = 290;
+
+impl SpriteAnimationPlayer {
     /// The duration of each idle frame.
-    const IDLE_INTERVAL: Duration = Duration::from_millis(500);
+    const SWIM_INTERVAL: Duration = Duration::from_millis(WHALE_FRAME_MILLIS);
+    const BABY_SWIM_INTERVAL: Duration = Duration::from_millis(FAST_WHALE_FRAME_MILLIS);
+    const BREACH_INTERVAL: Duration = Duration::from_millis(FAST_WHALE_FRAME_MILLIS);
 
-    fn idling() -> Self {
+    fn swimming() -> Self {
         Self {
-            timer: Timer::new(Self::IDLE_INTERVAL, TimerMode::Repeating),
+            timer: Timer::new(Self::SWIM_INTERVAL, TimerMode::Repeating),
             frame: 0,
-            state: PlayerAnimationState::Idling,
+            state: AnimationPlayerState::WhaleSwimming,
+            oneshot: false,
         }
     }
 
-    /// The number of walking frames.
-    const WALKING_FRAMES: usize = 6;
-    /// The duration of each walking frame.
-    const WALKING_INTERVAL: Duration = Duration::from_millis(50);
-
-    fn walking() -> Self {
+    pub fn baby_swimming() -> Self {
         Self {
-            timer: Timer::new(Self::WALKING_INTERVAL, TimerMode::Repeating),
+            timer: Timer::new(Self::BABY_SWIM_INTERVAL, TimerMode::Repeating),
             frame: 0,
-            state: PlayerAnimationState::Walking,
+            state: AnimationPlayerState::BabyWhaleSwimming,
+            oneshot: false,
+        }
+    }
+
+    fn breaching() -> Self {
+        Self {
+            timer: Timer::new(Self::BREACH_INTERVAL, TimerMode::Repeating),
+            frame: 0,
+            state: AnimationPlayerState::WhaleBreaching,
+            oneshot: true,
+        }
+    }
+
+    pub fn wave() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(450), TimerMode::Repeating),
+            frame: 0,
+            state: AnimationPlayerState::Wave,
+            oneshot: false,
+        }
+    }
+
+    pub fn bird() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+            frame: 0,
+            state: AnimationPlayerState::Bird,
+            oneshot: false,
+        }
+    }
+
+    pub fn ship() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(250), TimerMode::Repeating),
+            frame: 0,
+            state: AnimationPlayerState::Ship,
+            oneshot: false,
+        }
+    }
+
+    pub fn raindrop() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(100), TimerMode::Repeating),
+            frame: 0,
+            state: AnimationPlayerState::RainDrop,
+            oneshot: true,
+        }
+    }
+
+    pub fn fish() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(200), TimerMode::Repeating),
+            frame: 0,
+            state: AnimationPlayerState::Fish,
+            oneshot: false,
+        }
+    }
+
+    pub fn breath() -> Self {
+        Self {
+            timer: Timer::new(
+                Duration::from_millis(WHALE_BREATH_FRAME_RATE),
+                TimerMode::Repeating,
+            ),
+            frame: 0,
+            state: AnimationPlayerState::WhaleBreath,
+            oneshot: true,
         }
     }
 
     pub fn new() -> Self {
-        Self::idling()
+        Self::swimming()
     }
 
-    /// Update animation timers.
-    pub fn update_timer(&mut self, delta: Duration) {
+    pub fn set_frame(&mut self, frame: usize) {
+        // don't do wrapping here as that happens in `update_timer`, just assume we got it right
+        self.frame = frame;
+    }
+
+    /// Changes the interval on the frame timer, retaining mode and elapsed time since the last tick
+    pub fn set_frame_interval(&mut self, interval: u64) {
+        // self.timer.reset();
+        self.timer.set_duration(Duration::from_millis(interval));
+        self.timer.unpause();
+    }
+
+    /// Update animation timers. Returns true if
+    /// - the animation ticked,
+    /// - this is a oneshot animation, and
+    /// - the animation index has wrapped back to the start.
+    ///
+    /// For now ignore that some animations don't start at the lowest index frame.
+    pub fn update_timer(&mut self, delta: Duration) -> bool {
         self.timer.tick(delta);
         if !self.timer.finished() {
-            return;
+            return false;
         }
+
+        let prev = self.frame;
         self.frame = (self.frame + 1)
             % match self.state {
-                PlayerAnimationState::Idling => Self::IDLE_FRAMES,
-                PlayerAnimationState::Walking => Self::WALKING_FRAMES,
+                AnimationPlayerState::Ship => 4,
+                AnimationPlayerState::WhaleSwimming
+                | AnimationPlayerState::Bird
+                | AnimationPlayerState::Fish
+                | AnimationPlayerState::RainDrop
+                | AnimationPlayerState::BabyWhaleSwimming => 8,
+                AnimationPlayerState::Wave => 9,
+                AnimationPlayerState::WhaleBreath => 16,
+                AnimationPlayerState::WhaleBreaching => 24,
             };
+
+        self.oneshot && self.frame < prev
     }
 
     /// Update animation state if it changes.
-    pub fn update_state(&mut self, state: PlayerAnimationState) {
+    pub fn update_state(&mut self, state: AnimationPlayerState) {
         if self.state != state {
             match state {
-                PlayerAnimationState::Idling => *self = Self::idling(),
-                PlayerAnimationState::Walking => *self = Self::walking(),
+                AnimationPlayerState::WhaleSwimming => *self = Self::swimming(),
+                AnimationPlayerState::WhaleBreaching => *self = Self::breaching(),
+                d => {
+                    warn!("Attempted to change to invalid state: {d:?}. This has no effect");
+                }
             }
         }
+    }
+
+    /// Check whether the animation player is currently in the given state
+    pub fn in_state(&self, state: AnimationPlayerState) -> bool {
+        self.state == state
     }
 
     /// Whether animation changed this tick.
@@ -154,8 +249,15 @@ impl PlayerAnimation {
     /// Return sprite index in the atlas.
     pub fn get_atlas_index(&self) -> usize {
         match self.state {
-            PlayerAnimationState::Idling => self.frame,
-            PlayerAnimationState::Walking => 6 + self.frame,
+            AnimationPlayerState::Ship
+            | AnimationPlayerState::WhaleSwimming
+            | AnimationPlayerState::Wave
+            | AnimationPlayerState::Fish
+            | AnimationPlayerState::RainDrop => self.frame,
+            AnimationPlayerState::Bird => BIRD_START_FRAME + self.frame,
+            AnimationPlayerState::WhaleBreath => 8 + self.frame,
+            AnimationPlayerState::WhaleBreaching => 24 + self.frame,
+            AnimationPlayerState::BabyWhaleSwimming => 56 + self.frame,
         }
     }
 }

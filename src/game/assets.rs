@@ -18,7 +18,19 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect, Debug, Serialize, Deserialize)]
 pub enum ImageKey {
-    Ducky,
+    Creatures,
+    Fish,
+    Features,
+    RainDrop,
+    Icons,
+    SpaceBar,
+    Logo,
+    PlayButton,
+    CreditsButton,
+    ExitButton,
+    Ships,
+    BlackPixel,
+    Credits,
 }
 
 impl AssetKey for ImageKey {
@@ -28,15 +40,101 @@ impl AssetKey for ImageKey {
 impl FromWorld for HandleMap<ImageKey> {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
-        [(
-            ImageKey::Ducky,
-            asset_server.load_with_settings(
-                "images/ducky.png",
-                |settings: &mut ImageLoaderSettings| {
-                    settings.sampler = ImageSampler::nearest();
-                },
+        [
+            (
+                ImageKey::Credits,
+                asset_server.load_with_settings(
+                    "images/credits.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
             ),
-        )]
+            (
+                ImageKey::Icons,
+                asset_server.load_with_settings(
+                    "images/icons.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::SpaceBar,
+                asset_server.load_with_settings(
+                    "images/space_bar.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::RainDrop,
+                asset_server
+                    .load_with_settings("images/rain.png", |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear()
+                    }),
+            ),
+            (
+                ImageKey::Fish,
+                asset_server
+                    .load_with_settings("images/fish.png", |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear()
+                    }),
+            ),
+            (
+                ImageKey::Logo,
+                asset_server
+                    .load_with_settings("images/logo.png", |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear()
+                    }),
+            ),
+            (
+                ImageKey::PlayButton,
+                asset_server.load_with_settings(
+                    "images/play_button.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::CreditsButton,
+                asset_server.load_with_settings(
+                    "images/credits_button.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::ExitButton,
+                asset_server.load_with_settings(
+                    "images/exit_button.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::Creatures,
+                asset_server.load_with_settings(
+                    "images/creatures.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::Features,
+                asset_server.load_with_settings(
+                    "images/features.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::linear();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Ships,
+                asset_server.load_with_settings(
+                    "images/ships.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+            (
+                ImageKey::BlackPixel,
+                asset_server.load_with_settings(
+                    "images/black_pixel.png",
+                    |settings: &mut ImageLoaderSettings| settings.sampler = ImageSampler::linear(),
+                ),
+            ),
+        ]
         .into()
     }
 }
@@ -45,10 +143,15 @@ impl FromWorld for HandleMap<ImageKey> {
 pub enum SfxKey {
     ButtonHover,
     ButtonPress,
-    Step1,
-    Step2,
-    Step3,
-    Step4,
+    WhaleBreath,
+    WhaleBreach,
+    Gull,
+    ShipAmbient,
+    ShipHorn,
+    OceanAmbient,
+    RainAmbient,
+    AdultWhaleSong,
+    BabyWhaleSong,
 }
 
 impl AssetKey for SfxKey {
@@ -60,17 +163,49 @@ impl FromWorld for HandleMap<SfxKey> {
         let asset_server = world.resource::<AssetServer>();
         [
             (
+                SfxKey::WhaleBreath,
+                asset_server.load("audio/sfx/whale_breath.ogg"),
+            ),
+            (
+                SfxKey::AdultWhaleSong,
+                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1.ogg"),
+            ),
+            (
+                SfxKey::BabyWhaleSong,
+                asset_server.load("audio/sfx/498708__mbari_mars__mars_20161221h00_hs2p1_2.ogg"),
+            ),
+            (
+                SfxKey::Gull,
+                asset_server.load("audio/sfx/166707__snapper4298__seagull-2.ogg"),
+            ),
+            (
+                SfxKey::WhaleBreach,
+                asset_server.load("audio/sfx/563021__cookiespolicy__water-puddle-splash.ogg"),
+            ),
+            (
                 SfxKey::ButtonHover,
                 asset_server.load("audio/sfx/button_hover.ogg"),
+            ),
+            (
+                SfxKey::OceanAmbient,
+                asset_server.load("audio/sfx/ocean_ambient.ogg"),
             ),
             (
                 SfxKey::ButtonPress,
                 asset_server.load("audio/sfx/button_press.ogg"),
             ),
-            (SfxKey::Step1, asset_server.load("audio/sfx/step1.ogg")),
-            (SfxKey::Step2, asset_server.load("audio/sfx/step2.ogg")),
-            (SfxKey::Step3, asset_server.load("audio/sfx/step3.ogg")),
-            (SfxKey::Step4, asset_server.load("audio/sfx/step4.ogg")),
+            (
+                SfxKey::ShipAmbient,
+                asset_server.load("audio/sfx/ship_noise.ogg"),
+            ),
+            (
+                SfxKey::ShipHorn,
+                asset_server.load("audio/sfx/ship_horn.ogg"),
+            ),
+            (
+                SfxKey::RainAmbient,
+                asset_server.load("audio/sfx/501242__shelbyshark__lightrainthunder.ogg"),
+            ),
         ]
         .into()
     }
@@ -78,7 +213,7 @@ impl FromWorld for HandleMap<SfxKey> {
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
 pub enum SoundtrackKey {
-    Credits,
+    Menu,
     Gameplay,
 }
 
@@ -91,12 +226,12 @@ impl FromWorld for HandleMap<SoundtrackKey> {
         let asset_server = world.resource::<AssetServer>();
         [
             (
-                SoundtrackKey::Credits,
-                asset_server.load("audio/soundtracks/Monkeys Spinning Monkeys.ogg"),
+                SoundtrackKey::Menu,
+                asset_server.load("audio/soundtracks/calm_winds.ogg"),
             ),
             (
                 SoundtrackKey::Gameplay,
-                asset_server.load("audio/soundtracks/Fluffing A Duck.ogg"),
+                asset_server.load("audio/soundtracks/menu_score.ogg"),
             ),
         ]
         .into()

@@ -125,8 +125,6 @@ These ideas were abandoned due to it being a game jam game:
     - whale turning animation
   - ship volume depends on proximity to the whale
   - icebergs have different sizes without blurring
-  
-[https://www.youtube.com/shorts/QaFM5X7KZX4](https://www.youtube.com/shorts/QaFM5X7KZX4)
 
 ## Credits
 

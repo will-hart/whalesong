@@ -126,6 +126,11 @@ These ideas were abandoned due to it being a game jam game:
   - ship volume depends on proximity to the whale
   - icebergs have different sizes without blurring
 
+Known bugs:
+
+ - the other whales point sideways when "stopped" instead of forwards with the main whale
+ - it doesn't snow after the first northern migration
+
 ## Credits
 
 - I've included https://github.com/DanielDK05/bevoids/ in this repo with the following changes:

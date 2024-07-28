@@ -100,7 +100,7 @@ pub fn update_raininess(
         commands.trigger(RainChanged {
             is_raining: raininess.is_raining(),
         });
-        warn!(
+        info!(
             "Raininess: {}, {} raining",
             raininess.factor(),
             if raininess.is_raining() { "is" } else { "not" }

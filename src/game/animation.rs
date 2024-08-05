@@ -84,15 +84,15 @@ pub enum AnimationPlayerState {
     RainDrop,
 }
 
-pub const WHALE_FRAME_MILLIS: u64 = 230;
-pub const FAST_WHALE_FRAME_MILLIS: u64 = 180;
+pub const WHALE_MOVING_SLOW_ANIM_INTERVAL: u64 = 230;
+pub const WHALE_MOVING_FAST_ANIM_INTERVAL: u64 = 180;
 pub const SLOW_WHALE_FRAME_MILLIS: u64 = 290;
 
 impl SpriteAnimationPlayer {
     /// The duration of each idle frame.
-    const SWIM_INTERVAL: Duration = Duration::from_millis(WHALE_FRAME_MILLIS);
-    const BABY_SWIM_INTERVAL: Duration = Duration::from_millis(FAST_WHALE_FRAME_MILLIS);
-    const BREACH_INTERVAL: Duration = Duration::from_millis(FAST_WHALE_FRAME_MILLIS);
+    const SWIM_INTERVAL: Duration = Duration::from_millis(WHALE_MOVING_SLOW_ANIM_INTERVAL);
+    const BABY_SWIM_INTERVAL: Duration = Duration::from_millis(WHALE_MOVING_FAST_ANIM_INTERVAL);
+    const BREACH_INTERVAL: Duration = Duration::from_millis(WHALE_MOVING_FAST_ANIM_INTERVAL);
 
     fn swimming() -> Self {
         Self {

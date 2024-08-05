@@ -8,9 +8,11 @@ use bevy::prelude::*;
 use crate::{screen::Screen, AppSet};
 
 use super::{
-    animation::{SpriteAnimationPlayer, FAST_WHALE_FRAME_MILLIS, WHALE_FRAME_MILLIS},
+    animation::{
+        SpriteAnimationPlayer, WHALE_MOVING_FAST_ANIM_INTERVAL, WHALE_MOVING_SLOW_ANIM_INTERVAL,
+    },
     spawn::{
-        player::{InputHelp, Whale, WhaleArrivalMarker, WhaleRotation},
+        player::{InputHelp, Whale, WhaleArrivalMarker, WhaleMotionState},
         WindowSize,
     },
 };
@@ -20,6 +22,9 @@ pub const WHALE_TRAVEL_SPEED: f32 = 0.4; // magic number
 
 /// how far the whale turns when pointing left or right (in radians)
 const WHALE_TURN_SPEED: f32 = 0.03;
+
+/// how quickly the whale accelerates
+const WHALE_ACCELERATE_SPEED: f32 = 0.03;
 
 pub const WHALE_SCREEN_BUFFER_FRACTION: f32 = 0.3;
 
@@ -152,7 +157,7 @@ fn despawn_out_of_view(
 }
 
 fn move_whale(
-    mut whale_rot: ResMut<WhaleRotation>,
+    mut whale_state: ResMut<WhaleMotionState>,
     win_size: Res<WindowSize>,
     movements: Query<&MovementIntent>,
     // don't move whales that are being "moved to location" or are arriving
@@ -174,25 +179,32 @@ fn move_whale(
 
     if movement.intent.x.abs() < 0.01 {
         // if we take our hands off the keys, stop rotating
-        whale_rot.target_rotation = whale_rot.current_rotation;
+        whale_state.target_rotation = whale_state.current_rotation;
     }
 
     if movement.intent.y < 0.01 {
-        animation.set_frame_interval(FAST_WHALE_FRAME_MILLIS);
+        animation.set_frame_interval(WHALE_MOVING_FAST_ANIM_INTERVAL);
+        whale_state.target_speed = WHALE_TRAVEL_SPEED;
     } else {
-        animation.set_frame_interval(WHALE_FRAME_MILLIS);
+        animation.set_frame_interval(WHALE_MOVING_SLOW_ANIM_INTERVAL);
+        whale_state.target_speed = 0.0;
     }
 
-    whale_rot.target_rotation += WHALE_TURN_SPEED * movement.intent.x;
+    whale_state.target_rotation += WHALE_TURN_SPEED * movement.intent.x;
 
-    whale_rot.current_rotation = whale_rot
+    whale_state.current_rotation = whale_state
         .current_rotation
-        .lerp(whale_rot.target_rotation, WHALE_TURN_SPEED);
-    whale.rotation = Quat::from_axis_angle(Vec3::Z, whale_rot.current_rotation);
+        .lerp(whale_state.target_rotation, WHALE_TURN_SPEED);
+    whale.rotation = Quat::from_axis_angle(Vec3::Z, whale_state.current_rotation);
+
+    whale_state.current_speed = whale_state
+        .current_speed
+        .lerp(whale_state.target_speed, WHALE_ACCELERATE_SPEED);
 
     let forward = whale.up();
     whale.translation = win_size.clamp_to_screen_with_buffer(
-        whale.translation + forward.normalize_or_zero() * WHALE_TRAVEL_SPEED * movement.intent.y,
+        whale.translation
+            + forward.normalize_or_zero() * whale_state.current_speed * movement.intent.y,
         Val::Percent(WHALE_SCREEN_BUFFER_FRACTION * 100.),
     );
 }

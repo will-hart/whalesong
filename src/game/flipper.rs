@@ -11,7 +11,7 @@ use super::{
     spawn::{
         creature::Creature,
         encounters::EncounterTimers,
-        player::{Whale, WhaleRotation},
+        player::{Whale, WhaleMotionState},
         WindowSize,
     },
     weather::{Precipitation, Raininess, TravelDistance, WeatherState, INITIAL_TIME_OF_DAY},
@@ -166,7 +166,7 @@ fn update_flip_timer(
     mut encounters: ResMut<EncounterTimers>,
     mut raininess: ResMut<Raininess>,
     mut weather: ResMut<WeatherState>,
-    mut whale_rot: ResMut<WhaleRotation>,
+    mut whale_rot: ResMut<WhaleMotionState>,
     creatures: Query<Entity, With<Creature>>,
     rain: Query<Entity, With<Precipitation>>,
     mut whales: Query<&mut Transform, With<Whale>>,

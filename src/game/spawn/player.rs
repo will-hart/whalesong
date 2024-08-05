@@ -33,7 +33,7 @@ pub(super) fn plugin(app: &mut App) {
     );
     app.add_systems(Update, spawn_breaths.run_if(in_state(Screen::Playing)));
     app.register_type::<Whale>();
-    app.init_resource::<WhaleRotation>();
+    app.init_resource::<WhaleMotionState>();
 }
 
 #[derive(Event, Debug)]
@@ -44,9 +44,12 @@ pub struct SpawnPlayer;
 pub struct Whale;
 
 #[derive(Resource, Default)]
-pub struct WhaleRotation {
+pub struct WhaleMotionState {
     pub current_rotation: f32,
     pub target_rotation: f32,
+
+    pub current_speed: f32,
+    pub target_speed: f32,
 }
 
 /// Marks an icon or element that is to help the player

@@ -6,7 +6,7 @@ use super::Screen;
 use crate::game::{
     assets::{SfxKey, SoundtrackKey},
     audio::{sfx::PlaySfx, soundtrack::PlaySoundtrack},
-    spawn::{level::SpawnLevel, player::WhaleRotation},
+    spawn::{level::SpawnLevel, player::WhaleMotionState},
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -20,7 +20,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-fn enter_playing(mut commands: Commands, mut whale_rot: ResMut<WhaleRotation>) {
+fn enter_playing(mut commands: Commands, mut whale_rot: ResMut<WhaleMotionState>) {
     commands.trigger(SpawnLevel);
     commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Gameplay));
     commands.trigger(PlaySfx::looped(SfxKey::OceanAmbient).with_volume(0.35));

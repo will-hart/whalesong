@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use rand::Rng;
+use tiny_bail::{r, rq};
 
 use crate::{
     game::{
@@ -57,11 +58,11 @@ fn spawn_baby_on_flip(
         return;
     }
 
+    let target = r!(whales.get_single()).translation + Vec3::Y * BABY_WHALE_SPAWN_DISTANCE;
+
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(64), 8, 8, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = SpriteAnimationPlayer::baby_swimming();
-
-    let target = whales.single().translation + Vec3::Y * BABY_WHALE_SPAWN_DISTANCE;
 
     // now spawn the baby
     let entity = commands
@@ -93,11 +94,11 @@ fn baby_follows_adult_whale(
     whales: Query<&Transform, (With<Whale>, Without<BabyWhale>)>,
     mut babies: Query<(&Transform, &mut MoveWithVelocity), With<BabyWhale>>,
 ) {
-    if babies.is_empty() || whales.is_empty() {
+    if babies.is_empty() {
         return;
     }
 
-    let whale = whales.single();
+    let whale = rq!(whales.get_single());
     let target_point = whale.translation + 10. * whale.up();
 
     for (baby_tx, mut movement) in &mut babies {

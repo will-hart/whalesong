@@ -3655,6 +3655,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "tiny_bail"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58b188988b0bd734f9ff002b39db10a25f97ed4b1bec958c538bb62a07030076"
+dependencies = [
+ "tracing",
+]
+
+[[package]]
 name = "tinyvec"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3703,6 +3712,7 @@ version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
+ "log",
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
@@ -4172,6 +4182,7 @@ dependencies = [
  "rand",
  "ron",
  "serde",
+ "tiny_bail",
 ]
 
 [[package]]

@@ -4,6 +4,7 @@
 
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::{seq::SliceRandom, Rng};
+use tiny_bail::r;
 
 use super::movement::WINDOW_DESPAWN_BUFFER;
 
@@ -118,10 +119,6 @@ pub(super) fn plugin(app: &mut App) {
 
 /// Cache the size here so we have it everywhere without a song and dance
 fn update_window_size(mut size: ResMut<WindowSize>, windows: Query<&Window, With<PrimaryWindow>>) {
-    match windows.get_single() {
-        Ok(w) => size.set(w.size()),
-        Err(_) => {
-            warn!("no primary window found, skipping size update");
-        }
-    }
+    let w = r!(windows.get_single());
+    size.set(w.size());
 }

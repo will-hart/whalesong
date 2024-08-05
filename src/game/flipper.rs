@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use tiny_bail::r;
 use ui_palette::WHALE_BLUE;
 
 use crate::{
@@ -149,10 +150,9 @@ fn despawn_when_flip_complete(
     mut commands: Commands,
     uis: Query<Entity, With<UiImageFadeInOut>>,
 ) {
-    if let Ok(ui) = uis.get(trigger.entity()) {
-        info!("Despawning flip black screen");
-        commands.entity(ui).despawn_recursive();
-    }
+    let ui = r!(uis.get(trigger.entity()));
+    info!("Despawning flip black screen");
+    commands.entity(ui).despawn_recursive();
 }
 
 /// performs the actual flip. This usually happens half way through the fade out / fade in

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use rand::Rng;
+use tiny_bail::rq;
 
 use crate::{
     game::{
@@ -101,11 +102,11 @@ fn gain_curiosity(
     whales: Query<&Transform, With<Whale>>,
     birds: Query<(Entity, &Transform), (With<Bird>, Without<Curious>, Without<Incurious>)>,
 ) {
-    if birds.is_empty() || whales.is_empty() {
+    if birds.is_empty() {
         return;
     }
 
-    let whale = whales.single();
+    let whale = rq!(whales.get_single());
     let mut rng = rand::thread_rng();
     let target = Vec3::new(
         whale.translation.x + rng.gen_range(-20.0..20.0),
@@ -138,11 +139,11 @@ fn curious_birds_follow_whale(
         (With<Bird>, With<Curious>, Without<LosingCuriosity>),
     >,
 ) {
-    if birds.is_empty() || whales.is_empty() {
+    if birds.is_empty() {
         return;
     }
 
-    let whale = whales.single();
+    let whale = rq!(whales.get_single());
     let mut rng = rand::thread_rng();
 
     for (bird_tx, mut bird) in &mut birds {

@@ -17,6 +17,7 @@ ron = "0.8.1"
 
 # just vendor this in  rather than using the external repo
 bevoids = { path = "./crates/bevoids" }
+tiny_bail = "0.1.2"
 
 [features]
 default = [

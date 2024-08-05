@@ -1,6 +1,7 @@
 use bevoids::boids::BoidRepulsor;
 use bevy::prelude::*;
 use rand::Rng;
+use tiny_bail::rq;
 
 use crate::{
     game::{
@@ -70,11 +71,11 @@ fn adult_whale_gain_curiosity(
     whales: Query<&Transform, With<Whale>>,
     adults: Query<(Entity, &Transform), (With<AdultWhale>, Without<Curious>)>,
 ) {
-    if adults.is_empty() || whales.is_empty() {
+    if adults.is_empty() {
         return;
     }
 
-    let whale = whales.single();
+    let whale = rq!(whales.get_single());
     let mut rng = rand::thread_rng();
     let target = Vec3::new(
         whale.translation.x + rng.gen_range(-20.0..20.0),
@@ -106,11 +107,11 @@ fn adult_whale_follows_player_whale(
     whales: Query<&Transform, With<Whale>>,
     mut adults: Query<(&Transform, &mut MoveWithVelocity), (With<AdultWhale>, With<Curious>)>,
 ) {
-    if adults.is_empty() || whales.is_empty() {
+    if adults.is_empty() {
         return;
     }
 
-    let whale = whales.single();
+    let whale = rq!(whales.get_single());
     let target_point = whale.translation + 10. * whale.up();
 
     for (adult_tx, mut movement) in &mut adults {

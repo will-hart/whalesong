@@ -2,6 +2,7 @@ use std::ops::Range;
 
 use bevy::prelude::*;
 use rand::Rng;
+use tiny_bail::cq;
 
 use crate::{
     game::{
@@ -175,13 +176,14 @@ fn handle_rain_changed(
         for (entity, children) in &precips {
             for child in children {
                 info!("Despawning rain");
-                if let Ok(audio) = audio_children.get(*child) {
-                    info!("--> adding FadeOut component");
-                    commands.entity(entity).clear_children();
-                    commands.entity(audio).insert(FadeOut {
-                        rate_per_second: 1.,
-                    });
-                }
+
+                let audio = cq!(audio_children.get(*child));
+                info!("--> adding FadeOut component");
+
+                commands.entity(entity).remove_children(&[audio]);
+                commands.entity(audio).insert(FadeOut {
+                    rate_per_second: 1.,
+                });
             }
 
             commands.entity(entity).despawn_recursive();

@@ -1,0 +1,113 @@
+Post Jam Tasks:
+  Movement refactor:
+    ☐ add acceleration to forward speed
+    ☐ reconsider wave movement
+    ☐ add whale turning animation
+    ☐ add "go slow" or "stop" zones near POI
+    Following Movement:
+      ☐ following whales point sideways when "stopped" instead of forwards with the main whale
+  Weather:
+    ☐ wind
+    ☐ storms
+  More Encounters:
+    ☐ add more encounters
+    ☐ sharks
+    ☐ other whale types
+    ☐ other whale interactions
+  Exploration encounters:
+    ☐ islands
+    ☐ shipwrecks
+  Ambience:
+    ☐ add more music variety
+  QOL fixes:
+    ☐ ships avoid icebergs :grimace:
+    ☐ spatial audio for ships
+    ☐ icebergs have different sizes and shapes (without blurring)
+  Bugs:
+    ☐ it doesn't snow after the first northern migration
+
+Jam Tasks:
+  ✔ remove template art work and sound effects
+  ✔ spawn the whale
+  ✔ show the controls (minimal tutorial)
+  ✔ spawn starting waves
+  ✔ periodically spawn other waves
+  ✔ waves move
+  ✔ background music
+  ✔ encounter spawning system
+  whale movement:
+    ✔ turn the whale when arrow keys are pressed
+    ✔ move the waves diagonally when arrow keys pressed
+  add encounters:
+    birds:
+      ✔ bird graphics added to `creature.png`
+      ✔ bird spawner
+      ✔ birds randomly spawn every X seconds
+      ✔ if birds get close, they circle the whale
+      ✔ after a while, the birds leave
+      ✔ add a "wander in area" behaviour while following the whale
+      ✔ bird sound effects
+    schools of fish:
+      ✔ create fish sprite
+      ✔ spawn fish
+      ✔ fish boids
+      ✔ fish encounters
+      ✔ fish avoid the whale
+    ships:
+      ✔ ship sprites
+      ✔ ship wake
+      ✔ engine noise
+      ✔ ship occludes waves, fish, whale but not birds
+    other whales:
+      ✔ whalesong
+  Weather cycles:
+    ✔ day/night
+    ✔ rain
+    ✔ snow
+    ✔ icebergs
+  polish:
+    ✔ restyle the menu
+    ✔ make rotate + wave movement lerp smoothly transition between left/off/right instead of jumping immediately
+    ✔ when the whale turns there is a lot of empty space at the screen edges - no waves
+    ✔ move whale not things around the whale
+    ✔ update the credits
+    ✔ refactor whale movement to make it a bit less janky when turning
+    ✔ refactor whale following movement
+    ✔ fix baby not displaying
+    ✔ fix baby whale movement
+    ✔ fix flipped movement
+    ✔ refactor spawning rates to correspond with distance a bit better
+    ✔ snow first when travelling north
+    ✔ fix flip text
+    ✔ ship horn only sounds once
+  code "quality" lol:
+    ✔ store whale position in a resource
+  stretch goals:
+    ✔ periodically come up to breathe
+    ✔ don't allow whale rotation until the whale has fully completed its entrance animation and is positioned on the screen
+    ✔ Display player help icons after movement complete.
+    ✔ add the movement easter egg (its a secret)
+    add the cycles easter egg (its also a secret):
+      ✔ flip camera
+      ✔ flip anything that needs flipping
+      ✔ flip the controls
+      ✔ flip on a timer
+      ✔ flip text
+      add phase 1 on the northern flip:
+        ✔ make it 100% likely on flip 1
+        ✔ make it not 100% on future flips
+      ✔ add phase 2 on the southern flip (if the northern one occurs)
+  bugs:
+    ✔ starting wave animations all start at the same frame so they're all in sync
+    ✔ crash in movement when window minimised or in the background due to `windows.single()`
+    ✔ move targets aren't updated on screen resize, meaning that things just pile up on the screen edges
+  jam admin:
+    ✔ update `Cargo.toml`
+    ✔ fix CI yaml file
+    ✔ set up itch page
+    ✔ do a test release
+    ✔ work out why the itch build isn't working
+    ✔ do a "Final final v1 latest" release before the jam ends
+    ✔ deploy to itch
+    ✔ add screenshots and details to the jam page
+    ✔ test deployed version

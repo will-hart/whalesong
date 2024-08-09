@@ -4,7 +4,7 @@
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
 use bevy::prelude::*;
-use tiny_bail::r;
+use tiny_bail::{r, rq};
 
 use crate::{screen::Screen, AppSet};
 
@@ -172,7 +172,7 @@ fn move_whale(
     >,
 ) {
     let movement = r!(movements.get_single());
-    let (mut whale, mut animation) = r!(whales.get_single_mut());
+    let (mut whale, mut animation) = rq!(whales.get_single_mut());
 
     if movement.intent.x.abs() < 0.01 {
         // if we take our hands off the keys, stop rotating
